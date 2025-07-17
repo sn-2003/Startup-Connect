@@ -2,20 +2,22 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useSession } from 'next-auth/react';
 import AuthForm from '@/components/auth/auth-form';
 
 export default function LoginPage() {
-  const { user, loading } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (status === 'loading') return;
+
+    if (session) {
       router.push('/dashboard');
     }
-  }, [user, loading, router]);
+  }, [session, status, router]);
 
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -23,7 +25,7 @@ export default function LoginPage() {
     );
   }
 
-  if (user) {
+  if (session) {
     return null;
   }
 

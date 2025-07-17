@@ -8,12 +8,10 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null;
 
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -40,21 +38,6 @@ class ApiClient {
         error: error instanceof Error ? error.message : 'Network error',
       };
     }
-  }
-
-  // Auth
-  async login(email: string, password: string): Promise<ApiResponse<{ user: any; token: string }>> {
-    return this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-  }
-
-  async register(name: string, email: string, password: string): Promise<ApiResponse<{ user: any; token: string }>> {
-    return this.request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, password }),
-    });
   }
 
   // Startups

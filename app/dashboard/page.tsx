@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useSession } from 'next-auth/react';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import Overview from '@/components/dashboard/overview';
 import StartupModule from '@/components/dashboard/startup-module';
@@ -17,7 +17,7 @@ import DiscoverStartups from '@/components/dashboard/discover-startups';
 import { useSearchParams } from 'next/navigation';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,7 +32,7 @@ export default function DashboardPage() {
     'incubators',
     'saved-jobs',
     'applications',
-    'discover', // Add discover tab
+    'discover',
   ];
 
   // Get tab from query param, fallback to 'overview' if not valid
@@ -42,12 +42,14 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (status === 'loading') return;
+
+    if (!session) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [session, status, router]);
 
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -55,7 +57,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!session) {
     return null;
   }
 

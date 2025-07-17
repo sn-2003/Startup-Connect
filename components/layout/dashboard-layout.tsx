@@ -2,15 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/lib/auth-context';
 import { 
   Home, 
   Building2, 
@@ -43,21 +44,16 @@ const sidebarItems = [
   { id: 'resources', label: 'Resources', icon: BookOpen },
   { id: 'investors', label: 'Investors', icon: Users },
   { id: 'incubators', label: 'Incubators', icon: Rocket },
-  { id: 'discover', label: 'Discover Startups', icon: Search }, // Add discover tab
+  { id: 'discover', label: 'Discover Startups', icon: Search },
 ];
 
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
-
-  const handleStartupsDiscovery = () => {
-    router.push('/startups');
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
   };
 
   return (
@@ -141,6 +137,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.image || undefined} />
                       <AvatarFallback>
                         {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
