@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hashPassword } from '@/lib/auth';
+import { hashPassword, generateToken } from '@/lib/auth';
 import { registerSchema } from '@/lib/validations';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
-    // Validate input
-    const validatedData = registerSchema.parse(body);
-    const { name, email, password } = validatedData;
+    const { name, email, password } = registerSchema.parse(body);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -35,26 +32,27 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Return success (don't include password)
+    // Generate token
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
+
+    // Return user data (without password) and token
     const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({
-      success: true,
-      user: userWithoutPassword,
+      data: {
+        user: userWithoutPassword,
+        token,
+      },
     });
   } catch (error) {
     console.error('Registration error:', error);
-    
-    if (error instanceof Error && error.name === 'ZodError') {
-      return NextResponse.json(
-        { error: 'Invalid input data' },
-        { status: 400 }
-      );
-    }
-    
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Invalid request data' },
+      { status: 400 }
     );
   }
 }
