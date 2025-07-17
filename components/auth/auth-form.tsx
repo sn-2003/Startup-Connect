@@ -15,6 +15,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Rocket } from 'lucide-react';
 import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+
 
 export default function AuthForm() {
   const [loading, setLoading] = useState(false);
@@ -90,28 +92,33 @@ export default function AuthForm() {
       {/* Left Content Panel */}
       <div className="flex-1 flex flex-col justify-center p-12">
         <div className="max-w-md mx-auto">
-          <div className="flex items-center mb-8">
-            <Rocket className="h-10 w-10 text-blue-600 mr-3" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">StartupConnect</h1>
-              <p className="text-gray-600 text-sm">Professional Network</p>
-            </div>
-          </div>
+          <div className="flex items-center gap-1 mb-3">
+  <Image
+    src="/logo.png"
+    alt="StartupConnect Logo"
+    width={80}
+    height={80}
+  />
+  <div>
+    <h1 className="text-2xl font-bold text-gray-900">StartupConnect</h1>
+    <p className="text-gray-600 text-sm">The Startup Professional Network</p>
+  </div>
+</div>
+
+
 
           <div className="mb-8">
             <div className="flex items-center text-yellow-600 mb-4">
-              <span className="text-sm">⭐ Trusted by 50,000+ professionals</span>
+              <span className="text-sm">⭐ Be a part of growing network</span>
             </div>
 
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Your Gateway to the
-              <br />
-              Startup Ecosystem
+            <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              Unlock Your Startup<br />Career Potential
             </h2>
 
-            <p className="text-gray-600 mb-8">
-              Connect with innovative startups, discover exciting opportunities,
-              and accelerate your career in the most dynamic companies.
+            <p className="text-gray-600 mb-8 text-base">
+              Join a vibrant network of forward-thinkers, founders, and innovators.
+              Discover startups, apply for jobs, and explore resources to grow your career or venture
             </p>
           </div>
 
@@ -119,50 +126,20 @@ export default function AuthForm() {
             <FeatureItem
               iconBg="bg-blue-100"
               iconColor="text-blue-600"
-              title="Connect with Startups"
-              description="Discover exciting opportunities at innovative companies"
+              title="Hire Top Talent"
+              description="Easily post jobs and connect with skilled professionals ready to build with you"
             />
             <FeatureItem
               iconBg="bg-teal-100"
               iconColor="text-teal-600"
-              title="Accelerate Growth"
-              description="Fast-track your career with startup experience"
-              icon={
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                  />
-                </svg>
-              }
+              title="Discover Startup Jobs"
+              description="Find roles that match your passion at fast-growing and impactful companies"
             />
             <FeatureItem
               iconBg="bg-purple-100"
               iconColor="text-purple-600"
-              title="Premium Network"
-              description="Connect with top entrepreneurs and professionals"
-              icon={
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              }
+              title="Explore Ventures & Resources"
+              description="Browse startup profiles, tools, and curated guides to level up your journey"
             />
           </div>
         </div>
@@ -201,6 +178,7 @@ export default function AuthForm() {
                         type="email"
                         required
                         placeholder="Enter your email"
+                        className="focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-shadow duration-300"
                       />
                     </div>
                     <div className="space-y-2">
@@ -211,9 +189,14 @@ export default function AuthForm() {
                         type="password"
                         required
                         placeholder="Enter your password"
+                        className="focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-shadow duration-300"
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button
+                      type="submit"
+                      className="w-full hover:shadow-lg hover:shadow-blue-400/40 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
+                      disabled={loading}
+                    >
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {loading ? 'Signing in...' : 'Sign In'}
                     </Button>
@@ -230,6 +213,7 @@ export default function AuthForm() {
                         type="text"
                         required
                         placeholder="Enter your full name"
+                        className="focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-shadow duration-300"
                       />
                     </div>
                     <div className="space-y-2">
@@ -240,6 +224,7 @@ export default function AuthForm() {
                         type="email"
                         required
                         placeholder="Enter your email"
+                        className="focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-shadow duration-300"
                       />
                     </div>
                     <div className="space-y-2">
@@ -250,9 +235,14 @@ export default function AuthForm() {
                         type="password"
                         required
                         placeholder="Create a password"
+                        className="focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-shadow duration-300"
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button
+                      type="submit"
+                      className="w-full hover:shadow-lg hover:shadow-blue-400/40 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
+                      disabled={loading}
+                    >
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {loading ? 'Creating account...' : 'Create Account'}
                     </Button>
