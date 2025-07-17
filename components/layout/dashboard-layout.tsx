@@ -77,12 +77,11 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
         lg:translate-x-0
       `}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <Rocket className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">StartupConnect</span>
-          </div>
+          <div className="flex items-center">
+  <img src="/logo.png" alt="StartupConnect Logo" className="h-14 w-14 object-contain -mb-1" />
+  <span className="text-xl font-bold text-gray-900">StartupConnect</span>
+</div>
+
           <Button
             variant="ghost"
             size="sm"
