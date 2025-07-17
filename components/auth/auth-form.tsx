@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2, Rocket } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 
 export default function AuthForm() {
   const [loading, setLoading] = useState(false);
@@ -25,11 +26,19 @@ export default function AuthForm() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const success = await login(email, password);
-    if (success) {
-      router.push('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    try {
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+      if (res?.ok) {
+        router.push('/dashboard');
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
     }
     setLoading(false);
   };
@@ -44,11 +53,31 @@ export default function AuthForm() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const success = await register(name, email, password);
-    if (success) {
-      router.push('/dashboard');
-    } else {
-      setError('Registration failed');
+    try {
+      // Call your registration API
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      if (response.ok) {
+        // After successful registration, log in with credentials
+        const res = await signIn('credentials', {
+          redirect: false,
+          email,
+          password,
+        });
+        if (res?.ok) {
+          router.push('/dashboard');
+        } else {
+          setError('Login after registration failed.');
+        }
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Registration failed.');
+      }
+    } catch (err) {
+      setError('Registration failed. Please try again.');
     }
     setLoading(false);
   };
@@ -92,7 +121,6 @@ export default function AuthForm() {
                       type="email"
                       placeholder="Enter your email"
                       required
-                      defaultValue="john@example.com"
                     />
                   </div>
                   <div className="space-y-2">
@@ -103,7 +131,6 @@ export default function AuthForm() {
                       type="password"
                       placeholder="Enter your password"
                       required
-                      defaultValue="password123"
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
@@ -111,6 +138,7 @@ export default function AuthForm() {
                     {loading ? 'Signing in...' : 'Sign In'}
                   </Button>
                 </form>
+                {/* OAuth buttons hidden for now */}
               </TabsContent>
 
               <TabsContent value="register">
@@ -153,7 +181,7 @@ export default function AuthForm() {
               </TabsContent>
 
               <div className="mt-6 text-center text-sm text-gray-600">
-                <p>Demo credentials: john@example.com / password123</p>
+                {/* Demo credentials removed for production */}
               </div>
             </CardContent>
           </Tabs>

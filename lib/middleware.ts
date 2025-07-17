@@ -1,29 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from './auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth-options';
 
 export function withAuth(handler: Function) {
   return async (req: NextRequest, ...args: any[]) => {
     try {
-      const token = req.headers.get('authorization')?.replace('Bearer ', '');
-      
-      if (!token) {
+      // Use NextAuth's getServerSession to check authentication
+      const session = await getServerSession(authOptions);
+      if (!session || !session.user) {
         return NextResponse.json(
           { error: 'Authentication required' },
           { status: 401 }
         );
       }
-
-      const payload = verifyToken(token);
-      if (!payload) {
-        return NextResponse.json(
-          { error: 'Invalid or expired token' },
-          { status: 401 }
-        );
-      }
-
-      // Add user to request
-      (req as any).user = payload;
-      
+      // Attach user to request for downstream handlers
+      (req as any).user = session.user;
       return handler(req, ...args);
     } catch (error) {
       return NextResponse.json(
