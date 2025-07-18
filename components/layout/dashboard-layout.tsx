@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/use-auth';
+import Image from 'next/image';
 import { 
   Home, 
   Building2, 
@@ -78,7 +79,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
       `}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center">
-  <img src="/logo.png" alt="StartupConnect Logo" className="h-14 w-14 object-contain -mb-1" />
+  <Image src="/logo.png" alt="StartupConnect Logo" width={56} height={56} className="h-14 w-14 object-contain -mb-1" priority />
   <span className="text-xl font-bold text-gray-900">StartupConnect</span>
 </div>
 

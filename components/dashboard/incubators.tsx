@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface Incubator {
   id: string;
@@ -146,7 +147,7 @@ const Incubators: React.FC = () => {
             {paginated.map((incubator) => (
               <div key={incubator.id} className="bg-white rounded-lg shadow p-6 flex flex-col transition hover:shadow-lg">
                 {incubator.logo && (
-                  <img src={incubator.logo} alt={incubator.name} className="h-16 w-16 object-cover rounded mb-4 self-center" />
+                  <Image src={incubator.logo} alt={incubator.name} width={64} height={64} className="h-16 w-16 object-cover rounded mb-4 self-center" />
                 )}
                 <h3 className="text-lg font-semibold mb-2 text-center">{incubator.name}</h3>
                 <div className="text-sm text-gray-600 mb-2 text-center">{incubator.location}</div>

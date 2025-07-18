@@ -43,7 +43,11 @@ export async function GET() {
       applications: job.applications.length,
     }));
 
-    return NextResponse.json({ data: transformedJobs });
+    return NextResponse.json({ data: transformedJobs }, {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=60'
+      }
+    });
   } catch (error) {
     return handleApiError(error);
   }

@@ -4,7 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: { 
-    unoptimized: true,
+    unoptimized: false, // Enable Next.js image optimization
     domains: ['images.pexels.com']
   },
   typescript: {
@@ -13,6 +13,7 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
+  swcMinify: true, // Enable SWC minification for production builds
 };
 
 module.exports = nextConfig;

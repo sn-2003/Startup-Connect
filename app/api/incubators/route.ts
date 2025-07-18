@@ -6,7 +6,11 @@ export async function GET() {
     const incubators = await prisma.incubator.findMany({
       orderBy: { name: 'asc' },
     });
-    return NextResponse.json({ incubators });
+    return NextResponse.json({ incubators }, {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=60'
+      }
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch incubators.' }, { status: 500 });
   }

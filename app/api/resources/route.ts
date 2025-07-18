@@ -11,7 +11,11 @@ export async function GET() {
       ],
     });
 
-    return NextResponse.json({ data: resources });
+    return NextResponse.json({ data: resources }, {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=60'
+      }
+    });
   } catch (error) {
     return handleApiError(error);
   }
