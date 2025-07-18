@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Set your production domain here
-const ALLOWED_ORIGIN = 'https://startup-connect-omega.vercel.app'; // <-- CHANGE THIS TO YOUR DOMAIN
+const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN || 'http://localhost:3000';
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -15,7 +14,7 @@ export function middleware(request: NextRequest) {
     [
       "default-src 'self'",
       "img-src 'self' data: https://images.pexels.com",
-      "script-src 'self' 'unsafe-inline'", // 'unsafe-eval' REMOVED for production
+      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "connect-src 'self'",
