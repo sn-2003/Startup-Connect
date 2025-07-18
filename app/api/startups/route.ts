@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth, handleApiError } from '@/lib/middleware';
+import { withAuth, handleApiError, rateLimit } from '@/lib/middleware';
 import { startupSchema } from '@/lib/validations';
 
 export async function GET() {
@@ -46,6 +46,10 @@ export async function GET() {
 }
 
 export const POST = withAuth(async (req: NextRequest) => {
+  // Rate limit startup creation
+  const rateLimitResult = await rateLimit(req);
+  if (rateLimitResult) return rateLimitResult;
+
   try {
     const body = await req.json();
     const data = startupSchema.parse(body);
