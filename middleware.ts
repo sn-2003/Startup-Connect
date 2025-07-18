@@ -6,6 +6,7 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // --- Security Headers ---
+  const isLocalhost = request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1';
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -14,7 +15,7 @@ export function middleware(request: NextRequest) {
     [
       "default-src 'self'",
       "img-src 'self' data: https://images.pexels.com",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${isLocalhost ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "connect-src 'self'",
@@ -33,7 +34,6 @@ export function middleware(request: NextRequest) {
   }
 
   // --- HTTPS Enforcement ---
-  const isLocalhost = request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1';
   if (
     !isLocalhost &&
     request.nextUrl.protocol === 'http:' &&
