@@ -5,7 +5,7 @@ const nextConfig = {
   },
   images: { 
     unoptimized: false, // Enable Next.js image optimization
-    domains: ['images.pexels.com']
+    domains: ['images.pexels.com','cdn.prod.website-files.com']
   },
   typescript: {
     ignoreBuildErrors: false,

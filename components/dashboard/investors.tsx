@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { apiClient } from '@/lib/api-client';
 import { Investor } from '@/lib/types';
@@ -24,6 +24,7 @@ export default function Investors() {
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
   const [requestedIntros, setRequestedIntros] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   useEffect(() => {
     const loadInvestors = async () => {
@@ -81,14 +82,6 @@ export default function Investors() {
     (currentPage - 1) * INVESTORS_PER_PAGE,
     currentPage * INVESTORS_PER_PAGE
   );
-
-  const handleRequestIntro = (investorId: string) => {
-    setRequestedIntros(prev => new Set([...prev, investorId]));
-  };
-
-  const hasRequestedIntro = (investorId: string) => {
-    return requestedIntros.has(investorId);
-  };
 
   if (loading) {
     return (
@@ -175,184 +168,200 @@ export default function Investors() {
       {/* Investor Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginatedInvestors.map((investor) => (
-          <Card key={investor.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={investor.imageUrl || ''} alt={investor.name} />
-                  <AvatarFallback>
-                    {investor.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-lg">{investor.name}</CardTitle>
-                  <p className="text-sm text-gray-600">{investor.firm}</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 line-clamp-3">
-                  {investor.description}
-                </p>
-
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Building2 className="h-4 w-4 mr-2" />
-                    <span>Preferred Stages</span>
+          <Dialog key={investor.id} open={selectedInvestor?.id === investor.id} onOpenChange={(open) => { if (!open) setSelectedInvestor(null); }}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedInvestor(investor)}>
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center h-12 w-12 bg-gray-100 rounded-full overflow-hidden">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={investor.imageUrl || ''} alt={investor.name} className="object-contain h-full w-full" />
+                      <AvatarFallback>
+                        {investor.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {investor.preferredStage.map((stage) => (
-                      <Badge key={stage} variant="secondary" className="text-xs">
-                        {stage}
-                      </Badge>
-                    ))}
+                  <div>
+                    <CardTitle className="text-lg">{investor.name}</CardTitle>
+                    <p className="text-sm text-gray-600">{investor.firm}</p>
                   </div>
                 </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 line-clamp-3">
+                    {investor.description}
+                  </p>
 
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Users className="h-4 w-4 mr-2" />
-                    <span>Sectors</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      <span>Preferred Stages</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {investor.preferredStage.map((stage) => (
+                        <Badge key={stage} variant="secondary" className="text-xs">
+                          {stage}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {investor.sectors.slice(0, 3).map((sector) => (
-                      <Badge key={sector} variant="outline" className="text-xs">
-                        {sector}
-                      </Badge>
-                    ))}
-                    {investor.sectors.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{investor.sectors.length - 3} more
-                      </Badge>
-                    )}
+
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Users className="h-4 w-4 mr-2" />
+                      <span>Sectors</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {investor.sectors.slice(0, 3).map((sector) => (
+                        <Badge key={sector} variant="outline" className="text-xs">
+                          {sector}
+                        </Badge>
+                      ))}
+                      {investor.sectors.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{investor.sectors.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 pt-2">
+                    <Button size="sm" className="bg-black text-white hover:bg-gray-900" onClick={(e) => { e.stopPropagation(); setSelectedInvestor(investor); }}>
+                      View Profile
+                    </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+            <DialogContent className="max-w-2xl">
+              <DialogClose asChild>
+                <Button className="absolute right-4 top-4 bg-black text-white hover:bg-gray-900 px-4 py-2 z-10" onClick={() => setSelectedInvestor(null)}>
+                  Close
+                </Button>
+              </DialogClose>
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center h-12 w-12 bg-gray-100 rounded-full overflow-hidden cursor-pointer" onClick={() => setShowImageModal(true)}>
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={selectedInvestor?.imageUrl || ''} alt={selectedInvestor?.name || ''} className="object-contain h-full w-full" />
+                      <AvatarFallback>
+                        {selectedInvestor?.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div>
+                    <span>{selectedInvestor?.name}</span>
+                    <p className="text-sm text-gray-600 font-normal">{selectedInvestor?.firm}</p>
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+              {selectedInvestor && (
+                <div className="space-y-6">
+                  <p className="text-gray-600">{selectedInvestor.description}</p>
 
-                <div className="flex items-center space-x-2 pt-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedInvestor(investor)}>
-                        View Profile
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center space-x-3">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={selectedInvestor?.imageUrl || ''} alt={selectedInvestor?.name} />
-                            <AvatarFallback>
-                              {selectedInvestor?.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <span>{selectedInvestor?.name}</span>
-                            <p className="text-sm text-gray-600 font-normal">{selectedInvestor?.firm}</p>
-                          </div>
-                        </DialogTitle>
-                      </DialogHeader>
-                      {selectedInvestor && (
-                        <div className="space-y-6">
-                          <p className="text-gray-600">{selectedInvestor.description}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="font-semibold mb-2">Preferred Stages</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedInvestor.preferredStage.map((stage) => (
+                          <Badge key={stage} variant="secondary">
+                            {stage}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <h3 className="font-semibold mb-2">Preferred Stages</h3>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedInvestor.preferredStage.map((stage) => (
-                                  <Badge key={stage} variant="secondary">
-                                    {stage}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">Focus Sectors</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedInvestor.sectors.map((sector) => (
+                          <Badge key={sector} variant="outline">
+                            {sector}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
 
-                            <div>
-                              <h3 className="font-semibold mb-2">Focus Sectors</h3>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedInvestor.sectors.map((sector) => (
-                                  <Badge key={sector} variant="outline">
-                                    {sector}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">Geography</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedInvestor.geography.map((geo) => (
+                          <Badge key={geo} variant="outline">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {geo}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
 
-                            <div>
-                              <h3 className="font-semibold mb-2">Geography</h3>
-                              <div className="flex flex-wrap gap-2">
-                                {selectedInvestor.geography.map((geo) => (
-                                  <Badge key={geo} variant="outline">
-                                    <MapPin className="h-3 w-3 mr-1" />
-                                    {geo}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
+                    
+                  </div>
 
-                            <div>
-                              <h3 className="font-semibold mb-2">Portfolio Companies</h3>
-                              <div className="space-y-1">
-                                {selectedInvestor.portfolio.map((company) => (
-                                  <p key={company} className="text-sm text-gray-600">• {company}</p>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-3 pt-4 border-t">
+                  <div className="flex items-center space-x-3 pt-4 border-t">
+                    {selectedInvestor.email && (() => {
+                      const email = selectedInvestor.email;
+                      if (email.startsWith('http')) {
+                        if (email.includes('twitter.com') || email.includes('x.com')) {
+                          return (
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => window.open(`mailto:${selectedInvestor.email}`, '_blank')}
+                              onClick={() => window.open(email, '_blank')}
                             >
-                              <Mail className="mr-2 h-4 w-4" />
-                              Email
+                              <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 5.924c-.793.352-1.645.59-2.54.698a4.48 4.48 0 0 0 1.965-2.475 8.94 8.94 0 0 1-2.828 1.082A4.48 4.48 0 0 0 16.11 4c-2.48 0-4.49 2.01-4.49 4.49 0 .352.04.695.116 1.022C7.728 9.37 4.1 7.6 1.67 4.905c-.386.664-.607 1.437-.607 2.26 0 1.56.795 2.936 2.005 3.744a4.48 4.48 0 0 1-2.034-.563v.057c0 2.18 1.55 4.002 3.604 4.417-.377.103-.775.158-1.186.158-.29 0-.57-.028-.844-.08.57 1.78 2.23 3.08 4.2 3.12A8.98 8.98 0 0 1 2 19.54a12.67 12.67 0 0 0 6.86 2.01c8.23 0 12.74-6.82 12.74-12.74 0-.19-.004-.38-.013-.57A9.1 9.1 0 0 0 24 4.59a8.93 8.93 0 0 1-2.54.698z"/></svg>
+                              Twitter
                             </Button>
-                            {selectedInvestor.linkedin && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
+                          );
+                        } else {
+                          return (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(email, '_blank')}
+                            >
+                              <ExternalLink className="mr-2 h-4 w-4" />
+                              Website
+                            </Button>
+                          );
+                        }
+                      } else {
+                        return (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`mailto:${email}`, '_blank')}
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            Email
+                          </Button>
+                        );
+                      }
+                    })()}
+                    {selectedInvestor.linkedin && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
   if (selectedInvestor?.linkedin) {
     window.open(selectedInvestor.linkedin, '_blank');
   }
 }}
-                              >
-                                <Linkedin className="mr-2 h-4 w-4" />
-                                LinkedIn
-                              </Button>
-                            )}
-                            {hasRequestedIntro(selectedInvestor.id) ? (
-                              <Button disabled className="bg-green-600">
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Intro Requested
-                              </Button>
-                            ) : (
-                              <Button onClick={() => handleRequestIntro(selectedInvestor.id)}>
-                                Request Introduction
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </DialogContent>
-                  </Dialog>
-
-                  {hasRequestedIntro(investor.id) ? (
-                    <Button disabled size="sm" className="bg-green-600">
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                      Requested
-                    </Button>
-                  ) : (
-                    <Button size="sm" onClick={() => handleRequestIntro(investor.id)}>
-                      Request Intro
-                    </Button>
+                      >
+                        <Linkedin className="mr-2 h-4 w-4" />
+                        LinkedIn
+                      </Button>
+                    )}
+                  </div>
+                  {/* Image Modal */}
+                  {showImageModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowImageModal(false)}>
+                      <img src={selectedInvestor?.imageUrl || ''} alt={selectedInvestor?.name || ''} className="max-h-[80vh] max-w-[90vw] rounded-lg shadow-lg" />
+                    </div>
                   )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              )}
+            </DialogContent>
+          </Dialog>
         ))}
       </div>
 

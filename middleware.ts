@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('Content-Security-Policy',
     [
       "default-src 'self'",
-      "img-src 'self' data: https://images.pexels.com",
+      "img-src 'self' data: https://images.pexels.com https://cdn.prod.website-files.com",
       `script-src 'self' 'unsafe-inline'${isLocalhost ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",

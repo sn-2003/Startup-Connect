@@ -170,13 +170,11 @@ const Incubators: React.FC = () => {
                   )}
                 </div>
                 <div className="mt-auto flex gap-3 justify-center">
-                  {incubator.website && (
-                    <a href={incubator.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline font-medium">Website</a>
-                  )}
-                  {incubator.applyLink && (
-                    <a href={incubator.applyLink} target="_blank" rel="noopener noreferrer" className="text-green-700 hover:underline font-medium">Apply</a>
-                  )}
-                </div>
+  {incubator.website && (
+    <a href={incubator.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline font-medium">Website</a>
+  )}
+</div>
+
               </div>
             ))}
           </div>
