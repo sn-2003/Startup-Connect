@@ -126,14 +126,14 @@ export default function AuthForm() {
             <FeatureItem
               iconBg="bg-blue-100"
               iconColor="text-blue-600"
-              title="Hire Top Talent"
-              description="Easily post jobs and connect with skilled professionals ready to build with you"
+              title="Discover top talent"
+              description="Easily post or find jobs at the most talented job pool in the startup ecosystem"
             />
             <FeatureItem
               iconBg="bg-teal-100"
               iconColor="text-teal-600"
-              title="Discover Startup Jobs"
-              description="Find roles that match your passion at fast-growing and impactful companies"
+              title="Meet Founders & Innovators"
+              description="With more than 150+ testified investors connect with the right people to grow your network"
             />
             <FeatureItem
               iconBg="bg-purple-100"

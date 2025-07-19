@@ -381,7 +381,7 @@ export default function StartupModule() {
                       name="founded"
                       type="number"
                       min="1900"
-                      max="2024"
+                      max="2026"
                       defaultValue={editingStartup?.founded || ''}
                       placeholder="2023"
                     />
@@ -392,7 +392,7 @@ export default function StartupModule() {
                       id="location"
                       name="location"
                       defaultValue={editingStartup?.location || ''}
-                      placeholder="San Francisco, CA"
+                      placeholder="Delhi, India"
                     />
                   </div>
                   <div className="space-y-2">
@@ -435,16 +435,6 @@ export default function StartupModule() {
                       type="url"
                       defaultValue={editingStartup?.website || ''}
                       placeholder="https://yourcompany.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="logo">Logo URL</Label>
-                    <Input
-                      id="logo"
-                      name="logo"
-                      type="url"
-                      defaultValue={editingStartup?.logo || ''}
-                      placeholder="https://example.com/logo.png"
                     />
                   </div>
                 </div>

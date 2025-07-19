@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
- // Create demo users
+/*  Create demo users
   const hashedPassword = await hashPassword('password123');
   
   const user1 = await prisma.user.upsert({
@@ -29,7 +29,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Created demo users');/* 
+  console.log('✅ Created demo users');
 
   // Create demo startups
   const startup1 = await prisma.startup.create({
