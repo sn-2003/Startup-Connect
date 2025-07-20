@@ -287,16 +287,13 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-indigo-100 text-indigo-700 border-indigo-200">
-              👥 Our Team
+              👤 Founder
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
-              Meet the{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Innovators
-              </span>
+              Meet the <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Founder</span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              {sanitizeText("Our diverse team brings together decades of experience in technology, finance, and entrepreneurship to build the future of startup connectivity.")}
+              StartupConnect is built and maintained by a passionate founder dedicated to empowering the next generation of entrepreneurs.
             </p>
           </div>
 
@@ -305,7 +302,7 @@ export default function AboutPage() {
               {
                 name: "S Nikhil ",
                 role: "Founder & CEO",
-                bio: "Passionate tech enthusiast and developer building the future of startup connectivity. Founder of the SN Technologies and dedicated to empowering the next generation of innovators.",
+                bio: "Passionate tech enthusiast and developer building the future of startup connectivity. Founder of the SN Technologies and dedicated to helping the next generation of innovators.",
                 expertise: ["Full-Stack Development", "Product Strategy", "Startup Ecosystem"],
                 photo: "/nikhil-photo.jpg"
               }
