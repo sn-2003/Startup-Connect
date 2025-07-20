@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Rocket } from 'lucide-react';
+import { Loader2, Rocket, ArrowLeft } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 
@@ -89,6 +89,16 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Back to Landing Button */}
+      <Button
+        variant="ghost"
+        onClick={() => router.push('/landing')}
+        className="absolute top-4 left-4 flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Back to Landing</span>
+      </Button>
+      
       {/* Left Content Panel */}
       <div className="flex-1 flex flex-col justify-center p-12">
         <div className="max-w-md mx-auto">

@@ -25,7 +25,8 @@ import {
   Rocket,
   Search,
   Bookmark,
-  Send
+  Send,
+  Info
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -126,38 +127,52 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
       <div className="lg:ml-64">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+  <div className="flex items-center justify-between">
+    {/* Left side: Mobile menu and user avatar */}
+    <div className="flex items-center space-x-4">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="lg:hidden"
+        onClick={() => setSidebarOpen(true)}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
 
-            <div className="flex items-center space-x-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="hidden sm:inline">{user?.name}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <span className="hidden sm:inline">{user?.name}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+
+    {/* Right side: About Us button */}
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => router.push('/about')}
+      className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
+
+    >
+      <Info className="h-4 w-4" />
+      <span className="hidden sm:inline">About Us</span>
+    </Button>
+  </div>
+</header>
+
 
         {/* Page content */}
         <main className="p-6">
