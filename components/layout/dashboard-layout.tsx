@@ -36,16 +36,14 @@ interface DashboardLayoutProps {
 }
 
 const sidebarItems = [
-  { id: 'overview', label: 'Overview', icon: Home },
-  { id: 'startup', label: 'My Startups', icon: Building2 },
+  // Removed 'overview' and 'startup' from sidebar
   { id: 'jobs', label: 'Job Board', icon: Briefcase },
   { id: 'saved-jobs', label: 'Saved Jobs', icon: Bookmark },
-  { id: 'applications', label: 'My Applications', icon: Send },
   { id: 'resume', label: 'My Resume', icon: FileText },
   { id: 'resources', label: 'Resources', icon: BookOpen },
   { id: 'investors', label: 'Investors', icon: Users },
   { id: 'incubators', label: 'Incubators', icon: Rocket },
-  { id: 'discover', label: 'Discover Startups', icon: Search }, // Add discover tab
+  { id: 'discover', label: 'Discover Startups', icon: Search },
 ];
 
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
@@ -159,17 +157,45 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
       </DropdownMenu>
     </div>
 
-    {/* Right side: About Us button */}
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => router.push('/about')}
-      className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
-
-    >
-      <Info className="h-4 w-4" />
-      <span className="hidden sm:inline">About Us</span>
-    </Button>
+    {/* Right side: Home (Overview), My Startups, My Applications, About Us buttons */}
+    <div className="flex items-center space-x-2">
+      <Button
+        variant={activeTab === 'overview' ? 'secondary' : 'ghost'}
+        size="sm"
+        onClick={() => onTabChange('overview')}
+        className="flex items-center"
+        aria-label="Overview"
+      >
+        <Home className="h-5 w-5" />
+      </Button>
+      <Button
+        variant={activeTab === 'startup' ? 'secondary' : 'ghost'}
+        size="sm"
+        onClick={() => onTabChange('startup')}
+        className="flex items-center space-x-2"
+      >
+        <Building2 className="h-4 w-4" />
+        <span className="hidden sm:inline">My Startups</span>
+      </Button>
+      <Button
+        variant={activeTab === 'applications' ? 'secondary' : 'ghost'}
+        size="sm"
+        onClick={() => onTabChange('applications')}
+        className="flex items-center space-x-2"
+      >
+        <Send className="h-4 w-4" />
+        <span className="hidden sm:inline">My Applications</span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push('/about')}
+        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
+      >
+        <Info className="h-4 w-4" />
+        <span className="hidden sm:inline">About Us</span>
+      </Button>
+    </div>
   </div>
 </header>
 
