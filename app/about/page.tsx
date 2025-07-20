@@ -300,32 +300,27 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-8 max-w-2xl mx-auto">
             {[
               {
-                name: "Sarah Chen",
-                role: "CEO & Co-Founder",
-                bio: "Former VP at Stripe, led multiple successful exits. Passionate about democratizing access to capital.",
-                expertise: ["Product Strategy", "Team Building", "Scaling"]
-              },
-              {
-                name: "Marcus Rodriguez",
-                role: "CTO & Co-Founder",
-                bio: "Ex-Google engineer with 15+ years building scalable platforms. Expert in AI and machine learning.",
-                expertise: ["Technical Architecture", "AI/ML", "Security"]
-              },
-              {
-                name: "Dr. Emily Watson",
-                role: "Head of Product",
-                bio: "PhD in Human-Computer Interaction. Previously led product at Airbnb and Uber.",
-                expertise: ["UX Design", "User Research", "Growth"]
+                name: "S Nikhil ",
+                role: "Founder & CEO",
+                bio: "Passionate tech enthusiast and developer building the future of startup connectivity. Founder of the SN Technologies and dedicated to empowering the next generation of innovators.",
+                expertise: ["Full-Stack Development", "Product Strategy", "Startup Ecosystem"],
+                photo: "/nikhil-photo.jpg"
               }
             ].map((member, index) => (
               <div key={index} className="group cursor-pointer transform transition-all duration-500 hover:scale-105">
                 <Card className="h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-500 group-hover:bg-white dark:group-hover:bg-slate-900">
                   <CardHeader>
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:rotate-12 transition-transform duration-300">
-                      <Users className="w-10 h-10 text-white" />
+                    <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 group-hover:scale-105 transition-transform duration-300">
+                      <Image 
+                        src={member.photo} 
+                        alt={`${member.name} photo`} 
+                        width={96} 
+                        height={96} 
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <CardTitle className="text-xl font-bold text-slate-900 dark:text-white text-center">
                       {sanitizeText(member.name)}
@@ -338,7 +333,7 @@ export default function AboutPage() {
                     <p className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
                       {sanitizeText(member.bio)}
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-2 mb-6">
                       {member.expertise.map((skill, idx) => (
                         <div key={idx} className="flex items-center space-x-2">
                           <Star className="w-3 h-3 text-yellow-500 flex-shrink-0" />
@@ -347,6 +342,33 @@ export default function AboutPage() {
                           </span>
                         </div>
                       ))}
+                    </div>
+                    {/* Social Media Links */}
+                    <div className="flex justify-center space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      <a 
+                        href="https://www.linkedin.com/in/s-nikhil03" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                      >
+                        <Linkedin className="w-4 h-4 text-white" />
+                      </a>
+                      <a 
+                        href="https://x.com/PartEngineer_03" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                      >
+                        <Twitter className="w-4 h-4 text-white" />
+                      </a>
+                      <a 
+                        href="https://www.instagram.com/nikhil.s.03" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-colors"
+                      >
+                        <Instagram className="w-4 h-4 text-white" />
+                      </a>
                     </div>
                   </CardContent>
                 </Card>
