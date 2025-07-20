@@ -22,7 +22,7 @@ export default function Home() {
                               document.cookie.includes('__Secure-next-auth.session-token');
       
       // Check for localStorage (backup method)
-      const hasLocalStorage = localStorage.getItem('startupconnect-visited') === 'true';
+      const hasLocalStorage = localStorage.getItem('StartupGram-visited') === 'true';
       
       const visitedBefore = hasLocalStorage;
       setHasVisitedBefore(visitedBefore);
@@ -35,7 +35,7 @@ export default function Home() {
         router.push('/login');
       } else {
         // First-time visitor OR user who visited but never authenticated, show landing page
-        localStorage.setItem('startupconnect-visited', 'true');
+        localStorage.setItem('StartupGram-visited', 'true');
         router.push('/landing');
       }
     }

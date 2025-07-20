@@ -97,9 +97,9 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Image src="/logo.png" alt="StartupConnect Logo" width={32} height={32} className="h-8 w-8 object-contain" />
+              <Image src="/logo.png" alt="StartupGram Logo" width={34} height={34} className="h-8 w-8 object-contain" />
               <span className="font-bold text-xl text-slate-900 dark:text-white">
-                StartupConnect
+                StartupGram
               </span>
             </div>
 
@@ -122,7 +122,7 @@ export default function AboutPage() {
             className={`text-center transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
             <Badge className="mb-6 bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors">
-              🚀 About StartupConnect
+              🚀 About StartupGram
             </Badge>
 
             <h1 className="text-5xl md:text-7xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
@@ -293,7 +293,7 @@ export default function AboutPage() {
               Meet the <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Founder</span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              StartupConnect is built and maintained by a passionate founder dedicated to empowering the next generation of entrepreneurs.
+              StartupGram is built and maintained by a passionate founder dedicated to empowering the next generation of entrepreneurs.
             </p>
           </div>
 
@@ -302,7 +302,7 @@ export default function AboutPage() {
               {
                 name: "S Nikhil ",
                 role: "Founder & CEO",
-                bio: "Passionate tech enthusiast and developer building the future of startup connectivity. Founder of the SN Technologies and dedicated to helping the next generation of innovators.",
+                bio: "Passionate tech enthusiast and developer building the future of StartupGramivity. Founder of the SN Technologies and dedicated to helping the next generation of innovators.",
                 expertise: ["Full-Stack Development", "Product Strategy", "Startup Ecosystem"],
                 photo: "/nikhil-photo.jpg"
               }
@@ -432,15 +432,15 @@ export default function AboutPage() {
             {/* Brand Section */}
             <div className="md:col-span-1">
               <div className="flex items-center space-x-2 mb-4">
-                <Image src="/logo.png" alt="StartupConnect Logo" width={32} height={32} className="h-8 w-8 object-contain" />
-                <span className="font-bold text-xl">StartupConnect</span>
+                <Image src="/logo.png" alt="StartupGram Logo" width={48} height={48} className="h-12 w-12 object-contain" />
+                <span className="font-bold text-xl">StartupGram</span>
               </div>
               <p className="text-slate-400 mb-6 leading-relaxed">
                 {sanitizeText("Empowering the next generation of entrepreneurs to build, scale, and succeed.")}
               </p>
               <div className="flex space-x-4">
                 <a 
-                  href="https://www.linkedin.com/in/s-nikhil03" 
+                  href="https://linkedin.com/company/startupgram" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors cursor-pointer"
@@ -456,7 +456,7 @@ export default function AboutPage() {
                   <Twitter className="w-5 h-5" />
                 </a>
                 <a 
-                  href="https://www.instagram.com/nikhil.s.03" 
+                  href="https://www.instagram.com/startupgram.ai?igsh=ZTFxeWN3MGV0dTBv" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors cursor-pointer"
@@ -568,7 +568,7 @@ export default function AboutPage() {
           <div className="border-t border-slate-700 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-slate-500 mb-4 md:mb-0">
-                © 2025 StartupConnect. All rights reserved.
+                © 2025 StartupGram. All rights reserved.
               </p>
               <div className="flex space-x-6 text-sm">
                 <a href="#" className="text-slate-400 hover:text-white transition-colors">

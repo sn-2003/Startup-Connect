@@ -105,12 +105,12 @@ export default function AuthForm() {
           <div className="flex items-center gap-1 mb-3">
   <Image
     src="/logo.png"
-    alt="StartupConnect Logo"
-    width={80}
-    height={80}
+    alt="StartupGram Logo"
+    width={50}
+    height={50}
   />
   <div>
-    <h1 className="text-2xl font-bold text-gray-900">StartupConnect</h1>
+    <h1 className="text-2xl font-bold text-gray-900">StartupGram</h1>
     <p className="text-gray-600 text-sm">The Startup Professional Network</p>
   </div>
 </div>

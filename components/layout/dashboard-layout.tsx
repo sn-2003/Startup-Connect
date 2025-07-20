@@ -78,8 +78,8 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
       `}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center">
-  <Image src="/logo.png" alt="StartupConnect Logo" width={56} height={56} className="h-14 w-14 object-contain -mb-1" priority />
-  <span className="text-xl font-bold text-gray-900">StartupConnect</span>
+  <Image src="/logo.png" alt="StartupGram Logo" width={50} height={50} className="h-18 w-18 object-contain -mb-1" priority />
+  <span className="text-2xl font-bold text-gray-900">StartupGram</span>
 </div>
 
           <Button
