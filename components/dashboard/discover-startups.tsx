@@ -115,7 +115,15 @@ function DiscoverStartups() {
         if (startupsRes.success && startupsRes.data) {
           setStartups(startupsRes.data);
         }
-        // Optionally update userVotes if needed, but only after backend confirms
+        // Update userVotes based on backend response
+        const updatedVote = response.data?.vote || null;
+        const newUserVotes = new Map(userVotes);
+        if (updatedVote) {
+          newUserVotes.set(startupId, updatedVote);
+        } else {
+          newUserVotes.delete(startupId);
+        }
+        setUserVotes(newUserVotes);
       }
     } catch (error) {
       console.error('Error voting:', error);

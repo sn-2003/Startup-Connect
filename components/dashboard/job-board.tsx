@@ -126,9 +126,10 @@ export default function JobBoard() {
       const response = await apiClient.applyToJob(jobId, customAnswers);
       if (response.success && response.data) {
         setApplications([...applications, response.data]);
-        setSelectedJob(null);
+        setSelectedJob(null); // Close dialog/modal
         setCustomAnswers([]);
         setShowApplicationForm(false);
+        // TODO: Show a success toast/message here
       }
     } catch (error) {
       console.error('Error applying to job:', error);

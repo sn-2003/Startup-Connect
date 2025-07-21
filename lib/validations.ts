@@ -25,7 +25,7 @@ export const startupSchema = z.object({
   funding: z.string().optional(),
   website: z.string().url().optional().or(z.literal('')),
   industry: z.string().min(1, 'Industry is required'),
-  logo: z.string().url().optional().or(z.literal('')),
+  logo: z.string().nullable().optional(),
 });
 
 // Job validations

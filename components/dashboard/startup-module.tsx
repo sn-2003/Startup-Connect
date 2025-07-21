@@ -296,7 +296,7 @@ export default function StartupModule() {
                           </Button>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{startup.description}</p>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">{startup.description}</p>
                       <div className="flex items-center space-x-2">
                         <Badge variant="secondary">{startup.stage}</Badge>
                         <Badge variant="outline">{startup.industry}</Badge>
