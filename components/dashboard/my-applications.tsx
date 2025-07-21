@@ -294,7 +294,7 @@ export default function MyApplications() {
                                     <div>
                                       <h3 className="font-semibold mb-2">Compensation</h3>
                                       <p className="text-gray-600">
-                                        ${selectedJob.salaryMin.toLocaleString()} - ${selectedJob.salaryMax.toLocaleString()} per year
+                                        Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
                                       </p>
                                     </div>
                                   )}

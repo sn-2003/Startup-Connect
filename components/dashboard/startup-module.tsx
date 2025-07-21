@@ -9,12 +9,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { Startup, JobWithStartup, CustomQuestion } from '@/lib/types';
 import ApplicantList from './applicant-list';
-import { Building2, Plus, MapPin, Users, TrendingUp, Edit, Trash2, Eye, Briefcase, X, Save, UserCheck } from 'lucide-react';
+import { Building2, Plus, MapPin, Users, TrendingUp, Edit, Trash2, Eye, Briefcase, X, Save, UserCheck, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
@@ -32,6 +32,9 @@ export default function StartupModule() {
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState<JobWithStartup | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  // Add state for delete confirmation
+  const [confirmDelete, setConfirmDelete] = useState<{ type: 'startup' | 'job', id: string } | null>(null);
+  const [previewJob, setPreviewJob] = useState<JobWithStartup | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -350,7 +353,7 @@ export default function StartupModule() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteStartup(startup.id);
+                              setConfirmDelete({ type: 'startup', id: startup.id });
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -881,7 +884,7 @@ export default function StartupModule() {
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button variant="outline" size="sm">
+                              <Button variant="outline" size="sm" onClick={() => setPreviewJob(job)}>
                                 <Eye className="h-4 w-4" />
                               </Button>
                               <Dialog>
@@ -909,7 +912,7 @@ export default function StartupModule() {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => handleDeleteJob(job.id)}
+                                onClick={() => setConfirmDelete({ type: 'job', id: job.id })}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -995,6 +998,92 @@ export default function StartupModule() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={!!confirmDelete} onOpenChange={open => { if (!open) setConfirmDelete(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              {confirmDelete?.type === 'startup'
+                ? 'This will permanently delete the startup and all its jobs.'
+                : 'This will permanently delete the job posting.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (confirmDelete?.type === 'startup') {
+                  await handleDeleteStartup(confirmDelete.id);
+                } else if (confirmDelete?.type === 'job') {
+                  await handleDeleteJob(confirmDelete.id);
+                }
+                setConfirmDelete(null);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Job Preview Dialog */}
+      <Dialog open={!!previewJob} onOpenChange={open => { if (!open) setPreviewJob(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={previewJob?.startup?.logo || undefined} alt={previewJob?.startup?.name || ''} />
+                <AvatarFallback>
+                  <Building2 className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
+              <span>{previewJob?.title}</span>
+            </DialogTitle>
+            <DialogDescription>
+              {previewJob?.startup?.name} • {previewJob?.location}
+            </DialogDescription>
+          </DialogHeader>
+          {previewJob && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={previewJob.remote ? 'default' : 'secondary'}>
+                  {previewJob.remote ? 'Remote' : 'On-site'}
+                </Badge>
+                <Badge variant="outline">{previewJob.type}</Badge>
+                <Badge variant="outline">{previewJob.experienceLevel}</Badge>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Job Description</h3>
+                <p className="text-gray-600 whitespace-pre-line">{previewJob.description}</p>
+              </div>
+              {previewJob.requirements && previewJob.requirements.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-2">Requirements</h3>
+                  <ul className="space-y-1">
+                    {previewJob.requirements.map((req, idx) => (
+                      <li key={idx} className="flex items-start space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-600">{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {previewJob.salaryMin && previewJob.salaryMax && (
+                <div>
+                  <h3 className="font-semibold mb-2">Compensation</h3>
+                  <p className="text-gray-600">
+                    ${previewJob.salaryMin.toLocaleString()} - ${previewJob.salaryMax.toLocaleString()} per year
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

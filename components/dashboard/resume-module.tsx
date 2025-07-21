@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { ResumeWithRelations, Experience, Education, CustomSection } from '@/lib/types';
 import { FileText, Plus, Edit, Trash2, User, Briefcase, GraduationCap, Award, X, Save } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 export default function ResumeModule() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ export default function ResumeModule() {
   const [activeTab, setActiveTab] = useState('profile');
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState<{ type: 'experience' | 'education' | 'custom', id: string } | null>(null);
 
   useEffect(() => {
     const loadResume = async () => {
@@ -493,7 +495,7 @@ export default function ResumeModule() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => removeExperience(exp.id)}
+                        onClick={() => setConfirmRemove({ type: 'experience', id: exp.id })}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -596,7 +598,7 @@ export default function ResumeModule() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => removeEducation(edu.id)}
+                        onClick={() => setConfirmRemove({ type: 'education', id: edu.id })}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -670,7 +672,7 @@ export default function ResumeModule() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeCustomSection(section.id)}
+                            onClick={() => setConfirmRemove({ type: 'custom', id: section.id })}
                             className="text-red-600 hover:text-red-700"
                           >
                             <X className="h-4 w-4" />
@@ -831,6 +833,30 @@ export default function ResumeModule() {
           </Card>
         </TabsContent>
       </Tabs>
+      <Dialog open={!!confirmRemove} onOpenChange={open => { if (!open) setConfirmRemove(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This will permanently remove this item from your resume.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmRemove(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (confirmRemove?.type === 'experience') removeExperience(confirmRemove.id);
+                if (confirmRemove?.type === 'education') removeEducation(confirmRemove.id);
+                if (confirmRemove?.type === 'custom') removeCustomSection(confirmRemove.id);
+                setConfirmRemove(null);
+              }}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -313,7 +313,7 @@ export default function JobBoard() {
                     {job.salaryMin && job.salaryMax && (
                       <span className="flex items-center">
                         <DollarSign className="h-4 w-4 mr-1" />
-                        ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
+                        Rs.{job.salaryMin.toLocaleString()} - Rs.{job.salaryMax.toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -415,7 +415,7 @@ export default function JobBoard() {
                               <div>
                                 <h3 className="font-semibold mb-2">Compensation</h3>
                                 <p className="text-gray-600">
-                                  ${selectedJob.salaryMin.toLocaleString()} - ${selectedJob.salaryMax.toLocaleString()} per year
+                                  Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
                                 </p>
                               </div>
                             )}

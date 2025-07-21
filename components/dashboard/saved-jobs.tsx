@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { JobWithStartup, Application, CustomAnswerInput } from '@/lib/types';
@@ -25,6 +25,7 @@ export default function SavedJobs() {
   const [selectedJob, setSelectedJob] = useState<JobWithStartup | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [customAnswers, setCustomAnswers] = useState<CustomAnswerInput[]>([]);
+  const [confirmUnsave, setConfirmUnsave] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSavedJobs = async () => {
@@ -195,7 +196,7 @@ export default function SavedJobs() {
                       {job.salaryMin && job.salaryMax && (
                         <span className="flex items-center">
                           <DollarSign className="h-4 w-4 mr-1" />
-                          ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
+                          Rs.{job.salaryMin.toLocaleString()} - Rs.{job.salaryMax.toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -280,7 +281,7 @@ export default function SavedJobs() {
                                 <div>
                                   <h3 className="font-semibold mb-2">Compensation</h3>
                                   <p className="text-gray-600">
-                                    ${selectedJob.salaryMin.toLocaleString()} - ${selectedJob.salaryMax.toLocaleString()} per year
+                                    Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
                                   </p>
                                 </div>
                               )}
@@ -499,7 +500,7 @@ export default function SavedJobs() {
 
                       <Button
                         variant="destructive"
-                        onClick={() => handleUnsaveJob(job.id)}
+                        onClick={() => setConfirmUnsave(job.id)}
                         disabled={unsaving === job.id}
                         className="flex items-center space-x-2"
                       >
@@ -514,6 +515,30 @@ export default function SavedJobs() {
           ))}
         </div>
       )}
+      <Dialog open={!!confirmUnsave} onOpenChange={open => { if (!open) setConfirmUnsave(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This will remove the job from your saved jobs.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmUnsave(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (confirmUnsave) {
+                  await handleUnsaveJob(confirmUnsave);
+                }
+                setConfirmUnsave(null);
+              }}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
