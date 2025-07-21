@@ -75,6 +75,10 @@ export default function Overview({ onTabChange }: OverviewProps) {
     };
 
     loadOverviewData();
+    const interval = setInterval(() => {
+      loadOverviewData();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const getStatusColor = (status: string) => {

@@ -51,6 +51,10 @@ export default function SavedJobs() {
     };
 
     loadSavedJobs();
+    const interval = setInterval(() => {
+      loadSavedJobs();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const handleUnsaveJob = async (jobId: string) => {

@@ -79,6 +79,10 @@ function DiscoverStartups() {
     };
 
     loadData();
+    const interval = setInterval(() => {
+      loadData();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [user]);
 
   useEffect(() => {

@@ -58,8 +58,11 @@ export default function Resources() {
         setLoading(false);
       }
     };
-
     loadResources();
+    const interval = setInterval(() => {
+      loadResources();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

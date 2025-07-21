@@ -66,6 +66,13 @@ export default function JobBoard() {
     };
 
     loadData();
+
+    // Auto-refresh every 2 minutes
+    const interval = setInterval(() => {
+      loadData();
+    }, 2 * 60 * 1000); // 2 minutes
+
+    return () => clearInterval(interval);
   }, [user]);
 
   useEffect(() => {

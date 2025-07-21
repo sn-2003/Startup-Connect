@@ -42,6 +42,10 @@ export default function ResumeModule() {
     };
 
     loadResume();
+    const interval = setInterval(() => {
+      loadResume();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

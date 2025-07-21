@@ -29,12 +29,21 @@ const Incubators: React.FC = () => {
   const PAGE_SIZE = 6;
 
   useEffect(() => {
-    fetch('/api/incubators')
-      .then((res) => res.json())
-      .then((data) => {
+    const loadIncubators = async () => {
+      try {
+        const response = await fetch('/api/incubators');
+        const data = await response.json();
         setIncubators(data.incubators || []);
         setLoading(false);
-      });
+      } catch (error) {
+        setLoading(false);
+      }
+    };
+    loadIncubators();
+    const interval = setInterval(() => {
+      loadIncubators();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const allLocations = getUnique(incubators.map(i => i.location));

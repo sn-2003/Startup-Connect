@@ -45,6 +45,10 @@ export default function MyApplications() {
     };
 
     loadApplications();
+    const interval = setInterval(() => {
+      loadApplications();
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const getJobDetails = (jobId: string): JobWithStartup | undefined => {
