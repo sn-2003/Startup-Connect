@@ -14,11 +14,11 @@ export function middleware(request: NextRequest) {
   // Enhanced CSP for better security
   const cspDirectives = [
     "default-src 'self'",
-    "img-src 'self' data: https://images.pexels.com https://cdn.prod.website-files.com",
+    "img-src 'self' data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co",
     `script-src 'self' 'unsafe-inline'${isLocalhost ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object",
     "frame-ancestors 'self'",
     "object-src 'none'",
     "base-uri 'self'",

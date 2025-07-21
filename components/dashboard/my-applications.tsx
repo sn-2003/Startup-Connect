@@ -125,9 +125,12 @@ export default function MyApplications() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                          <Building2 className="h-5 w-5 text-blue-600" />
-                        </div>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={application.job?.startup?.logo || undefined} alt={application.job?.startup?.name || 'Company Name'} />
+                          <AvatarFallback>
+                            <Building2 className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
                           <h3 className="text-xl font-semibold">{application.job?.title || 'Job Title'}</h3>
                           <p className="text-gray-600">{application.job?.startup?.name || 'Company Name'}</p>
@@ -236,7 +239,12 @@ export default function MyApplications() {
                             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle className="flex items-center space-x-2">
-                                  <Building2 className="h-5 w-5" />
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={selectedJob?.startup?.logo || undefined} alt={selectedJob?.startup?.name || selectedJob?.startupName} />
+                                    <AvatarFallback>
+                                      <Building2 className="h-5 w-5" />
+                                    </AvatarFallback>
+                                  </Avatar>
                                   <span>{selectedJob?.title}</span>
                                 </DialogTitle>
                                 <DialogDescription>

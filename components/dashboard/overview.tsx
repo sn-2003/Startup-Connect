@@ -253,7 +253,12 @@ export default function Overview({ onTabChange }: OverviewProps) {
                 {applications.slice(0, 3).map((application) => (
                   <div key={application.id} className="flex items-center space-x-3 p-3 border rounded-lg">
                     <div className="bg-blue-100 p-2 rounded">
-                      <Briefcase className="h-4 w-4 text-blue-600" />
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={application.job?.startup?.logo || undefined} alt={application.job?.startup?.name || 'Company'} />
+                        <AvatarFallback>
+                          <Building2 className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-sm truncate">{application.job?.title || 'Job Title'}</h4>
@@ -381,7 +386,12 @@ export default function Overview({ onTabChange }: OverviewProps) {
               {jobs.map((job) => (
                 <div key={job.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="bg-blue-100 p-2 rounded-lg">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={job.startup?.logo || undefined} alt={job.startup?.name || job.startupName} />
+                      <AvatarFallback>
+                        <Building2 className="h-5 w-5" />
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-sm">{job.title}</h4>
@@ -432,9 +442,12 @@ export default function Overview({ onTabChange }: OverviewProps) {
               {startups.map((startup) => (
                 <div key={startup.id} className="border rounded-lg p-4">
                   <div className="flex items-center space-x-3 mb-3">
-                    <div className="bg-purple-100 p-2 rounded-lg">
-                      <Building2 className="h-5 w-5 text-purple-600" />
-                    </div>
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={startup.logo || undefined} alt={startup.name} />
+                      <AvatarFallback>
+                        <Building2 className="h-5 w-5" />
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
                       <h4 className="font-semibold">{startup.name}</h4>
                       <p className="text-sm text-gray-600">{startup.industry}</p>

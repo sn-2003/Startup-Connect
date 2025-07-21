@@ -15,6 +15,8 @@ import { apiClient } from '@/lib/api-client';
 import { Startup, JobWithStartup, CustomQuestion } from '@/lib/types';
 import ApplicantList from './applicant-list';
 import { Building2, Plus, MapPin, Users, TrendingUp, Edit, Trash2, Eye, Briefcase, X, Save, UserCheck } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function StartupModule() {
   const { user } = useAuth();
@@ -28,6 +30,8 @@ export default function StartupModule() {
   const [editingJob, setEditingJob] = useState<JobWithStartup | null>(null);
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([]);
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState<JobWithStartup | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -73,6 +77,16 @@ export default function StartupModule() {
     loadJobs();
   }, [selectedStartup]);
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setLogoFile(file);
+    if (file) {
+      setLogoPreview(URL.createObjectURL(file));
+    } else {
+      setLogoPreview(null);
+    }
+  };
+
   const handleStartupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
@@ -80,6 +94,25 @@ export default function StartupModule() {
     setSaving(true);
     const formData = new FormData(e.currentTarget);
     
+    let logoUrl = editingStartup?.logo || '';
+    // If a new logo file is selected, upload it to Supabase
+    if (logoFile) {
+      const fileExt = logoFile.name.split('.').pop();
+      const fileName = `startup-${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('logos').upload(fileName, logoFile, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+      if (error) {
+        console.error('Error uploading logo:', error);
+        setSaving(false);
+        return;
+      }
+      // Get public URL
+      const { data: publicUrlData } = supabase.storage.from('logos').getPublicUrl(fileName);
+      logoUrl = publicUrlData.publicUrl;
+    }
+
     const startupData = {
       name: formData.get('name') as string,
       domain: formData.get('domain') as string,
@@ -91,7 +124,7 @@ export default function StartupModule() {
       funding: formData.get('funding') as string,
       website: formData.get('website') as string,
       industry: formData.get('industry') as string,
-      logo: formData.get('logo') as string,
+      logo: logoUrl,
       xUrl: formData.get('xUrl') as string,
       instagramUrl: formData.get('instagramUrl') as string,
       linkedinUrl: formData.get('linkedinUrl') as string,
@@ -117,6 +150,8 @@ export default function StartupModule() {
         }
       }
       (e.target as HTMLFormElement).reset();
+      setLogoFile(null);
+      setLogoPreview(null);
     } catch (error) {
       console.error('Error saving startup:', error);
     } finally {
@@ -274,30 +309,14 @@ export default function StartupModule() {
                       }`}
                       onClick={() => setSelectedStartup(startup)}
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={startup.logo || undefined} alt={startup.name} />
+                          <AvatarFallback>
+                            <Building2 className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
                         <h3 className="font-semibold">{startup.name}</h3>
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingStartup(startup);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteStartup(startup.id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </div>
                       <p className="text-sm text-gray-600 mb-3 line-clamp-3">{startup.description}</p>
                       <div className="flex items-center space-x-2">
@@ -440,6 +459,21 @@ export default function StartupModule() {
                       placeholder="https://yourcompany.com"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="logo">Logo</Label>
+                    <Input
+                      id="logo"
+                      name="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                    />
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo Preview" className="h-16 mt-2 rounded" />
+                    ) : editingStartup?.logo ? (
+                      <img src={editingStartup.logo} alt="Current Logo" className="h-16 mt-2 rounded" />
+                    ) : null}
+                  </div>
                 </div>
                 {/* Social Media Links */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -544,7 +578,15 @@ export default function StartupModule() {
                     <SelectContent>
                       {startups.map((startup) => (
                         <SelectItem key={startup.id} value={startup.id}>
-                          {startup.name} ({startup.industry})
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={startup.logo || undefined} alt={startup.name} />
+                              <AvatarFallback>
+                                <Building2 className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>{startup.name} ({startup.industry})</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
