@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { JobWithStartup, Application, CustomAnswerInput } from '@/lib/types';
 import { Bookmark, Building2, MapPin, Clock, DollarSign, Users, CheckCircle, BookmarkX, Send } from 'lucide-react';
+import { SocialIcons } from './social-icons';
 
 export default function SavedJobs() {
   const { user } = useAuth();
@@ -235,7 +236,13 @@ export default function SavedJobs() {
                                 <Badge variant="outline">{selectedJob.type}</Badge>
                                 <Badge variant="outline">{selectedJob.experienceLevel}</Badge>
                               </div>
-
+                              {/* Social Media Icons for Startup */}
+                              <SocialIcons
+                                xUrl={selectedJob.startup?.xUrl}
+                                instagramUrl={selectedJob.startup?.instagramUrl}
+                                linkedinUrl={selectedJob.startup?.linkedinUrl}
+                                className="my-2"
+                              />
                               <div>
                                 <h3 className="font-semibold mb-2">Job Description</h3>
                                 <p className="text-gray-600 whitespace-pre-line">

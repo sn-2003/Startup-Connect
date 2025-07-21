@@ -18,6 +18,9 @@ export const GET = withAuth(async (req: NextRequest) => {
                 id: true,
                 name: true,
                 logo: true,
+                linkedinUrl: true,
+                instagramUrl: true,
+                xUrl: true,
               },
             },
             customQuestions: {

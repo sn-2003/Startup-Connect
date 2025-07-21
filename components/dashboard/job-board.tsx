@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { JobWithStartup, Application, CustomAnswerInput } from '@/lib/types';
-import { Search, MapPin, Building2, Clock, DollarSign, Users, CheckCircle, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Search, MapPin, Building2, Clock, DollarSign, Users, CheckCircle, Bookmark, BookmarkCheck, Linkedin } from 'lucide-react';
+import { SocialIcons } from './social-icons';
 
 export default function JobBoard() {
   const { user } = useAuth();
@@ -351,12 +352,35 @@ export default function JobBoard() {
                               <Badge variant="outline">{selectedJob.experienceLevel}</Badge>
                             </div>
 
+                            {/* Social Media Icons for Startup */}
+                            <SocialIcons
+                              xUrl={selectedJob.startup?.xUrl}
+                              instagramUrl={selectedJob.startup?.instagramUrl}
+                              linkedinUrl={selectedJob.startup?.linkedinUrl}
+                              className="my-2"
+                            />
+
                             <div>
                               <h3 className="font-semibold mb-2">Job Description</h3>
                               <p className="text-gray-600 whitespace-pre-line">
                                 {selectedJob.description}
                               </p>
                             </div>
+
+                            {/* LinkedIn URL for Startup */}
+                            {selectedJob.startup?.linkedinUrl && (
+                              <div>
+                                <a
+                                  href={selectedJob.startup.linkedinUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                                  title="View on LinkedIn"
+                                >
+                                  <Linkedin className="h-5 w-5" />
+                                </a>
+                              </div>
+                            )}
 
                             {selectedJob.requirements.length > 0 && (
                               <div>

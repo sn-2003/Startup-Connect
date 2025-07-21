@@ -92,6 +92,9 @@ export default function StartupModule() {
       website: formData.get('website') as string,
       industry: formData.get('industry') as string,
       logo: formData.get('logo') as string,
+      xUrl: formData.get('xUrl') as string,
+      instagramUrl: formData.get('instagramUrl') as string,
+      linkedinUrl: formData.get('linkedinUrl') as string,
     };
 
     try {
@@ -435,6 +438,39 @@ export default function StartupModule() {
                       type="url"
                       defaultValue={editingStartup?.website || ''}
                       placeholder="https://yourcompany.com"
+                    />
+                  </div>
+                </div>
+                {/* Social Media Links */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="xUrl">X (Twitter) URL</Label>
+                    <Input
+                      id="xUrl"
+                      name="xUrl"
+                      type="url"
+                      defaultValue={editingStartup?.xUrl || ''}
+                      placeholder="https://x.com/yourstartup"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagramUrl">Instagram URL</Label>
+                    <Input
+                      id="instagramUrl"
+                      name="instagramUrl"
+                      type="url"
+                      defaultValue={editingStartup?.instagramUrl || ''}
+                      placeholder="https://instagram.com/yourstartup"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+                    <Input
+                      id="linkedinUrl"
+                      name="linkedinUrl"
+                      type="url"
+                      defaultValue={editingStartup?.linkedinUrl || ''}
+                      placeholder="https://linkedin.com/company/yourstartup"
                     />
                   </div>
                 </div>

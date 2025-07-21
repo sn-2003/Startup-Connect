@@ -22,8 +22,10 @@ import {
   ExternalLink,
   Briefcase,
   Calendar,
-  Send
+  Send,
+  Linkedin, Instagram
 } from 'lucide-react';
+import { SocialIcons } from './social-icons';
 
 function DiscoverStartups() {
   const { user } = useAuth();
@@ -357,6 +359,13 @@ function DiscoverStartups() {
                                 <div>
                                   <span>{selectedStartup?.name}</span>
                                   <p className="text-sm text-gray-600 font-normal">{selectedStartup?.industry}</p>
+                                  {/* Social Media Icons for Startup */}
+                                  <SocialIcons
+                                    xUrl={selectedStartup?.xUrl}
+                                    instagramUrl={selectedStartup?.instagramUrl}
+                                    linkedinUrl={selectedStartup?.linkedinUrl}
+                                    className="mt-2"
+                                  />
                                 </div>
                               </DialogTitle>
                               <DialogDescription>
