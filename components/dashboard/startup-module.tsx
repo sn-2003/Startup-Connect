@@ -99,13 +99,26 @@ export default function StartupModule() {
     const formData = new FormData(e.currentTarget);
     
     let logoUrl = editingStartup?.logo || '';
-    // If a new logo file is selected, upload it to Supabase
+    // If a new logo file is selected, delete the old logo and upload the new one to Supabase
     if (logoFile) {
+      let oldLogoPath = '';
+      if (editingStartup?.logo && editingStartup.logo.includes('supabase.co/storage/v1/object/public/logos/')) {
+        // Extract the path after /logos/
+        const match = editingStartup.logo.match(/logos\/(.*)$/);
+        if (match && match[1]) {
+          oldLogoPath = match[1];
+        }
+      }
+      // Use a consistent file name per startup
       const fileExt = logoFile.name.split('.').pop();
-      const fileName = `startup-${Date.now()}.${fileExt}`;
+      const fileName = `startup-${editingStartup?.id || Date.now()}.${fileExt}`;
+      // Delete old logo if it exists and is different from the new file name
+      if (oldLogoPath && oldLogoPath !== fileName) {
+        await supabase.storage.from('logos').remove([oldLogoPath]);
+      }
       const { data, error } = await supabase.storage.from('logos').upload(fileName, logoFile, {
         cacheControl: '3600',
-        upsert: false,
+        upsert: true,
       });
       if (error) {
         console.error('Error uploading logo:', error);
@@ -320,7 +333,29 @@ export default function StartupModule() {
                             <Building2 className="h-5 w-5" />
                           </AvatarFallback>
                         </Avatar>
-                        <h3 className="font-semibold">{startup.name}</h3>
+                        <h3 className="font-semibold flex-1">{startup.name}</h3>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingStartup(startup);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteStartup(startup.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-sm text-gray-600 mb-3 line-clamp-3">{startup.description}</p>
                       <div className="flex items-center space-x-2">
