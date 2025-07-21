@@ -39,6 +39,7 @@ model User {
   savedJobs     SavedJob[]
   startupVotes  StartupVote[]
   startupFeedback StartupFeedback[]
+  chatMessages  ChatMessage[]
 
   @@map("users")
 }
@@ -291,6 +292,15 @@ model Resource {
   updatedAt   DateTime     @updatedAt
 
   @@map("resources")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  sender    String   // 'user' or 'ai'
+  text      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 // Enums

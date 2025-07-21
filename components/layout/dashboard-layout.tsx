@@ -28,6 +28,7 @@ import {
   Send,
   Info
 } from 'lucide-react';
+import AiMentorChat from '@/components/ui/ai-mentor-chat';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -62,6 +63,8 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* AI Mentor Chat Widget */}
+      <AiMentorChat />
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
