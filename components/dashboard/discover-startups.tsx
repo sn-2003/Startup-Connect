@@ -39,6 +39,7 @@ function DiscoverStartups() {
   const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null);
   const [newFeedback, setNewFeedback] = useState('');
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [voting, setVoting] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -104,8 +105,8 @@ function DiscoverStartups() {
   }, [startups, searchTerm, stageFilter, industryFilter]);
 
   const handleVote = async (startupId: string, type: 'UPVOTE' | 'DOWNVOTE') => {
-    if (!user) return;
-
+    if (!user || voting) return;
+    setVoting(startupId + '-' + type);
     try {
       const response = await apiClient.voteStartup(startupId, type);
       if (response.success) {
@@ -113,25 +114,13 @@ function DiscoverStartups() {
         const startupsRes = await apiClient.getStartups();
         if (startupsRes.success && startupsRes.data) {
           setStartups(startupsRes.data);
-          setFilteredStartups(startupsRes.data.filter(s => 
-            filteredStartups.some(fs => fs.id === s.id)
-          ));
         }
-
-        // Update user votes
-        const newUserVotes = new Map(userVotes);
-        newUserVotes.set(startupId, {
-          id: Date.now().toString(),
-          userId: user.id,
-          startupId,
-          type,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-        setUserVotes(newUserVotes);
+        // Optionally update userVotes if needed, but only after backend confirms
       }
     } catch (error) {
       console.error('Error voting:', error);
+    } finally {
+      setVoting(null);
     }
   };
 
@@ -319,7 +308,7 @@ function DiscoverStartups() {
                           variant={userVote?.type === 'UPVOTE' ? 'default' : 'outline'}
                           size="sm"
                           onClick={() => handleVote(startup.id, 'UPVOTE')}
-                          disabled={!user}
+                          disabled={!user || voting !== null}
                           className="flex items-center space-x-1"
                         >
                           <ThumbsUp className="h-4 w-4" />
@@ -329,7 +318,7 @@ function DiscoverStartups() {
                           variant={userVote?.type === 'DOWNVOTE' ? 'destructive' : 'outline'}
                           size="sm"
                           onClick={() => handleVote(startup.id, 'DOWNVOTE')}
-                          disabled={!user}
+                          disabled={!user || voting !== null}
                           className="flex items-center space-x-1"
                         >
                           <ThumbsDown className="h-4 w-4" />
@@ -426,7 +415,7 @@ function DiscoverStartups() {
                                     <Button
                                       variant={userVote?.type === 'UPVOTE' ? 'default' : 'outline'}
                                       onClick={() => handleVote(selectedStartup.id, 'UPVOTE')}
-                                      disabled={!user}
+                                      disabled={!user || voting !== null}
                                       className="flex items-center space-x-2"
                                     >
                                       <ThumbsUp className="h-4 w-4" />
@@ -435,7 +424,7 @@ function DiscoverStartups() {
                                     <Button
                                       variant={userVote?.type === 'DOWNVOTE' ? 'destructive' : 'outline'}
                                       onClick={() => handleVote(selectedStartup.id, 'DOWNVOTE')}
-                                      disabled={!user}
+                                      disabled={!user || voting !== null}
                                       className="flex items-center space-x-2"
                                     >
                                       <ThumbsDown className="h-4 w-4" />

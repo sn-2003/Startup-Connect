@@ -26,6 +26,36 @@ export default function AiMentorChat() {
   const aiTypingAnswerRef = useRef('');
   const aiTypingRef = useRef(false);
 
+  // Load chat history on chat open
+  useEffect(() => {
+    if (open && messages.length === 0 && user) {
+      setSuggestionLoading(true);
+      // Fetch chat history
+      fetch('/api/ai-mentor/history', { method: 'GET' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && Array.isArray(data.messages) && data.messages.length > 0) {
+            setMessages(data.messages.map((m: any) => ({ sender: m.sender, text: m.text })));
+            setSuggestions([]);
+          } else {
+            // If no history, fetch suggestions
+            fetch('/api/ai-mentor/suggestions', { method: 'GET' })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success && Array.isArray(data.suggestions)) {
+                  setSuggestions(data.suggestions);
+                }
+              })
+              .finally(() => setSuggestionLoading(false));
+          }
+          if (data.success && Array.isArray(data.messages) && data.messages.length > 0) {
+            setSuggestionLoading(false);
+          }
+        })
+        .catch(() => setSuggestionLoading(false));
+    }
+  }, [open, messages.length, user]);
+
   // Fetch proactive suggestions when chat opens
   useEffect(() => {
     if (open && messages.length === 0 && user) {

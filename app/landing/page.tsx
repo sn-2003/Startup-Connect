@@ -34,6 +34,7 @@ import {
   Mail,
   Phone,
   MessageCircle,
+  Sparkles,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -202,6 +203,9 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
                 Success
               </span>
+              <span className="block text-lg md:text-2xl font-semibold text-blue-700 mt-4">
+                Now with your own AI mentor, Nova, for personalized startup guidance!
+              </span>
             </h1>
 
             <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-4xl mx-auto leading-relaxed">
@@ -227,6 +231,29 @@ export default function LandingPage() {
               >
                 Explore Features
                 <ChevronDown className="ml-2 w-5 h-5 animate-bounce" />
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    // Try to open the chat widget if present
+                    const chatBtn = document.querySelector('[aria-label="Open AI Mentor Chat"]');
+                    if (chatBtn) {
+                      (chatBtn as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    } else {
+                      // Fallback: redirect to dashboard or login
+                      const isLoggedIn = !!window.localStorage.getItem('nextauth.session-token') || !!window.localStorage.getItem('__Secure-next-auth.session-token');
+                      if (isLoggedIn) {
+                        router.push('/dashboard');
+                      } else {
+                        router.push('/login');
+                      }
+                    }
+                  }
+                }}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <Sparkles className="mr-2 w-5 h-5" /> Try Nova
               </Button>
             </div>
 
@@ -333,17 +360,17 @@ export default function LandingPage() {
               },
               {
                 icon: Award,
-                title: "Resources",
-                description:
-                  "Access comprehensive guides, templates, and tools to accelerate your startup journey from ideation to scaling.",
-                color: "from-rose-500 to-pink-500",
-              },
-              {
-                icon: TrendingUp,
                 title: "Growth Analytics",
                 description:
                   "Track your progress with detailed analytics and actionable insights.",
                 color: "from-indigo-500 to-blue-500",
+              },
+              {
+                icon: Sparkles,
+                title: "AI Mentor",
+                description:
+                  "Get personalized guidance, resources, and answers from Nova, your AI startup mentor—right inside your dashboard.",
+                color: "from-blue-500 to-indigo-500",
               },
             ].map((feature, index) => (
               <div
