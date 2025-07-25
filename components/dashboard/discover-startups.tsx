@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,85 @@ import {
   Linkedin, Instagram
 } from 'lucide-react';
 import { SocialIcons } from './social-icons';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+  CarouselApi,
+} from '@/components/ui/carousel';
+
+function StartupPromoCarousel({ images, onImageClick, contain = false, openInNewTab = false }: { images: string[]; onImageClick: (img: string) => void; contain?: boolean; openInNewTab?: boolean }) {
+  const [carouselApi, setCarouselApi] = React.useState<CarouselApi | null>(null);
+  const slideshowInterval = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    if (!carouselApi) return;
+    slideshowInterval.current = setInterval(() => {
+      if (carouselApi) {
+        if (carouselApi.canScrollNext()) {
+          carouselApi.scrollNext();
+        } else {
+          carouselApi.scrollTo(0);
+        }
+      }
+    }, 3000);
+    return () => {
+      if (slideshowInterval.current) clearInterval(slideshowInterval.current);
+    };
+  }, [carouselApi]);
+
+  const imgClass = contain
+    ? 'w-full max-h-48 mx-auto object-contain rounded-t-lg bg-white'
+    : 'w-full h-40 object-cover rounded-t-lg transition-all duration-500 cursor-pointer';
+
+  const handleImageClick = (img: string) => {
+    if (openInNewTab) {
+      window.open(img, '_blank');
+    } else {
+      onImageClick(img);
+    }
+  };
+
+  if (images.length === 1) {
+    return (
+      <img
+        src={images[0]}
+        alt="Promotional Preview"
+        className={imgClass}
+        onClick={() => handleImageClick(images[0])}
+        style={{ cursor: 'pointer' }}
+      />
+    );
+  }
+  return (
+    <Carousel opts={{ loop: true }} className="relative group" setApi={setCarouselApi}>
+      <CarouselContent>
+        {images.map((img, idx) => (
+          <CarouselItem key={idx}>
+            <img
+              src={img}
+              alt={`Promotional ${idx + 1}`}
+              className={imgClass}
+              onClick={() => handleImageClick(img)}
+              style={{ cursor: 'pointer' }}
+            />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      {/* Overlay navigation buttons: only show on hover (desktop), always hide on touch devices */}
+      <div className="absolute inset-0 flex items-center justify-between pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100 opacity-0 transition-opacity duration-200 md:group-hover:opacity-100 md:pointer-events-auto md:flex hidden">
+        <div className="pointer-events-auto">
+          <CarouselPrevious className="!static !left-2 !top-1/2 !-translate-y-1/2 z-10 bg-white/70 hover:bg-white/90" />
+        </div>
+        <div className="pointer-events-auto">
+          <CarouselNext className="!static !right-2 !top-1/2 !-translate-y-1/2 z-10 bg-white/70 hover:bg-white/90" />
+        </div>
+      </div>
+    </Carousel>
+  );
+}
 
 function DiscoverStartups() {
   const { user } = useAuth();
@@ -267,276 +346,292 @@ function DiscoverStartups() {
             const jobCount = getJobCount(startup.id);
 
             return (
-              <Card key={startup.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={startup.logo || undefined} alt={startup.name} />
-                      <AvatarFallback>
-                        <Building2 className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{startup.name}</CardTitle>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge className={getStageColor(startup.stage)}>
-                          {startup.stage.toLowerCase()}
-                        </Badge>
-                        <Badge variant="outline">{startup.industry}</Badge>
+              <Dialog key={startup.id}>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    {/* Promotional Images Carousel as DialogTrigger */}
+                    {startup.promotionalImages && startup.promotionalImages.length > 0 && (
+                      <DialogTrigger asChild>
+                        <div className="mb-2 relative group" style={{ cursor: 'pointer' }}>
+                          <StartupPromoCarousel
+                            images={startup.promotionalImages}
+                            onImageClick={() => {}}
+                            contain={false}
+                            openInNewTab={false}
+                          />
+                        </div>
+                      </DialogTrigger>
+                    )}
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={startup.logo || undefined} alt={startup.name} />
+                        <AvatarFallback>
+                          <Building2 className="h-6 w-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{startup.name}</CardTitle>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Badge className={getStageColor(startup.stage)}>
+                            {startup.stage.toLowerCase()}
+                          </Badge>
+                          <Badge variant="outline">{startup.industry}</Badge>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600 line-clamp-3">
-                      {startup.description}
-                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600 line-clamp-3">
+                        {startup.description}
+                      </p>
 
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>{startup.location}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Briefcase className="h-4 w-4" />
-                        <span>{jobCount} jobs</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <Users className="h-4 w-4" />
-                        <span>{startup.employees}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <TrendingUp className="h-4 w-4" />
-                        <span>{startup.funding}</span>
-                      </div>
-                    </div>
-
-                    {/* Voting and Feedback */}
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant={userVote?.type === 'UPVOTE' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => handleVote(startup.id, 'UPVOTE')}
-                          disabled={!user || voting !== null}
-                          className="flex items-center space-x-1"
-                        >
-                          <ThumbsUp className="h-4 w-4" />
-                          <span>{startup.upvotes}</span>
-                        </Button>
-                        <Button
-                          variant={userVote?.type === 'DOWNVOTE' ? 'destructive' : 'outline'}
-                          size="sm"
-                          onClick={() => handleVote(startup.id, 'DOWNVOTE')}
-                          disabled={!user || voting !== null}
-                          className="flex items-center space-x-1"
-                        >
-                          <ThumbsDown className="h-4 w-4" />
-                          <span>{startup.downvotes}</span>
-                        </Button>
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>{startup.location}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Briefcase className="h-4 w-4" />
+                          <span>{jobCount} jobs</span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center space-x-2">
-                        <Dialog>
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <Users className="h-4 w-4" />
+                          <span>{startup.employees}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <TrendingUp className="h-4 w-4" />
+                          <span>{startup.funding}</span>
+                        </div>
+                      </div>
+
+                      {/* Voting and Feedback */}
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant={userVote?.type === 'UPVOTE' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => handleVote(startup.id, 'UPVOTE')}
+                            disabled={!user || voting !== null}
+                            className="flex items-center space-x-1"
+                          >
+                            <ThumbsUp className="h-4 w-4" />
+                            <span>{startup.upvotes}</span>
+                          </Button>
+                          <Button
+                            variant={userVote?.type === 'DOWNVOTE' ? 'destructive' : 'outline'}
+                            size="sm"
+                            onClick={() => handleVote(startup.id, 'DOWNVOTE')}
+                            disabled={!user || voting !== null}
+                            className="flex items-center space-x-1"
+                          >
+                            <ThumbsDown className="h-4 w-4" />
+                            <span>{startup.downvotes}</span>
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
                           <DialogTrigger asChild>
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => setSelectedStartup(startup)}
                             >
                               View Details
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle className="flex items-center space-x-3">
-                                <Avatar className="h-12 w-12">
-                                  <AvatarImage src={selectedStartup?.logo || undefined} alt={selectedStartup?.name} />
-                                  <AvatarFallback>
-                                    <Building2 className="h-6 w-6" />
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <span>{selectedStartup?.name}</span>
-                                  <p className="text-sm text-gray-600 font-normal">{selectedStartup?.industry}</p>
-                                  {/* Social Media Icons for Startup */}
-                                  <SocialIcons
-                                    xUrl={selectedStartup?.xUrl}
-                                    instagramUrl={selectedStartup?.instagramUrl}
-                                    linkedinUrl={selectedStartup?.linkedinUrl}
-                                    className="mt-2"
-                                  />
-                                </div>
-                              </DialogTitle>
-                              <DialogDescription>
-                                {selectedStartup?.stage} • {selectedStartup?.location}
-                              </DialogDescription>
-                            </DialogHeader>
-                            
-                            {selectedStartup && (
-                              <div className="space-y-6">
-                                {/* Startup Details */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                  <h3 className="font-semibold mb-3">About {selectedStartup.name}</h3>
-                                  <p className="text-gray-600 mb-4">{selectedStartup.description}</p>
-                                  
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                      <span className="font-medium text-gray-900">Stage</span>
-                                      <p className="text-gray-600">{selectedStartup.stage}</p>
-                                    </div>
-                                    <div>
-                                      <span className="font-medium text-gray-900">Industry</span>
-                                      <p className="text-gray-600">{selectedStartup.industry}</p>
-                                    </div>
-                                    <div>
-                                      <span className="font-medium text-gray-900">Team Size</span>
-                                      <p className="text-gray-600">{selectedStartup.employees}</p>
-                                    </div>
-                                    <div>
-                                      <span className="font-medium text-gray-900">Funding</span>
-                                      <p className="text-gray-600">{selectedStartup.funding}</p>
-                                    </div>
-                                    {selectedStartup.founded && (
-                                      <div>
-                                        <span className="font-medium text-gray-900">Founded</span>
-                                        <p className="text-gray-600">{selectedStartup.founded}</p>
-                                      </div>
-                                    )}
-                                    <div>
-                                      <span className="font-medium text-gray-900">Location</span>
-                                      <p className="text-gray-600">{selectedStartup.location}</p>
-                                    </div>
-                                    {selectedStartup.website && (
-                                      <div className="col-span-2">
-                                        <span className="font-medium text-gray-900">Website</span>
-                                        <p>
-                                          <a 
-                                            href={selectedStartup.website} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                                          >
-                                            <ExternalLink className="h-3 w-3" />
-                                            <span>{selectedStartup.website}</span>
-                                          </a>
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex items-center space-x-1"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                            <span>{startupFeedback.length}</span>
+                          </Button>
+                        </div>
+                      </div>
 
-                                {/* Voting Section */}
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                  <div className="flex items-center space-x-4">
-                                    <Button
-                                      variant={userVote?.type === 'UPVOTE' ? 'default' : 'outline'}
-                                      onClick={() => handleVote(selectedStartup.id, 'UPVOTE')}
-                                      disabled={!user || voting !== null}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <ThumbsUp className="h-4 w-4" />
-                                      <span>{selectedStartup.upvotes} upvotes</span>
-                                    </Button>
-                                    <Button
-                                      variant={userVote?.type === 'DOWNVOTE' ? 'destructive' : 'outline'}
-                                      onClick={() => handleVote(selectedStartup.id, 'DOWNVOTE')}
-                                      disabled={!user || voting !== null}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <ThumbsDown className="h-4 w-4" />
-                                      <span>{selectedStartup.downvotes} downvotes</span>
-                                    </Button>
-                                  </div>
-                                  <div className="flex items-center space-x-1 text-gray-600">
-                                    <MessageCircle className="h-4 w-4" />
-                                    <span>{feedback.get(selectedStartup.id)?.length || 0} feedback</span>
-                                  </div>
-                                </div>
-
-                                {/* Add Feedback */}
-                                {user && (
-                                  <div className="space-y-3">
-                                    <h3 className="font-semibold">Share Your Feedback</h3>
-                                    <div className="space-y-3">
-                                      <Textarea
-                                        placeholder="What do you think about this startup? Share your thoughts, suggestions, or questions..."
-                                        value={newFeedback}
-                                        onChange={(e) => setNewFeedback(e.target.value)}
-                                        rows={3}
-                                        className="w-full"
-                                      />
-                                      <Button 
-                                        onClick={handleAddFeedback}
-                                        disabled={!newFeedback.trim() || submittingFeedback}
-                                        size="sm"
-                                      >
-                                        <Send className="h-4 w-4 mr-2" />
-                                        {submittingFeedback ? 'Posting...' : 'Post Feedback'}
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Feedback List */}
-                                <div className="space-y-4">
-                                  <h3 className="font-semibold">Community Feedback</h3>
-                                  {(feedback.get(selectedStartup.id) || []).length === 0 ? (
-                                    <div className="text-center py-8 bg-gray-50 rounded-lg">
-                                      <MessageCircle className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                                      <p className="text-gray-500 text-sm">No feedback yet. Be the first to share your thoughts!</p>
-                                    </div>
-                                  ) : (
-                                    <div className="space-y-3 max-h-80 overflow-y-auto">
-                                      {(feedback.get(selectedStartup.id) || []).map((item) => (
-                                        <div key={item.id} className="bg-white border rounded-lg p-4 hover:shadow-sm transition-shadow">
-                                          <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center space-x-2">
-                                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                <span className="text-blue-600 font-medium text-sm">
-                                                  {item.user?.name?.charAt(0)?.toUpperCase()}
-                                                </span>
-                                              </div>
-                                              <span className="font-medium text-sm">{item.user?.name}</span>
-                                            </div>
-                                            <span className="text-xs text-gray-500">
-                                              {new Date(item.createdAt).toLocaleDateString()}
-                                            </span>
-                                          </div>
-                                          <p className="text-gray-600 leading-relaxed">{item.comment}</p>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                        
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="flex items-center space-x-1"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          <span>{startupFeedback.length}</span>
-                        </Button>
+                      {!user && (
+                        <p className="text-xs text-gray-500 text-center">
+                          Login to vote and leave feedback
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center space-x-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={startup.logo || undefined} alt={startup.name} />
+                        <AvatarFallback>
+                          <Building2 className="h-6 w-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <span>{startup.name}</span>
+                        <p className="text-sm text-gray-600 font-normal">{startup.industry}</p>
+                        {/* Social Media Icons for Startup */}
+                        <SocialIcons
+                          xUrl={startup.xUrl}
+                          instagramUrl={startup.instagramUrl}
+                          linkedinUrl={startup.linkedinUrl}
+                          className="mt-2"
+                        />
+                      </div>
+                    </DialogTitle>
+                    <DialogDescription>
+                      {startup.stage} • {startup.location}
+                    </DialogDescription>
+                  </DialogHeader>
+                  {startup.promotionalImages && startup.promotionalImages.length > 0 && (
+                    <div className="mb-6 flex justify-center">
+                      <div className="w-full max-w-xl bg-gray-50 rounded-lg border border-gray-200 p-2 shadow-sm">
+                        <StartupPromoCarousel
+                          images={startup.promotionalImages}
+                          onImageClick={() => {}}
+                          contain={true}
+                          openInNewTab={false}
+                        />
                       </div>
                     </div>
-
-                    {!user && (
-                      <p className="text-xs text-gray-500 text-center">
-                        Login to vote and leave feedback
-                      </p>
+                  )}
+                  {/* Startup Details */}
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="font-semibold mb-3">About {startup.name}</h3>
+                      <p className="text-gray-600 mb-4">{startup.description}</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-900">Stage</span>
+                          <p className="text-gray-600">{startup.stage}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Industry</span>
+                          <p className="text-gray-600">{startup.industry}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Team Size</span>
+                          <p className="text-gray-600">{startup.employees}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Funding</span>
+                          <p className="text-gray-600">{startup.funding}</p>
+                        </div>
+                        {startup.founded && (
+                          <div>
+                            <span className="font-medium text-gray-900">Founded</span>
+                            <p className="text-gray-600">{startup.founded}</p>
+                          </div>
+                        )}
+                        <div>
+                          <span className="font-medium text-gray-900">Location</span>
+                          <p className="text-gray-600">{startup.location}</p>
+                        </div>
+                        {startup.website && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-gray-900">Website</span>
+                            <p>
+                              <a 
+                                href={startup.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                                <span>{startup.website}</span>
+                              </a>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {/* Voting Section */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <Button
+                          variant={userVote?.type === 'UPVOTE' ? 'default' : 'outline'}
+                          onClick={() => handleVote(startup.id, 'UPVOTE')}
+                          disabled={!user || voting !== null}
+                          className="flex items-center space-x-2"
+                        >
+                          <ThumbsUp className="h-4 w-4" />
+                          <span>{startup.upvotes} upvotes</span>
+                        </Button>
+                        <Button
+                          variant={userVote?.type === 'DOWNVOTE' ? 'destructive' : 'outline'}
+                          onClick={() => handleVote(startup.id, 'DOWNVOTE')}
+                          disabled={!user || voting !== null}
+                          className="flex items-center space-x-2"
+                        >
+                          <ThumbsDown className="h-4 w-4" />
+                          <span>{startup.downvotes} downvotes</span>
+                        </Button>
+                      </div>
+                      <div className="flex items-center space-x-1 text-gray-600">
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{feedback.get(startup.id)?.length || 0} feedback</span>
+                      </div>
+                    </div>
+                    {/* Add Feedback */}
+                    {user && (
+                      <div className="space-y-3">
+                        <h3 className="font-semibold">Share Your Feedback</h3>
+                        <div className="space-y-3">
+                          <Textarea
+                            placeholder="What do you think about this startup? Share your thoughts, suggestions, or questions..."
+                            value={selectedStartup?.id === startup.id ? newFeedback : ''}
+                            onChange={(e) => setNewFeedback(e.target.value)}
+                            rows={3}
+                            className="w-full"
+                          />
+                          <Button 
+                            onClick={handleAddFeedback}
+                            disabled={!newFeedback.trim() || submittingFeedback}
+                            size="sm"
+                          >
+                            <Send className="h-4 w-4 mr-2" />
+                            {submittingFeedback ? 'Posting...' : 'Post Feedback'}
+                          </Button>
+                        </div>
+                      </div>
                     )}
+                    {/* Feedback List */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Community Feedback</h3>
+                      {(feedback.get(startup.id) || []).length === 0 ? (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg">
+                          <MessageCircle className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                          <p className="text-gray-500 text-sm">No feedback yet. Be the first to share your thoughts!</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3 max-h-80 overflow-y-auto">
+                          {(feedback.get(startup.id) || []).map((item) => (
+                            <div key={item.id} className="bg-white border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span className="text-blue-600 font-medium text-sm">
+                                      {item.user?.name?.charAt(0)?.toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <span className="font-medium text-sm">{item.user?.name}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(item.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 leading-relaxed">{item.comment}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </DialogContent>
+              </Dialog>
             );
           })}
         </div>

@@ -23,7 +23,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              "img-src 'self' data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co; " +
+              "img-src 'self' blob: data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co; " +
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
               "style-src 'self' 'unsafe-inline'; " +
               "font-src 'self' data:; " +

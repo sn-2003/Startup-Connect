@@ -32,9 +32,12 @@ export default function StartupModule() {
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState<JobWithStartup | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [promoFiles, setPromoFiles] = useState<File[]>([]);
+  const [promoPreviews, setPromoPreviews] = useState<string[]>([]);
   // Add state for delete confirmation
   const [confirmDelete, setConfirmDelete] = useState<{ type: 'startup' | 'job', id: string } | null>(null);
   const [previewJob, setPreviewJob] = useState<JobWithStartup | null>(null);
+  const [promoWarning, setPromoWarning] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -94,6 +97,38 @@ export default function StartupModule() {
     }
   };
 
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+  };
+
+  const handlePromoImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let files = Array.from(e.target.files || []);
+    let newFiles = [...promoFiles, ...files];
+    // Remove duplicates by name+size (not perfect, but works for most cases)
+    newFiles = newFiles.filter((file, idx, arr) =>
+      arr.findIndex(f => f.name === file.name && f.size === file.size) === idx
+    );
+    if (newFiles.length > 3) {
+      setPromoWarning('You can upload a maximum of 3 promotional images.');
+      newFiles = newFiles.slice(0, 3);
+    } else {
+      setPromoWarning(null);
+    }
+    setPromoFiles(newFiles);
+    setPromoPreviews(newFiles.map(file => URL.createObjectURL(file)));
+    // Reset the input value so the same file can be selected again if removed
+    e.target.value = '';
+  };
+
+  const handleRemovePromoImage = (idx: number) => {
+    const newFiles = promoFiles.filter((_, i) => i !== idx);
+    const newPreviews = promoPreviews.filter((_, i) => i !== idx);
+    setPromoFiles(newFiles);
+    setPromoPreviews(newPreviews);
+    if (promoWarning && newFiles.length <= 3) setPromoWarning(null);
+  };
+
   const handleStartupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
@@ -133,6 +168,38 @@ export default function StartupModule() {
       logoUrl = publicUrlData.publicUrl;
     }
 
+    // Upload promotional images (max 3)
+    let promotionalImages: string[] = editingStartup?.promotionalImages || [];
+    if (promoFiles.length > 0) {
+      // Delete old promotional images if editing
+      if (editingStartup?.promotionalImages && editingStartup.promotionalImages.length > 0) {
+        const oldPromoPaths = editingStartup.promotionalImages
+          .map(url => {
+            const match = url.match(/promos\/(.*)$/);
+            return match && match[1] ? match[1] : null;
+          })
+          .filter(Boolean) as string[];
+        if (oldPromoPaths.length > 0) {
+          await supabase.storage.from('promos').remove(oldPromoPaths);
+        }
+      }
+      promotionalImages = [];
+      // Only upload up to 3 images
+      const filesToUpload = promoFiles.slice(0, 3);
+      for (const file of filesToUpload) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `promo-${editingStartup?.id || Date.now()}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+        const { data, error } = await supabase.storage.from('promos').upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+        if (!error) {
+          const { data: publicUrlData } = supabase.storage.from('promos').getPublicUrl(fileName);
+          promotionalImages.push(publicUrlData.publicUrl);
+        }
+      }
+    }
+
     const startupData = {
       name: formData.get('name') as string,
       domain: formData.get('domain') as string,
@@ -148,6 +215,7 @@ export default function StartupModule() {
       xUrl: formData.get('xUrl') as string,
       instagramUrl: formData.get('instagramUrl') as string,
       linkedinUrl: formData.get('linkedinUrl') as string,
+      promotionalImages,
     };
 
     try {
@@ -172,6 +240,8 @@ export default function StartupModule() {
       (e.target as HTMLFormElement).reset();
       setLogoFile(null);
       setLogoPreview(null);
+      setPromoFiles([]);
+      setPromoPreviews([]);
     } catch (error) {
       console.error('Error saving startup:', error);
     } finally {
@@ -510,11 +580,58 @@ export default function StartupModule() {
                       accept="image/*"
                       onChange={handleLogoChange}
                     />
-                    {logoPreview ? (
-                      <img src={logoPreview} alt="Logo Preview" className="h-16 mt-2 rounded" />
-                    ) : editingStartup?.logo ? (
-                      <img src={editingStartup.logo} alt="Current Logo" className="h-16 mt-2 rounded" />
-                    ) : null}
+                    {(logoPreview || editingStartup?.logo) && (
+                      <div className="relative inline-block mt-2">
+                        {(() => {
+                          const logoSrc = (logoPreview || editingStartup?.logo) ?? undefined;
+                          return logoSrc ? (
+                            <img src={logoSrc} alt="Logo Preview" className="h-16 rounded" />
+                          ) : null;
+                        })()}
+                        <button
+                          type="button"
+                          onClick={handleRemoveLogo}
+                          className="absolute top-0 right-0 bg-white bg-opacity-80 rounded-full p-0.5 text-xs text-red-600 hover:bg-opacity-100 border border-gray-300"
+                          style={{ transform: 'translate(30%, -30%)' }}
+                          aria-label="Remove logo"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="promotionalImages">Promotional Images</Label>
+                    <Input
+                      id="promotionalImages"
+                      name="promotionalImages"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePromoImagesChange}
+                    />
+                    {promoWarning && (
+                      <div className="text-red-500 text-xs mt-1">{promoWarning}</div>
+                    )}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {promoPreviews.map((src, idx) => (
+                        <div key={idx} className="relative inline-block">
+                          <img src={src} alt={`Promo Preview ${idx + 1}`} className="h-16 rounded" />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePromoImage(idx)}
+                            className="absolute top-0 right-0 bg-white bg-opacity-80 rounded-full p-0.5 text-xs text-red-600 hover:bg-opacity-100 border border-gray-300"
+                            style={{ transform: 'translate(30%, -30%)' }}
+                            aria-label="Remove image"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      {!promoPreviews.length && editingStartup?.promotionalImages?.map((src, idx) => (
+                        <img key={idx} src={src} alt={`Promo Existing ${idx + 1}`} className="h-16 rounded" />
+                      ))}
+                    </div>
                   </div>
                 </div>
                 {/* Social Media Links */}

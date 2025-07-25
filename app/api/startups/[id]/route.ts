@@ -27,7 +27,10 @@ export const PUT = withAuth(async (req: NextRequest, { params }: { params: { id:
 
     const startup = await prisma.startup.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        // promotionalImages is not a valid property on the startup model for update
+      },
       include: {
         user: {
           select: {

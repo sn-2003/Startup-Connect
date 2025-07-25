@@ -66,6 +66,7 @@ model Startup {
   xUrl         String?
   instagramUrl String?
   linkedinUrl  String?
+  promotionalImages String[] // Array of promotional image URLs
 
   // Relations
   userId   String

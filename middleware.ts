@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   // Enhanced CSP for better security
   const cspDirectives = [
     "default-src 'self'",
-    "img-src 'self' data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co",
+    "img-src 'self' blob: data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co",
     `script-src 'self' 'unsafe-inline'${isLocalhost ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",

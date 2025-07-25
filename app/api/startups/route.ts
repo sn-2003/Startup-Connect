@@ -59,6 +59,7 @@ export const POST = withAuth(async (req: NextRequest) => {
       data: {
         ...data,
         userId: user.id,
+        promotionalImages: data.promotionalImages || [],
       },
       include: {
         user: {

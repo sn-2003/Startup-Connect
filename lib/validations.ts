@@ -29,6 +29,7 @@ export const startupSchema = z.object({
   xUrl: z.string().url().optional().or(z.literal('')),
   instagramUrl: z.string().url().optional().or(z.literal('')),
   linkedinUrl: z.string().url().optional().or(z.literal('')),
+  promotionalImages: z.array(z.string()).optional(),
 });
 
 // Job validations
