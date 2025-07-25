@@ -26,9 +26,25 @@ import {
   Search,
   Bookmark,
   Send,
-  Info
+  Info,
+  UserCircle,
+  Star,
+  Globe,
+  Handshake,
+  Flame,
+  ClipboardList,
+  Layers,
+  Heart,
+  Compass,
+  Lightbulb,
+  Award,
+  TrendingUp,
+  UsersRound,
+  LayoutGrid,
+  FileCheck
 } from 'lucide-react';
 import AiMentorChat from '@/components/ui/ai-mentor-chat';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -37,14 +53,13 @@ interface DashboardLayoutProps {
 }
 
 const sidebarItems = [
-  // Removed 'overview' and 'startup' from sidebar
   { id: 'jobs', label: 'Job Board', icon: Briefcase },
-  { id: 'saved-jobs', label: 'Saved Jobs', icon: Bookmark },
-  { id: 'resume', label: 'My Resume', icon: FileText },
-  { id: 'resources', label: 'Resources', icon: BookOpen },
-  { id: 'investors', label: 'Investors', icon: Users },
-  { id: 'incubators', label: 'Incubators', icon: Rocket },
-  { id: 'discover', label: 'Discover Startups', icon: Search },
+  { id: 'saved-jobs', label: 'Saved Jobs', icon: Star },
+  { id: 'resume', label: 'My Resume', icon: UserCircle },
+  { id: 'resources', label: 'Resources', icon: Layers },
+  { id: 'investors', label: 'Investors', icon: Handshake },
+  { id: 'incubators', label: 'Incubators', icon: Flame },
+  { id: 'discover', label: 'Discover Startups', icon: Globe },
 ];
 
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
@@ -62,7 +77,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-gray-100">
       {/* AI Mentor Chat Widget */}
       <AiMentorChat />
       {/* Mobile sidebar overlay */}
@@ -75,7 +90,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out
+        fixed top-0 left-0 z-50 h-full w-64 bg-white/70 backdrop-blur-md border-r border-gray-200 shadow-xl transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
       `}>
@@ -107,10 +122,10 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
                       setSidebarOpen(false);
                     }}
                     className={`
-                      w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors
+                      w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200
                       ${activeTab === item.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? 'bg-blue-200/90 text-blue-900 shadow-lg scale-[1.04]'
+                        : 'text-gray-700 hover:bg-blue-100/70 hover:text-blue-800 hover:scale-[1.04]'
                       }
                     `}
                   >
@@ -127,7 +142,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 py-4">
+        <header className="bg-white/70 backdrop-blur-md border-b border-gray-200 px-4 py-4 shadow-md transition-all duration-200">
   <div className="flex items-center justify-between">
     {/* Left side: Mobile menu and user avatar */}
     <div className="flex items-center space-x-4">
@@ -166,7 +181,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
         variant={activeTab === 'overview' ? 'secondary' : 'ghost'}
         size="sm"
         onClick={() => onTabChange('overview')}
-        className="flex items-center"
+        className="flex items-center transition-all duration-200"
         aria-label="Overview"
       >
         <Home className="h-5 w-5" />
@@ -175,25 +190,25 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
         variant={activeTab === 'startup' ? 'secondary' : 'ghost'}
         size="sm"
         onClick={() => onTabChange('startup')}
-        className="flex items-center space-x-2"
+        className="flex items-center space-x-2 transition-all duration-200"
       >
-        <Building2 className="h-4 w-4" />
+        <Rocket className="h-4 w-4" />
         <span className="hidden sm:inline">My Startups</span>
       </Button>
       <Button
         variant={activeTab === 'applications' ? 'secondary' : 'ghost'}
         size="sm"
         onClick={() => onTabChange('applications')}
-        className="flex items-center space-x-2"
+        className="flex items-center space-x-2 transition-all duration-200"
       >
-        <Send className="h-4 w-4" />
+        <ClipboardList className="h-4 w-4" />
         <span className="hidden sm:inline">My Applications</span>
       </Button>
       <Button
         variant="ghost"
         size="sm"
         onClick={() => router.push('/about')}
-        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
+        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-all duration-200"
       >
         <Info className="h-4 w-4" />
         <span className="hidden sm:inline">About Us</span>
@@ -205,7 +220,17 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
         {/* Page content */}
         <main className="p-6">
-          {children}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -24 }}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>
