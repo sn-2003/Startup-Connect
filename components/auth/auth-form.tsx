@@ -100,9 +100,10 @@ export default function AuthForm() {
       </Button>
       
       {/* Left Content Panel */}
-      <div className="flex-1 flex flex-col justify-center p-12">
+      <div className="flex-1 flex flex-col justify-center pt-12 px-12">
+
         <div className="max-w-md mx-auto">
-          <div className="flex items-center gap-1 mb-3">
+          <div className="flex items-center gap-2  mb-2">
   <Image
     src="/logo.png"
     alt="StartupGram Logo"
@@ -118,11 +119,11 @@ export default function AuthForm() {
 
 
           <div className="mb-8">
-            <div className="flex items-center text-yellow-600 mb-4">
+            <div className="flex items-center text-yellow-600 mb-8">
               <span className="text-sm">⭐ Be a part of growing network</span>
             </div>
 
-            <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
               Unlock Your Startup<br />Career Potential
             </h2>
 
