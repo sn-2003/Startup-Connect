@@ -77,7 +77,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-gray-100">
+    <div className="min-h-screen flex bg-gradient-to-br from-indigo-50 via-blue-50 to-gray-100">
       {/* AI Mentor Chat Widget */}
       <AiMentorChat />
       {/* Mobile sidebar overlay */}
@@ -90,27 +90,16 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 z-50 h-full w-64 bg-white/70 backdrop-blur-md border-r border-gray-200 shadow-xl transition-transform duration-300 ease-in-out
+        flex flex-col items-center
+        fixed top-0 left-0 z-50 h-full w-56 bg-slate-50/80 backdrop-blur-lg border-r border-slate-100 shadow-2xl rounded-tr-3xl rounded-br-3xl transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
       `}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center">
-  <Image src="/logo.png" alt="StartupGram Logo" width={50} height={50} className="h-18 w-18 object-contain -mb-1" priority />
-  <span className="text-2xl font-bold text-gray-900">StartupGram</span>
-</div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="flex flex-col items-center w-full pt-4 pb-2 px-2 border-b border-slate-100 mb-2">
+          <Image src="/logo.png" alt="StartupGram Logo" width={40} height={40} className="h-10 w-10 object-contain mb-1" priority />
+          <span className="text-xl font-bold text-gray-900">StartupGram</span>
         </div>
-
-        <nav className="p-4">
+        <nav className="p-2 w-full flex-1">
           <ul className="space-y-2">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
@@ -140,86 +129,81 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
       </div>
 
       {/* Main content */}
-      <div className="lg:ml-64">
+      <div className="flex-1 lg:ml-56 min-h-screen flex flex-col">
         {/* Header */}
-        <header className="bg-white/70 backdrop-blur-md border-b border-gray-200 px-4 py-4 shadow-md transition-all duration-200">
-  <div className="flex items-center justify-between">
-    {/* Left side: Mobile menu and user avatar */}
-    <div className="flex items-center space-x-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="lg:hidden"
-        onClick={() => setSidebarOpen(true)}
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>
-                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <span className="hidden sm:inline">{user?.name}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-
-    {/* Right side: Home (Overview), My Startups, My Applications, About Us buttons */}
-    <div className="flex items-center space-x-2">
-      <Button
-        variant={activeTab === 'overview' ? 'secondary' : 'ghost'}
-        size="sm"
-        onClick={() => onTabChange('overview')}
-        className="flex items-center transition-all duration-200"
-        aria-label="Overview"
-      >
-        <Home className="h-5 w-5" />
-      </Button>
-      <Button
-        variant={activeTab === 'startup' ? 'secondary' : 'ghost'}
-        size="sm"
-        onClick={() => onTabChange('startup')}
-        className="flex items-center space-x-2 transition-all duration-200"
-      >
-        <Rocket className="h-4 w-4" />
-        <span className="hidden sm:inline">My Startups</span>
-      </Button>
-      <Button
-        variant={activeTab === 'applications' ? 'secondary' : 'ghost'}
-        size="sm"
-        onClick={() => onTabChange('applications')}
-        className="flex items-center space-x-2 transition-all duration-200"
-      >
-        <ClipboardList className="h-4 w-4" />
-        <span className="hidden sm:inline">My Applications</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => router.push('/about')}
-        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-all duration-200"
-      >
-        <Info className="h-4 w-4" />
-        <span className="hidden sm:inline">About Us</span>
-      </Button>
-    </div>
-  </div>
-</header>
+        <header className="bg-slate-50/80 backdrop-blur-lg border-b border-slate-100 px-4 py-4 shadow-md transition-all duration-200 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>
+                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline">{user?.name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          {/* Right-aligned nav buttons */}
+          <div className="flex items-center space-x-2 ml-auto">
+            <Button
+              variant={activeTab === 'overview' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => onTabChange('overview')}
+              className="flex items-center transition-all duration-200"
+              aria-label="Overview"
+            >
+              <Home className="h-5 w-5" />
+            </Button>
+            <Button
+              variant={activeTab === 'startup' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => onTabChange('startup')}
+              className="flex items-center space-x-2 transition-all duration-200"
+            >
+              <Rocket className="h-4 w-4" />
+              <span className="hidden sm:inline">My Startups</span>
+            </Button>
+            <Button
+              variant={activeTab === 'applications' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => onTabChange('applications')}
+              className="flex items-center space-x-2 transition-all duration-200"
+            >
+              <ClipboardList className="h-4 w-4" />
+              <span className="hidden sm:inline">My Applications</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/about')}
+              className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-all duration-200"
+            >
+              <Info className="h-4 w-4" />
+              <span className="hidden sm:inline">About Us</span>
+            </Button>
+          </div>
+        </header>
 
 
         {/* Page content */}
-        <main className="p-6">
+        <main className="flex-1 p-6 bg-gradient-to-br from-slate-50/60 via-white/80 to-gray-100/80 transition-colors duration-300">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={activeTab}

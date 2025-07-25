@@ -92,9 +92,8 @@ const Incubators: React.FC = () => {
 
   return (
     <div className="py-8 px-2">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">Incubators
-        <span className="text-xs text-gray-500 font-normal">({filtered.length} found)</span>
-      </h2>
+      <h1 className="text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">Incubators</h1>
+      <p className="text-gray-600 mb-6 text-base">Browse and discover startup incubators. <span className='text-xs text-gray-500 font-normal ml-2'>({filtered.length} found)</span></p>
       <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
         <input
           type="text"
