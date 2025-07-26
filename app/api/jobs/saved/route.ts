@@ -9,6 +9,9 @@ export const GET = withAuth(async (req: NextRequest) => {
     const savedJobs = await prisma.savedJob.findMany({
       where: {
         userId: user.id,
+        job: {
+          listed: true, // Only return saved jobs that are still listed
+        },
       },
       include: {
         job: {

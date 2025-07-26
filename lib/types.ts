@@ -74,7 +74,7 @@ export interface JobWithRelations extends Job {
 
 // Job with startup info for API responses
 export interface JobWithStartup extends Job {
-  startup?: Pick<Startup, 'id' | 'name' | 'logo' | 'linkedinUrl' | 'instagramUrl' | 'xUrl'>;
+  startup: Pick<Startup, 'id' | 'name' | 'logo' | 'linkedinUrl' | 'instagramUrl' | 'xUrl'>;
   startupName?: string;
   applications?: Application[] | number;
   customQuestions?: CustomQuestion[];

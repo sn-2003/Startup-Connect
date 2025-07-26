@@ -244,6 +244,18 @@ class ApiClient {
   async getResources(): Promise<ApiResponse<any[]>> {
     return this.request('/resources');
   }
+
+  async delistJob(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/jobs/${id}/delist`, {
+      method: 'PUT',
+    });
+  }
+
+  async relistJob(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/jobs/${id}/delist`, {
+      method: 'PATCH',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

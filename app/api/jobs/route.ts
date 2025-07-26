@@ -6,6 +6,9 @@ import { jobSchema } from '@/lib/validations';
 export async function GET() {
   try {
     const jobs = await prisma.job.findMany({
+      where: {
+        listed: true, // Only show listed jobs
+      },
       include: {
         startup: {
           select: {

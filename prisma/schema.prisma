@@ -89,6 +89,7 @@ model Job {
   salaryMin       Int?
   salaryMax       Int?
   remote          Boolean         @default(false)
+  listed          Boolean         @default(true)  // Whether the job is publicly visible
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
