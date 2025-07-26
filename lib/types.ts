@@ -28,7 +28,11 @@ import {
 export type User = PrismaUser;
 export type Startup = PrismaStartup;
 export type Job = PrismaJob;
-export type Resume = PrismaResume;
+// Extended Resume type with PDF fields
+export interface Resume extends PrismaResume {
+  // pdfUrl and pdfFileName are already defined in PrismaResume as string | null
+  // No need to redeclare them here
+}
 export type Experience = PrismaExperience;
 export type Education = PrismaEducation;
 export type CustomSection = PrismaCustomSection;

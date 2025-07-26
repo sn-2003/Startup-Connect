@@ -193,6 +193,48 @@ class ApiClient {
     });
   }
 
+  async uploadResumePdf(file: File): Promise<ApiResponse<any>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/resume/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || 'An error occurred',
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data || data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
+  async deleteResumePdf(): Promise<ApiResponse<any>> {
+    return this.request('/resume/upload', {
+      method: 'DELETE',
+    });
+  }
+
   // Investors
   async getInvestors(): Promise<ApiResponse<any[]>> {
     return this.request('/investors');

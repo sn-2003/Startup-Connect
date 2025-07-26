@@ -19,6 +19,7 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
     "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object",
+    "frame-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co", // <-- Added for PDF preview
     "frame-ancestors 'self'",
     "object-src 'none'",
     "base-uri 'self'",

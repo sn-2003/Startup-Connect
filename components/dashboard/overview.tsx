@@ -300,14 +300,14 @@ export default function Overview({ onTabChange }: OverviewProps) {
             </Button>
           </CardHeader>
           <CardContent>
-            {!resume ? (
+            {!resume?.pdfUrl ? (
               <div className="text-center py-6">
                 <FileText className="mx-auto h-8 w-8 text-gray-400" />
-                <h3 className="mt-2 text-sm font-semibold text-gray-900">No resume created</h3>
-                <p className="mt-1 text-sm text-gray-500">Create your resume to apply for jobs.</p>
+                <h3 className="mt-2 text-sm font-semibold text-gray-900">No resume uploaded</h3>
+                <p className="mt-1 text-sm text-gray-500">Upload your PDF resume to apply for jobs.</p>
                 <div className="mt-4">
                   <Button size="sm" onClick={() => onTabChange('resume')}>
-                    Create Resume
+                    Upload Resume
                   </Button>
                 </div>
               </div>
@@ -315,46 +315,24 @@ export default function Overview({ onTabChange }: OverviewProps) {
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span className="font-medium">Resume Created</span>
+                  <span className="font-medium">Resume Uploaded</span>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Basic Information</span>
+                    <span>PDF File</span>
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span>Skills ({resume.skills?.length || 0})</span>
-                    {(resume.skills?.length || 0) > 0 ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Clock className="h-4 w-4 text-gray-400" />
-                    )}
+                    <span>File Name</span>
+                    <span className="text-xs text-gray-600">{resume.pdfFileName || 'resume.pdf'}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span>Experience ({resume.experience?.length || 0})</span>
-                    {(resume.experience?.length || 0) > 0 ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Clock className="h-4 w-4 text-gray-400" />
-                    )}
+                    <span>Upload Date</span>
+                    <span className="text-xs text-gray-600">
+                      {new Date(resume.updatedAt).toLocaleDateString()}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Education ({resume.education?.length || 0})</span>
-                    {(resume.education?.length || 0) > 0 ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Clock className="h-4 w-4 text-gray-400" />
-                    )}
-                  </div>
-                  {(resume.customSections?.length || 0) > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span>
-                        {resume.customSections?.length || 0} custom section{(resume.customSections?.length || 0) !== 1 ? 's' : ''}
-                      </span>
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    </div>
-                  )}
                 </div>
 
                 <Button variant="outline" size="sm" className="w-full" onClick={() => onTabChange('resume')}>

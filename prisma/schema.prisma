@@ -125,6 +125,8 @@ model Resume {
   bio        String?
   skills     String[]
   resumeText String?
+  pdfUrl     String?  // URL to the PDF file in Supabase storage
+  pdfFileName String? // Original filename of the uploaded PDF
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

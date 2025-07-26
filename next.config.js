@@ -28,6 +28,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'; " +
               "font-src 'self' data:; " +
               "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object; " +
+              "frame-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co; " +
               "frame-ancestors 'self'; " +
               "object-src 'none'; " +
               "base-uri 'self'; " +

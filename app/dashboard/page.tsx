@@ -7,7 +7,7 @@ import DashboardLayout from '@/components/layout/dashboard-layout';
 import Overview from '@/components/dashboard/overview';
 import StartupModule from '@/components/dashboard/startup-module';
 import JobBoard from '@/components/dashboard/job-board';
-import ResumeModule from '@/components/dashboard/resume-module';
+import ResumePdfModule from '@/components/dashboard/resume-pdf-module';
 import Resources from '@/components/dashboard/resources';
 import Investors from '@/components/dashboard/investors';
 import SavedJobs from '@/components/dashboard/saved-jobs';
@@ -68,7 +68,7 @@ export default function DashboardPage() {
       case 'jobs':
         return <JobBoard />;
       case 'resume':
-        return <ResumeModule />;
+        return <ResumePdfModule />;
       case 'resources':
         return <Resources />;
       case 'investors':
