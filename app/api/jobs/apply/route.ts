@@ -50,11 +50,22 @@ export const POST = withAuth(async (req: NextRequest) => {
       );
     }
 
-    // Create application with custom answers
+    // Fetch user's current resume
+    const userResume = await prisma.resume.findUnique({
+      where: { userId: user.id },
+      select: {
+        pdfUrl: true,
+        pdfFileName: true,
+      },
+    });
+
+    // Create application with custom answers and resume snapshot
     const application = await prisma.application.create({
       data: {
         userId: user.id,
         jobId,
+        resumePdfUrl: userResume?.pdfUrl || null,
+        resumePdfFileName: userResume?.pdfFileName || null,
         customAnswers: {
           create: customAnswers.map(answer => ({
             questionId: answer.questionId,

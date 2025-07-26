@@ -115,15 +115,26 @@ export default function ResumePdfModule() {
     }
   };
 
-  const downloadResume = () => {
+  const downloadResume = async () => {
     if (!resume?.pdfUrl) return;
 
-    const link = document.createElement('a');
-    link.href = resume.pdfUrl;
-    link.download = resume.pdfFileName || 'resume.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const response = await fetch(resume.pdfUrl, { mode: 'cors' });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = resume.pdfFileName || 'resume.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the object URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error('Failed to download resume');
+    }
   };
 
   const formatFileSize = (bytes: number) => {

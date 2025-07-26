@@ -34,25 +34,6 @@ export const GET = withAuth(async (req: NextRequest, { params }: { params: { id:
             id: true,
             name: true,
             email: true,
-            resume: {
-              include: {
-                experience: {
-                  orderBy: {
-                    order: 'asc',
-                  },
-                },
-                education: {
-                  orderBy: {
-                    order: 'asc',
-                  },
-                },
-                customSections: {
-                  orderBy: {
-                    order: 'asc',
-                  },
-                },
-              },
-            },
           },
         },
         job: {

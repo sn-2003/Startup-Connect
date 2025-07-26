@@ -1,19 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
-import { Application, Job } from '@/lib/types';
-import { Users, Mail, Calendar, CheckCircle, Eye, UserCheck, UserX } from 'lucide-react';
-import { ApplicationWithRelations } from '@/lib/types';
-
+import { ApplicationWithRelations, Application, JobWithRelations } from '@/lib/types';
+import { Users, Calendar, Mail, Download, FileText, Eye, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ApplicantListProps {
-  job: Job;
+  job: JobWithRelations;
 }
 
 export default function ApplicantList({ job }: ApplicantListProps) {
@@ -22,6 +22,8 @@ export default function ApplicantList({ job }: ApplicantListProps) {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [selectedApplication, setSelectedApplication] = useState<ApplicationWithRelations | null>(null);
+  const [showResumePreview, setShowResumePreview] = useState(false);
+  const [resumePreviewError, setResumePreviewError] = useState(false);
 
   useEffect(() => {
     const loadApplications = async () => {
@@ -53,6 +55,33 @@ export default function ApplicantList({ job }: ApplicantListProps) {
       console.error('Error updating application status:', error);
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const downloadResume = async (application: ApplicationWithRelations) => {
+    if (!application.resumePdfUrl) {
+      toast.error('No resume available for this applicant');
+      return;
+    }
+
+    try {
+      const response = await fetch(application.resumePdfUrl, { mode: 'cors' });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = application.resumePdfFileName || 'resume.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the object URL
+      window.URL.revokeObjectURL(url);
+      toast.success('Resume downloaded successfully!');
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      toast.error('Failed to download resume');
     }
   };
 
@@ -135,184 +164,219 @@ export default function ApplicantList({ job }: ApplicantListProps) {
                       </Badge>
                     </div>
 
-                    {(application.user as any)?.resume && (
-                      <div className="mb-3">
-                        <p className="text-sm text-gray-600 line-clamp-2">{(application.user as any).resume.bio}</p>
-                        {(application.user as any).resume.skills && (application.user as any).resume.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {(application.user as any).resume.skills.slice(0, 5).map((skill: string) => (
-                              <Badge key={skill} variant="secondary" className="text-xs">
-                                {skill}
-                              </Badge>
-                            ))}
-                            {(application.user as any).resume.skills.length > 5 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{(application.user as any).resume.skills.length - 5} more
-                              </Badge>
-                            )}
+                    {/* Custom Answers */}
+                    {application.customAnswers && application.customAnswers.length > 0 && (
+                      <div className="space-y-2 mb-3">
+                        {application.customAnswers.map((answer) => (
+                          <div key={answer.id} className="text-sm">
+                            <span className="font-medium text-gray-700">
+                              {answer.question.question}:
+                            </span>
+                            <p className="text-gray-600 ml-2">{answer.answer}</p>
                           </div>
-                        )}
+                        ))}
                       </div>
                     )}
 
-                    <div className="flex items-center space-x-2">
-                      {/* View Application Details */}
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedApplication(application)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Application Details</DialogTitle>
-                            <DialogDescription>
-                              {(selectedApplication?.user as any)?.name} • {(selectedApplication?.user as any)?.email}
-                            </DialogDescription>
-                          </DialogHeader>
-                          {selectedApplication && (
-                            <div className="space-y-6">
-                              {/* Application Info */}
-                              <div className="bg-gray-50 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <h3 className="font-semibold">Application Status</h3>
-                                  <Badge className={getStatusColor(selectedApplication.status)}>
-                                    <span className="capitalize">{selectedApplication.status.toLowerCase()}</span>
-                                  </Badge>
-                                </div>
-                                <p className="text-sm text-gray-600">
-                                  Applied on {new Date(selectedApplication.appliedAt).toLocaleDateString()}
-                                </p>
+                    {/* Resume Status */}
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
+                      <FileText className="h-3 w-3" />
+                      <span>
+                        {application.resumePdfUrl ? 'Resume attached' : 'No resume attached'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    {/* Resume Actions */}
+                    {application.resumePdfUrl && (
+                      <>
+                        {/* View Resume Button */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedApplication(application);
+                            setShowResumePreview(true);
+                            setResumePreviewError(false);
+                          }}
+                          className="flex items-center space-x-1"
+                        >
+                          <Eye className="h-3 w-3" />
+                          <span>View</span>
+                        </Button>
+
+                        {/* Download Resume Button */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => downloadResume(application)}
+                          className="flex items-center space-x-1"
+                        >
+                          <Download className="h-3 w-3" />
+                          <span>Download</span>
+                        </Button>
+                      </>
+                    )}
+
+                    {/* View Application Details */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setSelectedApplication(application)}
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          Details
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Application Details</DialogTitle>
+                          <DialogDescription>
+                            {application.job?.title} at {application.job?.startup?.name}
+                          </DialogDescription>
+                        </DialogHeader>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Applicant Information</h4>
+                            <div className="space-y-1 text-sm">
+                              <p><span className="font-medium">Name:</span> {(application.user as any)?.name}</p>
+                              <p><span className="font-medium">Email:</span> {(application.user as any)?.email}</p>
+                              <p><span className="font-medium">Applied:</span> {new Date(application.appliedAt).toLocaleDateString()}</p>
+                              <p><span className="font-medium">Status:</span> 
+                                <Badge className={`ml-2 ${getStatusColor(application.status)}`}>
+                                  {application.status.toLowerCase()}
+                                </Badge>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Resume Section */}
+                          {application.resumePdfUrl && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Resume</h4>
+                              <div className="flex items-center space-x-2">
+                                <FileText className="h-4 w-4 text-blue-600" />
+                                <span className="text-sm text-gray-600">
+                                  {application.resumePdfFileName || 'resume.pdf'}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => downloadResume(application)}
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  Download
+                                </Button>
                               </div>
-
-                              {/* Resume Info */}
-                              {(selectedApplication.user as any)?.resume && (
-                                <div>
-                                  <h3 className="font-semibold mb-3">Resume Summary</h3>
-                                  <div className="space-y-4">
-                                    <div>
-                                      <h4 className="font-medium mb-1">Professional Bio</h4>
-                                      <p className="text-gray-600">{(selectedApplication.user as any).resume.bio}</p>
-                                    </div>
-                                    
-                                    {(selectedApplication.user as any).resume.skills && (selectedApplication.user as any).resume.skills.length > 0 && (
-                                      <div>
-                                        <h4 className="font-medium mb-2">Skills</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                          {(selectedApplication.user as any).resume.skills.map((skill: string) => (
-                                            <Badge key={skill} variant="secondary">
-                                              {skill}
-                                            </Badge>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {(selectedApplication.user as any).resume.experience && (selectedApplication.user as any).resume.experience.length > 0 && (
-                                      <div>
-                                        <h4 className="font-medium mb-2">Recent Experience</h4>
-                                        <div className="space-y-2">
-                                          {(selectedApplication.user as any).resume.experience.slice(0, 2).map((exp: any) => (
-                                            <div key={exp.id} className="border-l-2 border-blue-500 pl-3">
-                                              <h5 className="font-medium">{exp.position}</h5>
-                                              <p className="text-sm text-gray-600">{exp.company}</p>
-                                              <p className="text-xs text-gray-500">
-                                                {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
-                                              </p>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Custom Answers */}
-                              {(selectedApplication as any).customAnswers && (selectedApplication as any).customAnswers.length > 0 && (
-                                <div>
-                                  <h3 className="font-semibold mb-3">Custom Question Answers</h3>
-                                  <div className="space-y-4">
-                                    {(selectedApplication as any).customAnswers.map((answer: any, index: number) => {
-                                      const question = (job as any).customQuestions?.find((q: any) => q.id === answer.questionId);
-                                      return (
-                                        <div key={answer.questionId} className="border rounded-lg p-4">
-                                          <h4 className="font-medium mb-2">
-                                            {index + 1}. {question?.question || 'Question not found'}
-                                          </h4>
-                                          <p className="text-gray-600 whitespace-pre-line">
-                                            {answer.answer}
-                                          </p>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           )}
-                        </DialogContent>
-                      </Dialog>
 
-                      {/* Status Update Buttons */}
-                      {application.status === 'SUBMITTED' && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => handleStatusUpdate(application.id, 'SHORTLISTED')}
-                            disabled={updating === application.id}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <UserCheck className="h-4 w-4 mr-1" />
-                            {updating === application.id ? 'Updating...' : 'Shortlist'}
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleStatusUpdate(application.id, 'REJECTED')}
-                            disabled={updating === application.id}
-                          >
-                            <UserX className="h-4 w-4 mr-1" />
-                            {updating === application.id ? 'Updating...' : 'Reject'}
-                          </Button>
-                        </>
-                      )}
+                          {/* Custom Answers */}
+                          {application.customAnswers && application.customAnswers.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Application Questions</h4>
+                              <div className="space-y-3">
+                                {application.customAnswers.map((answer) => (
+                                  <div key={answer.id} className="border rounded-lg p-3">
+                                    <h5 className="font-medium text-sm mb-1">{answer.question.question}</h5>
+                                    <p className="text-sm text-gray-600">{answer.answer}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
-                      {application.status === 'SHORTLISTED' && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleStatusUpdate(application.id, 'REJECTED')}
-                          disabled={updating === application.id}
-                        >
-                          <UserX className="h-4 w-4 mr-1" />
-                          {updating === application.id ? 'Updating...' : 'Reject'}
-                        </Button>
-                      )}
+                          {/* Status Update */}
+                          <div>
+                            <h4 className="font-semibold mb-2">Update Status</h4>
+                            <Select
+                              value={application.status}
+                              onValueChange={(value: Application['status']) => 
+                                handleStatusUpdate(application.id, value)
+                              }
+                              disabled={updating === application.id}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                                <SelectItem value="REVIEWED">Reviewed</SelectItem>
+                                <SelectItem value="SHORTLISTED">Shortlisted</SelectItem>
+                                <SelectItem value="REJECTED">Rejected</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-                      {application.status === 'REJECTED' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleStatusUpdate(application.id, 'SHORTLISTED')}
-                          disabled={updating === application.id}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <UserCheck className="h-4 w-4 mr-1" />
-                          {updating === application.id ? 'Updating...' : 'Reconsider'}
-                        </Button>
-                      )}
-                    </div>
+                    {/* Status Update */}
+                    <Select
+                      value={application.status}
+                      onValueChange={(value: Application['status']) => 
+                        handleStatusUpdate(application.id, value)
+                      }
+                      disabled={updating === application.id}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                        <SelectItem value="REVIEWED">Reviewed</SelectItem>
+                        <SelectItem value="SHORTLISTED">Shortlisted</SelectItem>
+                        <SelectItem value="REJECTED">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Resume Preview Dialog */}
+      {selectedApplication && selectedApplication.resumePdfUrl && (
+        <Dialog open={showResumePreview} onOpenChange={setShowResumePreview}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <FileText className="h-5 w-5" />
+                <span>Resume Preview - {(selectedApplication.user as any)?.name}</span>
+              </DialogTitle>
+              <DialogDescription>
+                {selectedApplication.resumePdfFileName || 'resume.pdf'}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="flex justify-center items-center w-full">
+              {!resumePreviewError ? (
+                <iframe
+                  src={`${selectedApplication.resumePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="w-full max-w-[700px] h-[600px] rounded-lg border"
+                  title="Resume Preview"
+                  onError={() => setResumePreviewError(true)}
+                  style={{ background: 'white', transform: 'translateZ(0)' }}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <AlertCircle className="h-10 w-10 text-red-500 mb-2" />
+                  <p className="text-red-600 font-semibold mb-2">Unable to preview resume.</p>
+                  <Button onClick={() => downloadResume(selectedApplication)}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Resume
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
