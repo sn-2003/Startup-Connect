@@ -39,12 +39,12 @@ export const startupSchema = z.object({
   location: z.string().optional(),
   employees: z.string().optional(),
   funding: z.string().optional(),
-  website: z.string().url().optional().or(z.literal('')),
+  website: urlWithWww.optional().or(z.literal('')),
   industry: z.string().min(1, 'Industry is required'),
   logo: z.string().nullable().optional(),
-  xUrl: z.string().url().optional().or(z.literal('')),
-  instagramUrl: z.string().url().optional().or(z.literal('')),
-  linkedinUrl: z.string().url().optional().or(z.literal('')),
+  xUrl: urlWithWww.optional().or(z.literal('')),
+  instagramUrl: urlWithWww.optional().or(z.literal('')),
+  linkedinUrl: urlWithWww.optional().or(z.literal('')),
   promotionalImages: z.array(z.string()).optional(),
 });
 

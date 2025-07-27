@@ -209,8 +209,8 @@ export default function AuthForm() {
                 )}
 
                 <TabsContent value="login">
-                  {/* Google Login Button */}
-                  <Button
+                  {/* Google Login Button - Hidden for now */}
+                  {/* <Button
                     type="button"
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2 mb-2"
@@ -228,9 +228,9 @@ export default function AuthForm() {
                   >
                     {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/google-icon.svg" alt="Google" width={20} height={20} />}
                     Continue with Google
-                  </Button>
-                  {/* LinkedIn Login Button */}
-                  <Button
+                  </Button> */}
+                  {/* LinkedIn Login Button - Hidden for now */}
+                  {/* <Button
                     type="button"
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2 mb-4"
@@ -248,7 +248,7 @@ export default function AuthForm() {
                   >
                     {linkedinLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/linkedin-icon.svg" alt="LinkedIn" width={20} height={20} />}
                     Continue with LinkedIn
-                  </Button>
+                  </Button> */}
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -304,8 +304,8 @@ export default function AuthForm() {
                 </TabsContent>
 
                 <TabsContent value="register">
-                  {/* Google Register Button */}
-                  <Button
+                  {/* Google Register Button - Hidden for now */}
+                  {/* <Button
                     type="button"
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2 mb-2"
@@ -323,9 +323,9 @@ export default function AuthForm() {
                   >
                     {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/google-icon.svg" alt="Google" width={20} height={20} />}
                     Continue with Google
-                  </Button>
-                  {/* LinkedIn Register Button */}
-                  <Button
+                  </Button> */}
+                  {/* LinkedIn Register Button - Hidden for now */}
+                  {/* <Button
                     type="button"
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2 mb-4"
@@ -343,7 +343,7 @@ export default function AuthForm() {
                   >
                     {linkedinLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/linkedin-icon.svg" alt="LinkedIn" width={20} height={20} />}
                     Continue with LinkedIn
-                  </Button>
+                  </Button> */}
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name</Label>

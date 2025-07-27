@@ -580,7 +580,7 @@ export default function StartupModule() {
                       name="website"
                       type="url"
                       defaultValue={editingStartup?.website || ''}
-                      placeholder="https://yourcompany.com"
+                      placeholder="https://yourcompany.com or www.yourcompany.com"
                     />
                   </div>
                   <div className="space-y-2">
