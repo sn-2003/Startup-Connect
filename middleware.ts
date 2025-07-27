@@ -15,10 +15,10 @@ export function middleware(request: NextRequest) {
   const cspDirectives = [
     "default-src 'self'",
     "img-src 'self' blob: data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co",
-    `script-src 'self' 'unsafe-inline'${isLocalhost ? " 'unsafe-eval'" : ''}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com${isLocalhost ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
-    "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object",
+    "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object https://www.google-analytics.com https://www.googletagmanager.com",
     "frame-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co", // <-- Added for PDF preview
     "frame-ancestors 'self'",
     "object-src 'none'",
