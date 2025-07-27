@@ -4,22 +4,49 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY!);
-
 export async function POST(req: NextRequest) {
   try {
+    // Check if Gemini API key is configured
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY environment variable not configured');
+      return NextResponse.json({ 
+        success: false, 
+        error: 'AI service not configured' 
+      }, { status: 500 });
+    }
+
     const { question } = await req.json();
+
+    if (!question || typeof question !== 'string') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Question is required' 
+      }, { status: 400 });
+    }
 
     // Get user session
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Unauthorized' 
+      }, { status: 401 });
     }
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+
+    const user = await prisma.user.findUnique({ 
+      where: { email: session.user.email } 
+    });
+    
     if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'User not found' 
+      }, { status: 404 });
     }
+
+    // Initialize Google Generative AI
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
     // For now, fetch all user data. In the future, analyze the question to fetch only relevant data.
     const [resume, startups, applications] = await Promise.all([
@@ -101,10 +128,11 @@ System instructions:
     // Compose the prompt for the AI
     const prompt = `${platformContext}\n\nHere is the recent conversation:\n${chatContext}\n\nHere is their profile:\n${JSON.stringify(user, null, 2)}\n\nHere are their startups:\n${JSON.stringify(startups, null, 2)}\n\nHere is their resume:\n${JSON.stringify(resume, null, 2)}\n\nHere are jobs they have applied to:\n${JSON.stringify(applications, null, 2)}\n\nContinue the conversation as Nova, the friendly mentor.`;
 
-    // Use Gemini (GoogleGenerativeAI) to get a response
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    // Use Gemini to get a response
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent(prompt);
     const aiMessage = result.response.text();
+    
     // Remove 'Nova:' prefix if present
     const cleanAiMessage = aiMessage.replace(/^Nova:\s*/i, '');
 
@@ -116,9 +144,32 @@ System instructions:
       ],
     });
 
-    return NextResponse.json({ success: true, data: { message: cleanAiMessage } });
+    return NextResponse.json({ 
+      success: true, 
+      data: { message: cleanAiMessage } 
+    });
   } catch (error) {
+    console.error('AI Mentor API Error:', error);
     const err = error as Error;
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    
+    // Handle specific Gemini API errors
+    if (err.message.includes('API_KEY')) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'AI service configuration error' 
+      }, { status: 500 });
+    }
+    
+    if (err.message.includes('quota') || err.message.includes('rate limit')) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'AI service temporarily unavailable' 
+      }, { status: 503 });
+    }
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: 'An error occurred while processing your request' 
+    }, { status: 500 });
   }
 } 

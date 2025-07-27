@@ -11,6 +11,7 @@
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ### Production Deployment (Vercel)
@@ -24,6 +25,7 @@ You need to add these environment variables in your Vercel dashboard:
 - `NEXT_PUBLIC_SUPABASE_URL` = Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = Your Supabase anon/public key
 - `SUPABASE_SERVICE_ROLE_KEY` = Your Supabase service role key (for server-side operations)
+- `GEMINI_API_KEY` = Your Google Gemini API key (for AI mentor feature)
 
 #### How to get the Service Role Key:
 1. Go to your Supabase project dashboard
@@ -31,7 +33,16 @@ You need to add these environment variables in your Vercel dashboard:
 3. Copy the "service_role" key (NOT the anon key)
 4. This key has admin privileges and should only be used server-side
 
-**Important:** The `SUPABASE_SERVICE_ROLE_KEY` is required for file uploads in production. Without it, you'll get 500 errors when trying to upload files.
+#### How to get the Gemini API Key:
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the generated API key
+
+**Important:** 
+- The `SUPABASE_SERVICE_ROLE_KEY` is required for file uploads in production
+- The `GEMINI_API_KEY` is required for the AI mentor feature
+- Without these keys, you'll get 500 errors when trying to use these features
 
 ## Storage Bucket Setup
 
@@ -218,4 +229,9 @@ If you encounter issues:
    - Check that `SUPABASE_SERVICE_ROLE_KEY` is set in your Vercel environment variables
    - Verify the service role key is correct (not the anon key)
    - Check Vercel function logs for detailed error messages
-   - Ensure storage buckets exist and have proper policies 
+   - Ensure storage buckets exist and have proper policies
+7. **AI Mentor 500 Error**:
+   - Check that `GEMINI_API_KEY` is set in your Vercel environment variables
+   - Verify the Gemini API key is valid and has quota remaining
+   - Check Vercel function logs for specific error messages
+   - Ensure the Google AI Studio API key has proper permissions 
