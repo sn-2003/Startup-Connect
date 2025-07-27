@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +10,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
-import { Startup, JobWithStartup, CustomQuestion } from '@/lib/types';
+import { Startup, JobWithStartup, CustomQuestion, Application } from '@/lib/types';
+import { StartupStage, JobType, ExperienceLevel, QuestionType } from '@prisma/client';
+import { 
+  Building2, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Users, 
+  MapPin, 
+  Calendar, 
+  DollarSign, 
+  Briefcase, 
+  Clock, 
+  Eye, 
+  EyeOff,
+  Upload,
+  X,
+  ExternalLink,
+  Star,
+  MessageSquare,
+  CheckCircle,
+  AlertCircle,
+  TrendingUp,
+  UserCheck
+} from 'lucide-react';
 import ApplicantList from './applicant-list';
-import { Building2, Plus, MapPin, Users, TrendingUp, Edit, Trash2, Eye, Briefcase, X, Save, UserCheck, CheckCircle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function StartupModule() {
   const { user } = useAuth();
@@ -137,65 +161,42 @@ export default function StartupModule() {
     const formData = new FormData(e.currentTarget);
     
     let logoUrl = editingStartup?.logo || '';
-    // If a new logo file is selected, delete the old logo and upload the new one to Supabase
+    // If a new logo file is selected, upload it through the API
     if (logoFile) {
-      let oldLogoPath = '';
-      if (editingStartup?.logo && editingStartup.logo.includes('supabase.co/storage/v1/object/public/logos/')) {
-        // Extract the path after /logos/
-        const match = editingStartup.logo.match(/logos\/(.*)$/);
-        if (match && match[1]) {
-          oldLogoPath = match[1];
+      try {
+        const startupId = editingStartup?.id || `temp-${Date.now()}`;
+        const response = await apiClient.uploadStartupFile(logoFile, 'logo', startupId);
+        
+        if (response.success && response.data) {
+          logoUrl = response.data.url;
+        } else {
+          console.error('Error uploading logo:', response.error);
+          setSaving(false);
+          return;
         }
-      }
-      // Use a consistent file name per startup
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `startup-${editingStartup?.id || Date.now()}.${fileExt}`;
-      // Delete old logo if it exists and is different from the new file name
-      if (oldLogoPath && oldLogoPath !== fileName) {
-        await supabase.storage.from('logos').remove([oldLogoPath]);
-      }
-      const { data, error } = await supabase.storage.from('logos').upload(fileName, logoFile, {
-        cacheControl: '3600',
-        upsert: true,
-      });
-      if (error) {
+      } catch (error) {
         console.error('Error uploading logo:', error);
         setSaving(false);
         return;
       }
-      // Get public URL
-      const { data: publicUrlData } = supabase.storage.from('logos').getPublicUrl(fileName);
-      logoUrl = publicUrlData.publicUrl;
     }
 
-    // Upload promotional images (max 3)
+    // Upload promotional images (max 3) through the API
     let promotionalImages: string[] = editingStartup?.promotionalImages || [];
     if (promoFiles.length > 0) {
-      // Delete old promotional images if editing
-      if (editingStartup?.promotionalImages && editingStartup.promotionalImages.length > 0) {
-        const oldPromoPaths = editingStartup.promotionalImages
-          .map(url => {
-            const match = url.match(/promos\/(.*)$/);
-            return match && match[1] ? match[1] : null;
-          })
-          .filter(Boolean) as string[];
-        if (oldPromoPaths.length > 0) {
-          await supabase.storage.from('promos').remove(oldPromoPaths);
-        }
-      }
       promotionalImages = [];
+      const startupId = editingStartup?.id || `temp-${Date.now()}`;
+      
       // Only upload up to 3 images
       const filesToUpload = promoFiles.slice(0, 3);
       for (const file of filesToUpload) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `promo-${editingStartup?.id || Date.now()}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-        const { data, error } = await supabase.storage.from('promos').upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-        if (!error) {
-          const { data: publicUrlData } = supabase.storage.from('promos').getPublicUrl(fileName);
-          promotionalImages.push(publicUrlData.publicUrl);
+        try {
+          const response = await apiClient.uploadStartupFile(file, 'promo', startupId);
+          if (response.success && response.data) {
+            promotionalImages.push(response.data.url);
+          }
+        } catch (error) {
+          console.error('Error uploading promotional image:', error);
         }
       }
     }

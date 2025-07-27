@@ -231,6 +231,76 @@ class ApiClient {
     }
   }
 
+  async uploadStartupFile(file: File, type: 'logo' | 'promo', startupId: string): Promise<ApiResponse<any>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+    formData.append('startupId', startupId);
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/startups/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || 'An error occurred',
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data || data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
+  async deleteStartupFile(fileName: string, type: 'logo' | 'promo'): Promise<ApiResponse<any>> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/startups/upload?fileName=${encodeURIComponent(fileName)}&type=${type}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || 'An error occurred',
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data || data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
   async deleteResumePdf(): Promise<ApiResponse<any>> {
     return this.request('/resume/upload', {
       method: 'DELETE',
