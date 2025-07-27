@@ -32,6 +32,7 @@ model User {
   website   String?
   linkedin  String?
   github    String?
+  termsAgreedAt DateTime? // Track when user agreed to terms
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

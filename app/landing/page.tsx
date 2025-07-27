@@ -35,6 +35,7 @@ import {
   Phone,
   MessageCircle,
   Sparkles,
+  LinkedinIcon,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -606,7 +607,7 @@ export default function LandingPage() {
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors cursor-pointer"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <LinkedinIcon className="w-5 h-5" />
                 </a>
                 <a 
                   href="mailto:aistudio.team.co@gmail.com"
@@ -722,15 +723,24 @@ export default function LandingPage() {
                 © 2025 StartupGram. All rights reserved.
               </p>
               <div className="flex space-x-6 text-sm">
-                <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                <button
+                  onClick={() => router.push('/privacy')}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
                   Privacy Policy
-                </a>
-                <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                </button>
+                <button
+                  onClick={() => router.push('/terms')}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
                   Terms of Service
-                </a>
-                <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                </button>
+                <button
+                  onClick={() => router.push('/cookies')}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
                   Cookie Policy
-                </a>
+                </button>
               </div>
             </div>
           </div>

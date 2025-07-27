@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
         name,
         email,
         password: hashedPassword,
+        termsAgreedAt: new Date(), // Record when user agreed to terms
       },
     });
 

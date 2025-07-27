@@ -221,6 +221,35 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
             </motion.div>
           </AnimatePresence>
         </main>
+
+        {/* Footer */}
+        <footer className="bg-slate-50/80 backdrop-blur-lg border-t border-slate-100 px-6 py-4">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <p className="text-sm text-slate-600">
+              © 2025 StartupGram. All rights reserved.
+            </p>
+            <div className="flex space-x-6 text-sm">
+              <button
+                onClick={() => router.push('/privacy')}
+                className="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              >
+                Privacy Policy
+              </button>
+              <button
+                onClick={() => router.push('/terms')}
+                className="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              >
+                Terms of Service
+              </button>
+              <button
+                onClick={() => router.push('/cookies')}
+                className="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              >
+                Cookie Policy
+              </button>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

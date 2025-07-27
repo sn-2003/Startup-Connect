@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Card,
   CardContent,
@@ -21,6 +22,7 @@ import Image from 'next/image';
 export default function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,6 +55,13 @@ export default function AuthForm() {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Check if user agreed to terms
+    if (!agreeToTerms) {
+      setError('You must agree to the Terms and Conditions to create an account.');
+      setLoading(false);
+      return;
+    }
 
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
@@ -211,6 +220,26 @@ export default function AuthForm() {
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {loading ? 'Signing in...' : 'Sign In'}
                     </Button>
+                    
+                    {/* Legal Links for Login */}
+                    <div className="text-center text-xs text-gray-500 mt-4">
+                      By signing in, you agree to our{' '}
+                      <button
+                        type="button"
+                        onClick={() => router.push('/terms')}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Terms
+                      </button>
+                      {' '}and{' '}
+                      <button
+                        type="button"
+                        onClick={() => router.push('/privacy')}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Privacy Policy
+                      </button>
+                    </div>
                   </form>
                 </TabsContent>
 
@@ -249,6 +278,40 @@ export default function AuthForm() {
                         className="focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition-shadow duration-300"
                       />
                     </div>
+                    
+                    {/* Terms and Conditions Checkbox */}
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="terms"
+                        checked={agreeToTerms}
+                        onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                        className="mt-1"
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label
+                          htmlFor="terms"
+                          className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          I agree to the{' '}
+                          <button
+                            type="button"
+                            onClick={() => router.push('/terms')}
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            Terms and Conditions
+                          </button>
+                          {' '}and{' '}
+                          <button
+                            type="button"
+                            onClick={() => router.push('/privacy')}
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            Privacy Policy
+                          </button>
+                        </Label>
+                      </div>
+                    </div>
+                    
                     <Button
                       type="submit"
                       className="w-full hover:shadow-lg hover:shadow-blue-400/40 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
@@ -262,6 +325,33 @@ export default function AuthForm() {
               </CardContent>
             </Tabs>
           </Card>
+          
+          {/* Footer with Legal Links */}
+          <div className="mt-8 text-center text-xs text-gray-500">
+            <div className="flex flex-wrap justify-center gap-4">
+              <button
+                onClick={() => router.push('/terms')}
+                className="text-gray-500 hover:text-gray-700 underline"
+              >
+                Terms of Service
+              </button>
+              <button
+                onClick={() => router.push('/privacy')}
+                className="text-gray-500 hover:text-gray-700 underline"
+              >
+                Privacy Policy
+              </button>
+              <button
+                onClick={() => router.push('/cookies')}
+                className="text-gray-500 hover:text-gray-700 underline"
+              >
+                Cookie Policy
+              </button>
+            </div>
+            <p className="mt-2">
+              © 2025 StartupGram. All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </div>
