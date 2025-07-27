@@ -1068,6 +1068,7 @@ export default function StartupModule() {
                                       customQuestions: selectedJobForApplicants.customQuestions ?? [],
                                       applications: Array.isArray(selectedJobForApplicants.applications) ? selectedJobForApplicants.applications : [],
                                       savedJobs: selectedJobForApplicants.savedJobs ?? [],
+                                      unpaid: selectedJobForApplicants.unpaid ?? false,
                                     }} />
                                   )}
                                 </DialogContent>
