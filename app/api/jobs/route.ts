@@ -87,6 +87,7 @@ export const POST = withAuth(async (req: NextRequest) => {
     const job = await prisma.job.create({
       data: {
         ...jobData,
+        ...(typeof jobData.unpaid !== 'undefined' ? { unpaid: jobData.unpaid } : {}),
         customQuestions: {
           create: customQuestions.map((q, index) => ({
             ...q,

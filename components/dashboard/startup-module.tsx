@@ -314,6 +314,7 @@ export default function StartupModule() {
         required: q.required,
         order: index,
       })),
+      unpaid: formData.get('unpaid') === 'on',
     };
 
     try {
@@ -807,7 +808,7 @@ export default function StartupModule() {
                           id="location"
                           name="location"
                           defaultValue={editingJob?.location || ''}
-                          placeholder="San Francisco, CA"
+                          placeholder="Delhi, India"
                         />
                       </div>
                       <div className="space-y-2">
@@ -825,6 +826,30 @@ export default function StartupModule() {
                         </Select>
                       </div>
                       <div className="space-y-2">
+                        <Label htmlFor="unpaid">Unpaid Position</Label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="unpaid"
+                            name="unpaid"
+                            type="checkbox"
+                            defaultChecked={editingJob?.unpaid || false}
+                            onChange={e => {
+                              const salaryMinInput = document.getElementById('salaryMin') as HTMLInputElement;
+                              const salaryMaxInput = document.getElementById('salaryMax') as HTMLInputElement;
+                              if (salaryMinInput && salaryMaxInput) {
+                                salaryMinInput.disabled = e.target.checked;
+                                salaryMaxInput.disabled = e.target.checked;
+                                if (e.target.checked) {
+                                  salaryMinInput.value = '';
+                                  salaryMaxInput.value = '';
+                                }
+                              }
+                            }}
+                          />
+                          <span className="text-sm">This is an unpaid role</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
                         <Label htmlFor="salaryMin">Minimum Salary</Label>
                         <Input
                           id="salaryMin"
@@ -832,6 +857,7 @@ export default function StartupModule() {
                           type="number"
                           defaultValue={editingJob?.salaryMin || ''}
                           placeholder="80000"
+                          disabled={editingJob?.unpaid}
                         />
                       </div>
                       <div className="space-y-2">
@@ -842,20 +868,21 @@ export default function StartupModule() {
                           type="number"
                           defaultValue={editingJob?.salaryMax || ''}
                           placeholder="120000"
+                          disabled={editingJob?.unpaid}
                         />
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="remote">Remote Work</Label>
-                      <Select name="remote" defaultValue={editingJob?.remote ? 'true' : 'false'}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select remote option" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">Remote</SelectItem>
-                          <SelectItem value="false">On-site</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-2">
+                        <Label htmlFor="remote">Job Mode</Label>
+                        <Select name="remote" defaultValue={editingJob?.remote ? 'true' : 'false'}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select job mode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Remote</SelectItem>
+                            <SelectItem value="false">On-site</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="description">Job Description *</Label>
@@ -994,6 +1021,9 @@ export default function StartupModule() {
                                 </Badge>
                                 <Badge variant="outline">{job.type}</Badge>
                                 <Badge variant="outline">{job.experienceLevel}</Badge>
+                                {job.unpaid && (
+                                  <Badge variant="destructive">Unpaid</Badge>
+                                )}
                                 {job.customQuestions && job.customQuestions.length > 0 && (
                                   <Badge variant="outline">
                                     {job.customQuestions.length} custom question{job.customQuestions.length !== 1 ? 's' : ''}
@@ -1170,7 +1200,7 @@ export default function StartupModule() {
                   // The new handleDelistJob function is used for delisting.
                   // For deletion, the original handleDeleteJob function is still available.
                   // The user's edit only replaced the button, not the logic.
-                  // So, I'm keeping the original handleDeleteJob call for deletion.
+                  // So, I'm keeping the original handleDeleteJob call for deletion
                   await apiClient.deleteJob(confirmDelete.id); // This line was not in the new_code, but should be kept for deletion
                   setJobs(jobs.filter(j => j.id !== confirmDelete.id));
                 }
@@ -1208,6 +1238,9 @@ export default function StartupModule() {
                 </Badge>
                 <Badge variant="outline">{previewJob.type}</Badge>
                 <Badge variant="outline">{previewJob.experienceLevel}</Badge>
+                {previewJob.unpaid && (
+                  <Badge variant="destructive">Unpaid</Badge>
+                )}
               </div>
               <div>
                 <h3 className="font-semibold mb-2">Job Description</h3>
@@ -1226,12 +1259,18 @@ export default function StartupModule() {
                   </ul>
                 </div>
               )}
-              {previewJob.salaryMin && previewJob.salaryMax && (
+              {previewJob.salaryMin && previewJob.salaryMax && !previewJob.unpaid && (
                 <div>
                   <h3 className="font-semibold mb-2">Compensation</h3>
                   <p className="text-gray-600">
                     ${previewJob.salaryMin.toLocaleString()} - ${previewJob.salaryMax.toLocaleString()} per year
                   </p>
+                </div>
+              )}
+              {previewJob.unpaid && (
+                <div>
+                  <h3 className="font-semibold mb-2">Compensation</h3>
+                  <p className="text-red-600 font-semibold">Unpaid</p>
                 </div>
               )}
             </div>

@@ -38,6 +38,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
   const [jobs, setJobs] = useState<JobWithStartup[]>([]);
   const [applications, setApplications] = useState<ApplicationWithJobDetails[]>([]);
   const [resume, setResume] = useState<ResumeWithRelations | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,11 +46,12 @@ export default function Overview({ onTabChange }: OverviewProps) {
       if (!user) return;
 
       try {
-        const [startupsRes, jobsRes, applicationsRes, resumeRes] = await Promise.all([
+        const [startupsRes, jobsRes, applicationsRes, resumeRes, profileRes] = await Promise.all([
           apiClient.getMyStartups(),
           apiClient.getJobs(),
           apiClient.getMyApplications(),
           apiClient.getMyResume(),
+          apiClient.getUserProfile(),
         ]);
 
         if (startupsRes.success && startupsRes.data) {
@@ -66,6 +68,9 @@ export default function Overview({ onTabChange }: OverviewProps) {
 
         if (resumeRes.success && resumeRes.data) {
           setResume(resumeRes.data);
+        }
+        if (profileRes.success && profileRes.data) {
+          setProfile(profileRes.data);
         }
       } catch (error) {
         console.error('Error loading overview data:', error);
@@ -157,9 +162,9 @@ export default function Overview({ onTabChange }: OverviewProps) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{resume ? 'Complete' : 'Incomplete'}</div>
+            <div className="text-2xl font-bold">{resume && resume.pdfUrl ? 'Complete' : 'Incomplete'}</div>
             <p className="text-xs text-muted-foreground">
-              {resume ? 'Resume is ready' : 'Complete your resume'}
+              {resume && resume.pdfUrl ? 'Resume is ready' : 'Complete your resume'}
             </p>
           </CardContent>
         </Card>
@@ -171,11 +176,16 @@ export default function Overview({ onTabChange }: OverviewProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.round(
-                ((startups.length > 0 ? 25 : 0) +
-                (resume ? 50 : 0) +
-                (applications.length > 0 ? 25 : 0)) 
-              )}%
+              {(() => {
+                let score = 0;
+                if (resume && resume.pdfUrl) score += 40;
+                if (profile?.linkedin) score += 15;
+                if (profile?.github) score += 15;
+                if (profile?.website) score += 10;
+                if (profile?.name && profile?.email) score += 10;
+                if (applications.length > 0 || startups.length > 0) score += 10;
+                return Math.round(score);
+              })()}%
             </div>
             <p className="text-xs text-muted-foreground">
               profile completion

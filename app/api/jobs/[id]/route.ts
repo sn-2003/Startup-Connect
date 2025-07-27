@@ -39,6 +39,7 @@ export const PUT = withAuth(async (req: NextRequest, { params }: { params: { id:
         where: { id },
         data: {
           ...jobData,
+          ...(typeof jobData.unpaid !== 'undefined' ? { unpaid: jobData.unpaid } : {}),
           customQuestions: {
             create: customQuestions.map((q, index) => ({
               ...q,

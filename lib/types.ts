@@ -79,6 +79,7 @@ export interface JobWithStartup extends Job {
   applications?: Application[] | number;
   customQuestions?: CustomQuestion[];
   savedJobs?: SavedJob[];
+  unpaid?: boolean;
 }
 
 // Resume with all relations

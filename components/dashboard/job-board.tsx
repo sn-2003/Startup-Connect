@@ -310,10 +310,16 @@ export default function JobBoard() {
                       <Users className="h-4 w-4 mr-1" />
                       {typeof job.applications === 'number' ? job.applications : (job.applications?.length || 0)} applications
                     </span>
-                    {job.salaryMin && job.salaryMax && (
+                    {job.salaryMin && job.salaryMax && !job.unpaid && (
                       <span className="flex items-center">
                         <DollarSign className="h-4 w-4 mr-1" />
                         Rs.{job.salaryMin.toLocaleString()} - Rs.{job.salaryMax.toLocaleString()}
+                      </span>
+                    )}
+                    {job.unpaid && (
+                      <span className="flex items-center text-red-600 font-semibold">
+                        <DollarSign className="h-4 w-4 mr-1" />
+                        Unpaid
                       </span>
                     )}
                   </div>
@@ -411,12 +417,18 @@ export default function JobBoard() {
                               </div>
                             )}
 
-                            {selectedJob.salaryMin && selectedJob.salaryMax && (
+                            {selectedJob.salaryMin && selectedJob.salaryMax && !selectedJob.unpaid && (
                               <div>
                                 <h3 className="font-semibold mb-2">Compensation</h3>
                                 <p className="text-gray-600">
                                   Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
                                 </p>
+                              </div>
+                            )}
+                            {selectedJob.unpaid && (
+                              <div>
+                                <h3 className="font-semibold mb-2">Compensation</h3>
+                                <p className="text-red-600 font-semibold">Unpaid</p>
                               </div>
                             )}
 

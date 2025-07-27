@@ -66,8 +66,19 @@ export const jobSchema = z.object({
   experienceLevel: z.nativeEnum(ExperienceLevel),
   salaryMin: z.number().min(0).optional(),
   salaryMax: z.number().min(0).optional(),
+  unpaid: z.boolean().default(false),
   remote: z.boolean().default(false),
   customQuestions: z.array(customQuestionSchema).default([]),
+}).refine((data) => {
+  if (data.unpaid) {
+    // If unpaid, salaryMin and salaryMax must be undefined or zero
+    return (!data.salaryMin || data.salaryMin === 0) && (!data.salaryMax || data.salaryMax === 0);
+  }
+  // If paid, allow salaryMin/salaryMax as before
+  return true;
+}, {
+  message: 'Unpaid jobs cannot have a salary range.',
+  path: ['salaryMin', 'salaryMax'],
 });
 
 // Resume validations

@@ -92,6 +92,7 @@ model Job {
   experienceLevel ExperienceLevel
   salaryMin       Int?
   salaryMax       Int?
+  unpaid          Boolean         @default(false) // Whether the job is unpaid
   remote          Boolean         @default(false)
   listed          Boolean         @default(true)  // Whether the job is publicly visible
   createdAt       DateTime        @default(now())

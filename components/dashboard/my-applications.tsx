@@ -290,12 +290,18 @@ export default function MyApplications() {
                                     </div>
                                   )}
 
-                                  {selectedJob.salaryMin && selectedJob.salaryMax && (
+                                  {selectedJob.salaryMin && selectedJob.salaryMax && !selectedJob.unpaid && (
                                     <div>
                                       <h3 className="font-semibold mb-2">Compensation</h3>
                                       <p className="text-gray-600">
                                         Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
                                       </p>
+                                    </div>
+                                  )}
+                                  {selectedJob.unpaid && (
+                                    <div>
+                                      <h3 className="font-semibold mb-2">Compensation</h3>
+                                      <p className="text-red-600 font-semibold">Unpaid</p>
                                     </div>
                                   )}
                                 </div>
