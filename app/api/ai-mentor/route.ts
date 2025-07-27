@@ -129,7 +129,7 @@ System instructions:
     const prompt = `${platformContext}\n\nHere is the recent conversation:\n${chatContext}\n\nHere is their profile:\n${JSON.stringify(user, null, 2)}\n\nHere are their startups:\n${JSON.stringify(startups, null, 2)}\n\nHere is their resume:\n${JSON.stringify(resume, null, 2)}\n\nHere are jobs they have applied to:\n${JSON.stringify(applications, null, 2)}\n\nContinue the conversation as Nova, the friendly mentor.`;
 
     // Use Gemini to get a response
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     const result = await model.generateContent(prompt);
     const aiMessage = result.response.text();
     
