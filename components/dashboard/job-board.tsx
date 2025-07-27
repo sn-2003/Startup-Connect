@@ -35,36 +35,43 @@ export default function JobBoard() {
   const [experienceFilter, setExperienceFilter] = useState('all');
   const [remoteFilter, setRemoteFilter] = useState('all');
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!user) return;
+  const loadData = async () => {
+    if (!user) return;
 
-      try {
-        const [jobsRes, applicationsRes, savedJobsRes] = await Promise.all([
-          apiClient.getJobs(),
-          apiClient.getMyApplications(),
-          apiClient.getSavedJobs(),
-        ]);
+    try {
+      console.log('JobBoard: Loading data...');
+      const [jobsRes, applicationsRes, savedJobsRes] = await Promise.all([
+        apiClient.getJobs(),
+        apiClient.getMyApplications(),
+        apiClient.getSavedJobs(),
+      ]);
 
-        if (jobsRes.success && jobsRes.data) {
-          setJobs(jobsRes.data);
-          setFilteredJobs(jobsRes.data);
-        }
+      console.log('JobBoard: Jobs response:', jobsRes);
+      console.log('JobBoard: Number of jobs received:', jobsRes.data?.length || 0);
 
-        if (applicationsRes.success && applicationsRes.data) {
-          setApplications(applicationsRes.data);
-        }
-
-        if (savedJobsRes.success && savedJobsRes.data) {
-          setSavedJobs(savedJobsRes.data.map((job: JobWithStartup) => job.id));
-        }
-      } catch (error) {
-        console.error('Error loading job data:', error);
-      } finally {
-        setLoading(false);
+      if (jobsRes.success && jobsRes.data) {
+        setJobs(jobsRes.data);
+        setFilteredJobs(jobsRes.data);
+        console.log('JobBoard: Jobs set successfully:', jobsRes.data.map(j => j.title));
+      } else {
+        console.error('JobBoard: Failed to load jobs:', jobsRes.error);
       }
-    };
 
+      if (applicationsRes.success && applicationsRes.data) {
+        setApplications(applicationsRes.data);
+      }
+
+      if (savedJobsRes.success && savedJobsRes.data) {
+        setSavedJobs(savedJobsRes.data.map((job: JobWithStartup) => job.id));
+      }
+    } catch (error) {
+      console.error('JobBoard: Error loading job data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
 
     // Auto-refresh every 2 minutes
@@ -210,8 +217,23 @@ export default function JobBoard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Job Board</h1>
-        <p className="text-gray-600">Discover opportunities at innovative startups</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Job Board</h1>
+            <p className="text-gray-600">Discover opportunities at innovative startups</p>
+          </div>
+          <Button 
+            onClick={() => {
+              console.log('JobBoard: Manual refresh triggered');
+              setLoading(true);
+              loadData();
+            }}
+            variant="outline"
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

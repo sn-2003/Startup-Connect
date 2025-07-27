@@ -107,7 +107,13 @@ class ApiClient {
 
   // Jobs
   async getJobs(): Promise<ApiResponse<any[]>> {
-    return this.request('/jobs');
+    const timestamp = Date.now();
+    return this.request(`/jobs?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   async testProduction(): Promise<ApiResponse<any>> {
