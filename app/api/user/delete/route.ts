@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth, handleApiError } from '@/lib/middleware';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const DELETE = withAuth(async (req: NextRequest) => {
   try {
@@ -21,7 +21,7 @@ export const DELETE = withAuth(async (req: NextRequest) => {
         if (bucketIndex !== -1 && pathParts.length > bucketIndex + 1) {
           const filePath = pathParts.slice(bucketIndex + 1).join('/');
           if (filePath) {
-            await supabase.storage.from('resumes').remove([filePath]);
+            await supabaseAdmin.storage.from('resumes').remove([filePath]);
           }
         }
       } catch (storageError) {

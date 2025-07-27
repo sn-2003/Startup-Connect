@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, handleApiError } from '@/lib/middleware';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const POST = withAuth(async (req: NextRequest) => {
   try {
     const user = (req as any).user;
+    console.log('Upload request received for user:', user.id);
+    
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const type = formData.get('type') as string; // 'logo' or 'promo'
     const startupId = formData.get('startupId') as string;
 
+    console.log('Upload parameters:', { type, startupId, fileSize: file?.size, fileType: file?.type });
+
     if (!file) {
+      console.error('No file provided in request');
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -18,6 +23,7 @@ export const POST = withAuth(async (req: NextRequest) => {
     }
 
     if (!type || !['logo', 'promo'].includes(type)) {
+      console.error('Invalid upload type:', type);
       return NextResponse.json(
         { error: 'Invalid upload type. Must be "logo" or "promo"' },
         { status: 400 }
@@ -26,6 +32,7 @@ export const POST = withAuth(async (req: NextRequest) => {
 
     // Validate file type (images only)
     if (!file.type.startsWith('image/')) {
+      console.error('Invalid file type:', file.type);
       return NextResponse.json(
         { error: 'Only image files are allowed' },
         { status: 400 }
@@ -35,6 +42,7 @@ export const POST = withAuth(async (req: NextRequest) => {
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
+      console.error('File too large:', file.size);
       return NextResponse.json(
         { error: 'File size must be less than 5MB' },
         { status: 400 }
@@ -56,8 +64,19 @@ export const POST = withAuth(async (req: NextRequest) => {
       bucketName = 'promos';
     }
 
-    // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    console.log('Uploading to bucket:', bucketName, 'with filename:', fileName);
+
+    // Check if Supabase is properly configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Supabase environment variables not configured');
+      return NextResponse.json(
+        { error: 'Storage service not configured' },
+        { status: 500 }
+      );
+    }
+
+    // Upload to Supabase Storage using admin client
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from(bucketName)
       .upload(fileName, file, {
         cacheControl: '3600',
@@ -67,15 +86,19 @@ export const POST = withAuth(async (req: NextRequest) => {
     if (uploadError) {
       console.error('Supabase upload error:', uploadError);
       return NextResponse.json(
-        { error: 'Failed to upload file' },
+        { error: `Failed to upload file: ${uploadError.message}` },
         { status: 500 }
       );
     }
 
+    console.log('File uploaded successfully:', uploadData);
+
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = supabaseAdmin.storage
       .from(bucketName)
       .getPublicUrl(fileName);
+
+    console.log('Public URL generated:', publicUrl);
 
     return NextResponse.json({ 
       data: {
@@ -85,7 +108,7 @@ export const POST = withAuth(async (req: NextRequest) => {
       message: 'File uploaded successfully' 
     });
   } catch (error) {
-    console.error('File upload error:', error);
+    console.error('Unexpected error in upload route:', error);
     return handleApiError(error);
   }
 });
@@ -106,8 +129,8 @@ export const DELETE = withAuth(async (req: NextRequest) => {
 
     const bucketName = type === 'logo' ? 'logos' : 'promos';
 
-    // Delete from Supabase Storage
-    const { error: deleteError } = await supabase.storage
+    // Delete from Supabase Storage using admin client
+    const { error: deleteError } = await supabaseAdmin.storage
       .from(bucketName)
       .remove([fileName]);
 

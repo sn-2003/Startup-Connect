@@ -4,6 +4,35 @@
 - Supabase project created
 - Environment variables configured
 
+## Environment Variables Setup
+
+### Local Development (.env.local)
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
+
+### Production Deployment (Vercel)
+You need to add these environment variables in your Vercel dashboard:
+
+1. Go to your Vercel project dashboard
+2. Navigate to Settings > Environment Variables
+3. Add the following variables:
+
+#### Required Variables:
+- `NEXT_PUBLIC_SUPABASE_URL` = Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` = Your Supabase anon/public key
+- `SUPABASE_SERVICE_ROLE_KEY` = Your Supabase service role key (for server-side operations)
+
+#### How to get the Service Role Key:
+1. Go to your Supabase project dashboard
+2. Navigate to Settings > API
+3. Copy the "service_role" key (NOT the anon key)
+4. This key has admin privileges and should only be used server-side
+
+**Important:** The `SUPABASE_SERVICE_ROLE_KEY` is required for file uploads in production. Without it, you'll get 500 errors when trying to upload files.
+
 ## Storage Bucket Setup
 
 ### 1. Resume Storage Bucket
@@ -156,15 +185,6 @@
 (auth.role() = 'authenticated')
 ```
 
-## Environment Variables
-
-Make sure your `.env.local` file includes:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
 ## Testing
 
 1. Start your development server: `npm run dev`
@@ -193,4 +213,9 @@ If you encounter issues:
 2. **File not found**: Verify the file path and user authentication
 3. **Permission denied**: Ensure the user is authenticated and policies are correct
 4. **Storage quota exceeded**: Check your Supabase plan limits
-5. **JWS Protected Header is invalid**: This usually means the Supabase client isn't properly authenticated - use the API routes instead of direct client-side uploads 
+5. **JWS Protected Header is invalid**: This usually means the Supabase client isn't properly authenticated - use the API routes instead of direct client-side uploads
+6. **500 Internal Server Error in production**: 
+   - Check that `SUPABASE_SERVICE_ROLE_KEY` is set in your Vercel environment variables
+   - Verify the service role key is correct (not the anon key)
+   - Check Vercel function logs for detailed error messages
+   - Ensure storage buckets exist and have proper policies 

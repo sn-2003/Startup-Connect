@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, handleApiError } from '@/lib/middleware';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { prisma } from '@/lib/prisma';
 
 export const POST = withAuth(async (req: NextRequest) => {
@@ -48,7 +48,7 @@ export const POST = withAuth(async (req: NextRequest) => {
       if (bucketIndex !== -1 && pathParts.length > bucketIndex + 1) {
         const filePath = pathParts.slice(bucketIndex + 1).join('/');
         if (filePath) {
-          await supabase.storage.from('resumes').remove([filePath]);
+          await supabaseAdmin.storage.from('resumes').remove([filePath]);
         }
       }
     }
@@ -58,7 +58,7 @@ export const POST = withAuth(async (req: NextRequest) => {
     const fileName = `${user.id}/${Date.now()}.${fileExtension}`;
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('resumes')
       .upload(fileName, file, {
         cacheControl: '3600',
@@ -74,7 +74,7 @@ export const POST = withAuth(async (req: NextRequest) => {
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = supabaseAdmin.storage
       .from('resumes')
       .getPublicUrl(fileName);
 
@@ -135,7 +135,7 @@ export const DELETE = withAuth(async (req: NextRequest) => {
     const fullPath = `${user.id}/${fileName}`;
 
     // Delete from Supabase Storage
-    const { error: deleteError } = await supabase.storage
+    const { error: deleteError } = await supabaseAdmin.storage
       .from('resumes')
       .remove([fullPath]);
 
