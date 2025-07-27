@@ -118,6 +118,11 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
+  details?: Array<{
+    path: string[];
+    message: string;
+    code: string;
+  }>;
 }
 
 // Form data types

@@ -27,6 +27,7 @@ class ApiClient {
         return {
           success: false,
           error: data.error || 'An error occurred',
+          details: data.details,
         };
       }
 
@@ -214,6 +215,7 @@ class ApiClient {
         return {
           success: false,
           error: data.error || 'An error occurred',
+          details: data.details,
         };
       }
 
@@ -254,6 +256,31 @@ class ApiClient {
   async relistJob(id: string): Promise<ApiResponse<any>> {
     return this.request(`/jobs/${id}/delist`, {
       method: 'PATCH',
+    });
+  }
+
+  // User Account Management
+  async deleteAccount(): Promise<ApiResponse<{ success: boolean }>> {
+    return this.request('/user/delete', {
+      method: 'DELETE',
+    });
+  }
+
+  // User Profile Management
+  async getUserProfile(): Promise<ApiResponse<any>> {
+    return this.request('/user/profile');
+  }
+
+  async updateUserProfile(data: {
+    name: string;
+    email: string;
+    website?: string;
+    linkedin?: string;
+    github?: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request('/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
     });
   }
 }

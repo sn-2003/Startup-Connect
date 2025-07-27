@@ -14,6 +14,7 @@ import SavedJobs from '@/components/dashboard/saved-jobs';
 import MyApplications from '@/components/dashboard/my-applications';
 import Incubators from '@/components/dashboard/incubators';
 import DiscoverStartups from '@/components/dashboard/discover-startups';
+import UserSettings from '@/components/dashboard/user-settings';
 import { useSearchParams } from 'next/navigation';
 
 export default function DashboardPage() {
@@ -32,7 +33,8 @@ export default function DashboardPage() {
     'incubators',
     'saved-jobs',
     'applications',
-    'discover', // Add discover tab
+    'discover',
+    'profile', // Changed from settings to profile
   ];
 
   // Get tab from query param, fallback to 'overview' if not valid
@@ -81,6 +83,8 @@ export default function DashboardPage() {
         return <MyApplications />;
       case 'discover':
         return <DiscoverStartups />;
+      case 'profile':
+        return <UserSettings />;
       default:
         return <Overview onTabChange={setActiveTab} />;
     }

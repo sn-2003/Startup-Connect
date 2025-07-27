@@ -41,7 +41,8 @@ import {
   TrendingUp,
   UsersRound,
   LayoutGrid,
-  FileCheck
+  FileCheck,
+  Settings
 } from 'lucide-react';
 import AiMentorChat from '@/components/ui/ai-mentor-chat';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -153,6 +154,10 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => onTabChange('profile')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  My Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout

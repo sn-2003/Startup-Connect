@@ -1,6 +1,22 @@
 import { z } from 'zod';
 import { StartupStage, JobType, ExperienceLevel, QuestionType } from '@prisma/client';
 
+// Custom URL validation that allows www. URLs
+const urlWithWww = z.string().refine((val) => {
+  if (!val || val === '') return true; // Allow empty strings
+  try {
+    // Add https:// if the URL doesn't start with http:// or https://
+    let urlToTest = val;
+    if (!val.startsWith('http://') && !val.startsWith('https://')) {
+      urlToTest = `https://${val}`;
+    }
+    new URL(urlToTest);
+    return true;
+  } catch {
+    return false;
+  }
+}, 'Please enter a valid URL (e.g., https://example.com or www.example.com)');
+
 // Auth validations
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -99,12 +115,22 @@ export const resumeSchema = z.object({
   
   // Ensure all education entries have required fields when not empty
   const validEducation = data.education.every(edu => 
-    !edu.institution || (edu.institution.trim() && edu.degree.trim() && edu.field.trim())
+    !edu.institution || (edu.institution.trim() && edu.degree.trim() && edu.field.trim() && edu.startDate.trim() && edu.endDate.trim())
   );
   
   return validExperience && validEducation;
 }, {
-  message: "Please fill in all required fields for experience and education entries"
+  message: "Please fill in all required fields for experience and education entries",
+  path: ["experience", "education"]
+});
+
+// User Profile validations
+export const userProfileSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
+  email: z.string().email('Invalid email address'),
+  website: urlWithWww.optional().or(z.literal('')),
+  linkedin: urlWithWww.optional().or(z.literal('')),
+  github: urlWithWww.optional().or(z.literal('')),
 });
 
 // Application validations

@@ -34,6 +34,9 @@ export const GET = withAuth(async (req: NextRequest, { params }: { params: { id:
             id: true,
             name: true,
             email: true,
+            website: true,
+            linkedin: true,
+            github: true,
           },
         },
         job: {

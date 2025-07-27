@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { ApplicationWithRelations, Application, JobWithRelations } from '@/lib/types';
-import { Users, Calendar, Mail, Download, FileText, Eye, AlertCircle } from 'lucide-react';
+import { Users, Calendar, Mail, Download, FileText, Eye, AlertCircle, Globe, Linkedin, Github } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ApplicantListProps {
@@ -185,6 +185,48 @@ export default function ApplicantList({ job }: ApplicantListProps) {
                         {application.resumePdfUrl ? 'Resume attached' : 'No resume attached'}
                       </span>
                     </div>
+
+                    {/* Professional Links */}
+                    {((application.user as any)?.website || (application.user as any)?.linkedin || (application.user as any)?.github) && (
+                      <div className="flex items-center space-x-2 mb-3">
+                        <span className="text-sm font-medium text-gray-700">Professional Links:</span>
+                        <div className="flex space-x-1">
+                          {(application.user as any)?.website && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open((application.user as any).website, '_blank')}
+                              className="h-6 w-6 p-0 hover:bg-blue-50"
+                              title="Website"
+                            >
+                              <Globe className="h-3 w-3 text-blue-600" />
+                            </Button>
+                          )}
+                          {(application.user as any)?.linkedin && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open((application.user as any).linkedin, '_blank')}
+                              className="h-6 w-6 p-0 hover:bg-blue-50"
+                              title="LinkedIn"
+                            >
+                              <Linkedin className="h-3 w-3 text-blue-600" />
+                            </Button>
+                          )}
+                          {(application.user as any)?.github && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open((application.user as any).github, '_blank')}
+                              className="h-6 w-6 p-0 hover:bg-blue-50"
+                              title="GitHub"
+                            >
+                              <Github className="h-3 w-3 text-gray-800" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -253,6 +295,48 @@ export default function ApplicantList({ job }: ApplicantListProps) {
                               </p>
                             </div>
                           </div>
+
+                          {/* Professional Links */}
+                          {((application.user as any)?.website || (application.user as any)?.linkedin || (application.user as any)?.github) && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Professional Links</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {(application.user as any)?.website && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open((application.user as any).website, '_blank')}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <Globe className="h-4 w-4" />
+                                    <span>Website</span>
+                                  </Button>
+                                )}
+                                {(application.user as any)?.linkedin && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open((application.user as any).linkedin, '_blank')}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <Linkedin className="h-4 w-4" />
+                                    <span>LinkedIn</span>
+                                  </Button>
+                                )}
+                                {(application.user as any)?.github && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open((application.user as any).github, '_blank')}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <Github className="h-4 w-4" />
+                                    <span>GitHub</span>
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          )}
 
                           {/* Resume Section */}
                           {application.resumePdfUrl && (
