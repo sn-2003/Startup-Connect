@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,13 +17,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Rocket, ArrowLeft } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 
 
 export default function AuthForm() {
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
   const [error, setError] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle NextAuth error query param for OAuth
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      if (errorParam === 'OAuthAccountNotLinked') {
+        setError('An account with the same email already exists. Please use the same provider you used originally.');
+      } else if (errorParam === 'AccessDenied') {
+        setError('Access denied. Please try a different account.');
+      } else if (errorParam === 'Callback') {
+        setError('Social login failed. Please try again.');
+      } else {
+        setError('Social login was cancelled or failed. Please try again.');
+      }
+    }
+  }, [searchParams]);
+
+  // Clear error when switching tabs
+  const handleTabChange = () => {
+    setError('');
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -164,7 +189,7 @@ export default function AuthForm() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Card>
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs defaultValue="login" className="w-full" onValueChange={handleTabChange}>
               <CardHeader className="text-center">
                 <CardTitle className="text-xl mb-2">Welcome</CardTitle>
                 <CardDescription>
@@ -184,6 +209,46 @@ export default function AuthForm() {
                 )}
 
                 <TabsContent value="login">
+                  {/* Google Login Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full flex items-center justify-center gap-2 mb-2"
+                    onClick={async () => {
+                      setGoogleLoading(true);
+                      setError('');
+                      try {
+                        await signIn('google', { callbackUrl: '/dashboard' });
+                      } catch (e) {
+                        setError('Google login failed. Please try again.');
+                        setGoogleLoading(false);
+                      }
+                    }}
+                    disabled={googleLoading || linkedinLoading}
+                  >
+                    {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/google-icon.svg" alt="Google" width={20} height={20} />}
+                    Continue with Google
+                  </Button>
+                  {/* LinkedIn Login Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full flex items-center justify-center gap-2 mb-4"
+                    onClick={async () => {
+                      setLinkedinLoading(true);
+                      setError('');
+                      try {
+                        await signIn('linkedin', { callbackUrl: '/dashboard' });
+                      } catch (e) {
+                        setError('LinkedIn login failed. Please try again.');
+                        setLinkedinLoading(false);
+                      }
+                    }}
+                    disabled={linkedinLoading || googleLoading}
+                  >
+                    {linkedinLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/linkedin-icon.svg" alt="LinkedIn" width={20} height={20} />}
+                    Continue with LinkedIn
+                  </Button>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -239,6 +304,46 @@ export default function AuthForm() {
                 </TabsContent>
 
                 <TabsContent value="register">
+                  {/* Google Register Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full flex items-center justify-center gap-2 mb-2"
+                    onClick={async () => {
+                      setGoogleLoading(true);
+                      setError('');
+                      try {
+                        await signIn('google', { callbackUrl: '/dashboard' });
+                      } catch (e) {
+                        setError('Google login failed. Please try again.');
+                        setGoogleLoading(false);
+                      }
+                    }}
+                    disabled={googleLoading || linkedinLoading}
+                  >
+                    {googleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/google-icon.svg" alt="Google" width={20} height={20} />}
+                    Continue with Google
+                  </Button>
+                  {/* LinkedIn Register Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full flex items-center justify-center gap-2 mb-4"
+                    onClick={async () => {
+                      setLinkedinLoading(true);
+                      setError('');
+                      try {
+                        await signIn('linkedin', { callbackUrl: '/dashboard' });
+                      } catch (e) {
+                        setError('LinkedIn login failed. Please try again.');
+                        setLinkedinLoading(false);
+                      }
+                    }}
+                    disabled={linkedinLoading || googleLoading}
+                  >
+                    {linkedinLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Image src="/linkedin-icon.svg" alt="LinkedIn" width={20} height={20} />}
+                    Continue with LinkedIn
+                  </Button>
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name</Label>
