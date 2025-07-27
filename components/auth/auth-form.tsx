@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import {
   Card,
   CardContent,
@@ -22,7 +22,7 @@ import Image from 'next/image';
 export default function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,12 +56,7 @@ export default function AuthForm() {
     setLoading(true);
     setError('');
 
-    // Check if user agreed to terms
-    if (!agreeToTerms) {
-      setError('You must agree to the Terms and Conditions to create an account.');
-      setLoading(false);
-      return;
-    }
+
 
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
@@ -279,38 +274,7 @@ export default function AuthForm() {
                       />
                     </div>
                     
-                    {/* Terms and Conditions Checkbox */}
-                    <div className="flex items-start space-x-2">
-                      <Checkbox
-                        id="terms"
-                        checked={agreeToTerms}
-                        onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
-                        className="mt-1"
-                      />
-                      <div className="grid gap-1.5 leading-none">
-                        <Label
-                          htmlFor="terms"
-                          className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          I agree to the{' '}
-                          <button
-                            type="button"
-                            onClick={() => router.push('/terms')}
-                            className="text-blue-600 hover:text-blue-800 underline"
-                          >
-                            Terms and Conditions
-                          </button>
-                          {' '}and{' '}
-                          <button
-                            type="button"
-                            onClick={() => router.push('/privacy')}
-                            className="text-blue-600 hover:text-blue-800 underline"
-                          >
-                            Privacy Policy
-                          </button>
-                        </Label>
-                      </div>
-                    </div>
+
                     
                     <Button
                       type="submit"
@@ -320,6 +284,26 @@ export default function AuthForm() {
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {loading ? 'Creating account...' : 'Create Account'}
                     </Button>
+                    
+                    {/* Legal Links for Register */}
+                    <div className="text-center text-xs text-gray-500 mt-4">
+                      By creating an account, you agree to our{' '}
+                      <button
+                        type="button"
+                        onClick={() => router.push('/terms')}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Terms
+                      </button>
+                      {' '}and{' '}
+                      <button
+                        type="button"
+                        onClick={() => router.push('/privacy')}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        Privacy Policy
+                      </button>
+                    </div>
                   </form>
                 </TabsContent>
               </CardContent>
