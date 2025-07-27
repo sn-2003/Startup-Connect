@@ -110,6 +110,10 @@ class ApiClient {
     return this.request('/jobs');
   }
 
+  async testProduction(): Promise<ApiResponse<any>> {
+    return this.request('/test-production');
+  }
+
   async getJobsByStartup(startupId: string): Promise<ApiResponse<any[]>> {
     return this.request(`/jobs/startup/${startupId}`);
   }
