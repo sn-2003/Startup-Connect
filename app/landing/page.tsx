@@ -670,9 +670,12 @@ export default function LandingPage() {
                   </button>
                 </li>
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <button
+                    onClick={() => router.push('/careers')}
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  >
                     Careers
-                  </a>
+                  </button>
                 </li>
                 <li>
                   <a href="#" className="text-slate-400 hover:text-white transition-colors">
