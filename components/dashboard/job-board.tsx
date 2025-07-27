@@ -410,21 +410,6 @@ export default function JobBoard() {
                               </p>
                             </div>
 
-                            {/* LinkedIn URL for Startup */}
-                            {selectedJob.startup?.linkedinUrl && (
-                              <div>
-                                <a
-                                  href={selectedJob.startup.linkedinUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                                  title="View on LinkedIn"
-                                >
-                                  <Linkedin className="h-5 w-5" />
-                                </a>
-                              </div>
-                            )}
-
                             {selectedJob.requirements.length > 0 && (
                               <div>
                                 <h3 className="font-semibold mb-2">Requirements</h3>
