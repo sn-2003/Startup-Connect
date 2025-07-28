@@ -31,7 +31,13 @@ const Incubators: React.FC = () => {
   useEffect(() => {
     const loadIncubators = async () => {
       try {
-        const response = await fetch('/api/incubators');
+        const timestamp = Date.now();
+        const response = await fetch(`/api/incubators?t=${timestamp}`, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
         const data = await response.json();
         setIncubators(data.incubators || []);
         setLoading(false);
