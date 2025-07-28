@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
-import { Startup, JobWithStartup, CustomQuestion, Application, ApplicationWithJobInfo } from '@/lib/types';
+import { StartupWithRelations, JobWithStartup, CustomQuestion, Application, ApplicationWithJobInfo } from '@/lib/types';
 import { StartupStage, JobType, ExperienceLevel, QuestionType } from '@prisma/client';
 import { 
   Building2, 
@@ -48,13 +48,13 @@ import { toast } from 'sonner';
 
 export default function StartupModule() {
   const { user } = useAuth();
-  const [startups, setStartups] = useState<Startup[]>([]);
-  const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null);
+  const [startups, setStartups] = useState<StartupWithRelations[]>([]);
+  const [selectedStartup, setSelectedStartup] = useState<StartupWithRelations | null>(null);
   const [jobs, setJobs] = useState<JobWithStartup[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('startups');
-  const [editingStartup, setEditingStartup] = useState<Startup | null>(null);
+  const [editingStartup, setEditingStartup] = useState<StartupWithRelations | null>(null);
   const [editingJob, setEditingJob] = useState<JobWithStartup | null>(null);
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([]);
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState<JobWithStartup | null>(null);
@@ -74,7 +74,7 @@ export default function StartupModule() {
       try {
         const startupsRes = await apiClient.getMyStartups();
         if (startupsRes.success && startupsRes.data) {
-          setStartups(startupsRes.data);
+          setStartups(startupsRes.data as StartupWithRelations[]);
           
           if (startupsRes.data.length > 0) {
             setSelectedStartup(startupsRes.data[0]);
@@ -1228,6 +1228,58 @@ export default function StartupModule() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Enhanced Startup Analytics */}
+          <div className="space-y-8 mt-8">
+            <h2 className="text-xl font-bold text-gray-900">Startup Analytics</h2>
+            {startups.length === 0 ? (
+              <div className="text-gray-500">No startups to show analytics for.</div>
+            ) : (
+              startups.map((startup) => {
+                const upvotes = startup.votes?.filter((v: any) => v.type === 'UPVOTE').length || 0;
+                const downvotes = startup.votes?.filter((v: any) => v.type === 'DOWNVOTE').length || 0;
+                return (
+                  <div key={startup.id} className="border rounded-lg p-6 bg-white shadow-sm">
+                    <div className="flex items-center mb-2">
+                      {startup.logo && (
+                        <img src={startup.logo} alt={startup.name} className="h-10 w-10 rounded-full mr-3" />
+                      )}
+                      <h3 className="text-lg font-semibold flex-1">{startup.name}</h3>
+                      <div className="flex items-center space-x-4">
+                        <span className="flex items-center text-green-600 font-medium">
+                          <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
+                          {upvotes} Upvotes
+                        </span>
+                        <span className="flex items-center text-red-600 font-medium">
+                          <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                          {downvotes} Downvotes
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2 text-gray-800">Feedback</h4>
+                      {startup.feedback && startup.feedback.length > 0 ? (
+                        <ul className="space-y-2">
+                          {startup.feedback.map((fb: any) => (
+                            <li key={fb.id} className="border rounded p-3 bg-gray-50">
+                              <div className="flex items-center mb-1">
+                                <span className="font-medium text-gray-700 mr-2">{fb.user?.name || 'Anonymous'}</span>
+                                <span className="text-xs text-gray-500">{fb.user?.email}</span>
+                                <span className="ml-auto text-xs text-gray-400">{new Date(fb.createdAt).toLocaleDateString()}</span>
+                              </div>
+                              <div className="text-gray-700">{fb.comment}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="text-gray-400 text-sm">No feedback yet.</div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </TabsContent>
       </Tabs>
