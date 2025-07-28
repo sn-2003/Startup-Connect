@@ -9,8 +9,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { ApplicationWithRelations, Application, JobWithRelations } from '@/lib/types';
-import { Users, Calendar, Mail, Download, FileText, Eye, AlertCircle, Globe, Linkedin, Github } from 'lucide-react';
+import { Users, Calendar, Mail, Download, FileText, Eye, AlertCircle, Globe, Linkedin, Github, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
+import { exportApplicationsToExcel, exportApplicationsToCSV } from '@/lib/excel-export';
 
 interface ApplicantListProps {
   job: JobWithRelations;
@@ -100,6 +101,34 @@ export default function ApplicantList({ job }: ApplicantListProps) {
     }
   };
 
+  const handleExportToExcel = () => {
+    try {
+      exportApplicationsToExcel({
+        applications,
+        jobTitle: job.title,
+        startupName: job.startup.name,
+      });
+      toast.success('Applications exported to Excel successfully!');
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      toast.error('Failed to export applications');
+    }
+  };
+
+  const handleExportToCSV = () => {
+    try {
+      exportApplicationsToCSV({
+        applications,
+        jobTitle: job.title,
+        startupName: job.startup.name,
+      });
+      toast.success('Applications exported to CSV successfully!');
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      toast.error('Failed to export applications');
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -115,11 +144,36 @@ export default function ApplicantList({ job }: ApplicantListProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Applicants for {job.title}</h3>
-        <Badge variant="outline" className="flex items-center space-x-1">
-          <Users className="h-4 w-4" />
-          <span>{applications.length} applicant{applications.length !== 1 ? 's' : ''}</span>
-        </Badge>
+        <div className="flex items-center space-x-4">
+          <h3 className="text-lg font-semibold">Applicants for {job.title}</h3>
+          <Badge variant="outline" className="flex items-center space-x-1">
+            <Users className="h-4 w-4" />
+            <span>{applications.length} applicant{applications.length !== 1 ? 's' : ''}</span>
+          </Badge>
+        </div>
+        
+        {applications.length > 0 && (
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportToExcel}
+              className="flex items-center space-x-2"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              <span>Export Excel</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportToCSV}
+              className="flex items-center space-x-2"
+            >
+              <FileText className="h-4 w-4" />
+              <span>Export CSV</span>
+            </Button>
+          </div>
+        )}
       </div>
 
       {applications.length === 0 ? (

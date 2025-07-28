@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
-import { Startup, JobWithStartup, CustomQuestion, Application } from '@/lib/types';
+import { Startup, JobWithStartup, CustomQuestion, Application, ApplicationWithJobInfo } from '@/lib/types';
 import { StartupStage, JobType, ExperienceLevel, QuestionType } from '@prisma/client';
 import { 
   Building2, 
@@ -38,9 +38,13 @@ import {
   CheckCircle,
   AlertCircle,
   TrendingUp,
-  UserCheck
+  UserCheck,
+  FileSpreadsheet,
+  FileText
 } from 'lucide-react';
 import ApplicantList from './applicant-list';
+import { exportApplicationsToExcel, exportApplicationsToCSV } from '@/lib/excel-export';
+import { toast } from 'sonner';
 
 export default function StartupModule() {
   const { user } = useAuth();
@@ -366,6 +370,42 @@ export default function StartupModule() {
       }
     } catch (error) {
       console.error('Error relisting job:', error);
+    }
+  };
+
+  const handleExportAllApplications = async () => {
+    if (!selectedStartup) return;
+    
+    try {
+      // Get all applications for all jobs in this startup
+      const allApplications: ApplicationWithJobInfo[] = [];
+      
+      for (const job of jobs) {
+        const response = await apiClient.getJobApplications(job.id);
+        if (response.success && response.data) {
+          allApplications.push(...response.data.map((app: any) => ({
+            ...app,
+            jobTitle: job.title,
+            jobId: job.id
+          })));
+        }
+      }
+
+      if (allApplications.length === 0) {
+        toast.error('No applications found to export');
+        return;
+      }
+
+      // Export to Excel
+      exportApplicationsToExcel({
+        applications: allApplications,
+        startupName: selectedStartup.name,
+      });
+      
+      toast.success(`Exported ${allApplications.length} applications from all jobs!`);
+    } catch (error) {
+      console.error('Error exporting all applications:', error);
+      toast.error('Failed to export applications');
     }
   };
 
@@ -985,10 +1025,24 @@ export default function StartupModule() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Job Postings for {selectedStartup.name}</CardTitle>
-                  <CardDescription>
-                    Manage your active job listings
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Job Postings for {selectedStartup.name}</CardTitle>
+                      <CardDescription>
+                        Manage your active job listings
+                      </CardDescription>
+                    </div>
+                    {jobs.length > 0 && (
+                      <Button
+                        variant="outline"
+                        onClick={handleExportAllApplications}
+                        className="flex items-center space-x-2"
+                      >
+                        <FileSpreadsheet className="h-4 w-4" />
+                        <span>Export All Applications</span>
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {jobs.length === 0 ? (

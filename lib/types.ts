@@ -99,6 +99,11 @@ export interface ApplicationWithRelations extends Application {
   customAnswers: (CustomAnswer & { question: CustomQuestion })[];
 }
 
+// Application with job info for bulk exports
+export interface ApplicationWithJobInfo extends ApplicationWithRelations {
+  jobTitle?: string;
+}
+
 // Enhanced Application type for frontend use
 export interface ApplicationWithJobDetails extends Application {
   job?: {
