@@ -28,7 +28,7 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
-  swcMinify: true, // Enable SWC minification for production builds
+  swcMinify: false, // Disable SWC minification to fix Radix UI build issues
   async headers() {
     return [
       {

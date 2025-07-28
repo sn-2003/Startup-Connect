@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import Image from 'next/image';
 import { 
@@ -42,7 +43,11 @@ import {
   UsersRound,
   LayoutGrid,
   FileCheck,
-  Settings
+  Settings,
+  Bell,
+  ChevronDown,
+  Target,
+  Sparkles
 } from 'lucide-react';
 import AiMentorChat from '@/components/ui/ai-mentor-chat';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -53,14 +58,18 @@ interface DashboardLayoutProps {
   onTabChange: (tab: string) => void;
 }
 
-const sidebarItems = [
-  { id: 'jobs', label: 'Job Board', icon: Briefcase },
-  { id: 'saved-jobs', label: 'Saved Jobs', icon: Star },
-  { id: 'resume', label: 'My Resume', icon: UserCircle },
-  { id: 'resources', label: 'Resources', icon: Layers },
+const mainNavItems = [
+  { id: 'jobs', label: 'Jobs', icon: Briefcase },
+  { id: 'discover', label: 'Startups', icon: Rocket },
   { id: 'investors', label: 'Investors', icon: Handshake },
   { id: 'incubators', label: 'Incubators', icon: Flame },
-  { id: 'discover', label: 'Discover Startups', icon: Globe },
+  { id: 'resources', label: 'Resources', icon: BookOpen },
+];
+
+const personalNavItems = [
+  { id: 'saved-jobs', label: 'Saved Jobs', icon: Star },
+  { id: 'resume', label: 'Resume', icon: FileText },
+  { id: 'profile', label: 'Profile', icon: UserCircle },
 ];
 
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
@@ -81,6 +90,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
     <div className="min-h-screen flex bg-gradient-to-br from-indigo-50 via-blue-50 to-gray-100">
       {/* AI Mentor Chat Widget */}
       <AiMentorChat />
+      
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -91,46 +101,120 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
       {/* Sidebar */}
       <div className={`
-        flex flex-col items-center
-        fixed top-0 left-0 z-50 h-full w-56 bg-slate-50/80 backdrop-blur-lg border-r border-slate-100 shadow-2xl rounded-tr-3xl rounded-br-3xl transition-transform duration-300 ease-in-out
+        flex flex-col
+        fixed top-0 left-0 z-50 h-full w-64 bg-gray-50 border-r border-gray-200 transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
       `}>
-        <div className="flex flex-col items-center w-full pt-4 pb-2 px-2 border-b border-slate-100 mb-2">
-          <Image src="/logo.png" alt="StartupGram Logo" width={40} height={40} className="h-10 w-10 object-contain mb-1" priority />
-          <span className="text-xl font-bold text-gray-900">StartupGram</span>
+        {/* Logo Section */}
+        <div className="px-8 py-5 border-b border-gray-200">
+          <div className="flex items-center space-x-2">
+            <Image
+              src="/logo.png"
+              alt="StartupGram Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+            />
+            <span className="text-xl font-bold text-gray-900">StartupGram</span>
+          </div>
         </div>
-        <nav className="p-2 w-full flex-1">
-          <ul className="space-y-2">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.id}>
-                  <button
-                    onClick={() => {
-                      onTabChange(item.id);
-                      setSidebarOpen(false);
-                    }}
-                    className={`
-                      w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200
-                      ${activeTab === item.id
-                        ? 'bg-blue-200/90 text-blue-900 shadow-lg scale-[1.04]'
-                        : 'text-gray-700 hover:bg-blue-100/70 hover:text-blue-800 hover:scale-[1.04]'
-                      }
-                    `}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-6">
+          {/* Main Navigation */}
+          <div>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">MAIN</h3>
+            <ul className="space-y-1">
+              {mainNavItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => {
+                        onTabChange(item.id);
+                        setSidebarOpen(false);
+                      }}
+                      className={`
+                        w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 group relative
+                        ${activeTab === item.id
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                        }
+                      `}
+                    >
+                      {activeTab === item.id && (
+                        <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-600 rounded-l-full"></div>
+                      )}
+                      <Icon className={`h-5 w-5 ${activeTab === item.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                      <span className="font-medium">{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Personal Navigation */}
+          <div>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">PERSONAL</h3>
+            <ul className="space-y-1">
+              {personalNavItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => {
+                        onTabChange(item.id);
+                        setSidebarOpen(false);
+                      }}
+                      className={`
+                        w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 group relative
+                        ${activeTab === item.id
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                        }
+                      `}
+                    >
+                      {activeTab === item.id && (
+                        <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-600 rounded-l-full"></div>
+                      )}
+                      <Icon className={`h-5 w-5 ${activeTab === item.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                      <span className="font-medium">{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-gray-200">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-gray-100">
+                <Settings className="h-4 w-4 mr-3" />
+                <span className="font-medium">Settings</span>
+                <ChevronDown className="h-4 w-4 ml-auto" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuItem onClick={() => onTabChange('profile')}>
+                <UserCircle className="mr-2 h-4 w-4" />
+                My Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-56 min-h-screen flex flex-col">
+      <div className="flex-1 lg:ml-64 min-h-screen flex flex-col">
         {/* Header */}
         <header className="bg-slate-50/80 backdrop-blur-lg border-b border-slate-100 px-4 py-4 shadow-md transition-all duration-200 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center space-x-4">
@@ -205,7 +289,6 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
             </Button>
           </div>
         </header>
-
 
         {/* Page content */}
         <main className="flex-1 p-6 bg-gradient-to-br from-slate-50/60 via-white/80 to-gray-100/80 transition-colors duration-300">
