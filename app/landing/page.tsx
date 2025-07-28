@@ -421,8 +421,8 @@ export default function LandingPage() {
               
               {
                 number: "25+",
-                label: "Startups Launched",
-                icon: TrendingUp,
+                label: "Resources for Startups",
+                icon: BookOpen  ,
               },
               { number: "150+", label: "Active Investors", icon: Users },
               { number: "10+", label: "Incubators", icon: Globe },

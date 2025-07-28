@@ -60,11 +60,23 @@ class ApiClient {
 
   // Startups
   async getStartups(): Promise<ApiResponse<any[]>> {
-    return this.request('/startups');
+    const timestamp = Date.now();
+    return this.request(`/startups?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   async getMyStartups(): Promise<ApiResponse<any[]>> {
-    return this.request('/startups/my');
+    const timestamp = Date.now();
+    return this.request(`/startups/my?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   async createStartup(data: any): Promise<ApiResponse<any>> {
@@ -121,7 +133,13 @@ class ApiClient {
   }
 
   async getJobsByStartup(startupId: string): Promise<ApiResponse<any[]>> {
-    return this.request(`/jobs/startup/${startupId}`);
+    const timestamp = Date.now();
+    return this.request(`/jobs/startup/${startupId}?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   async createJob(data: any): Promise<ApiResponse<any>> {
@@ -177,12 +195,24 @@ class ApiClient {
   }
 
   async getSavedJobs(): Promise<ApiResponse<any[]>> {
-    return this.request('/jobs/saved');
+    const timestamp = Date.now();
+    return this.request(`/jobs/saved?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   // Applications
   async getMyApplications(): Promise<ApiResponse<any[]>> {
-    return this.request('/applications/my');
+    const timestamp = Date.now();
+    return this.request(`/applications/my?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   // Resume
@@ -319,12 +349,24 @@ class ApiClient {
 
   // Investors
   async getInvestors(): Promise<ApiResponse<any[]>> {
-    return this.request('/investors');
+    const timestamp = Date.now();
+    return this.request(`/investors?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   // Resources
   async getResources(): Promise<ApiResponse<any[]>> {
-    return this.request('/resources');
+    const timestamp = Date.now();
+    return this.request(`/resources?t=${timestamp}`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
   }
 
   async delistJob(id: string): Promise<ApiResponse<any>> {
