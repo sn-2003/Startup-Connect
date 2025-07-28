@@ -301,8 +301,8 @@ model Resource {
   id          String       @id @default(cuid())
   title       String
   description String
-  category    ResourceCategory
-  type        ResourceType
+  category    String
+  type        String
   url         String
   imageUrl    String?
   featured    Boolean      @default(false)
@@ -372,39 +372,4 @@ enum VoteType {
   DOWNVOTE
 
   @@map("vote_type")
-}
-
-enum ResourceCategory {
-  STARTUP_GUIDES
-  FUNDING_RESOURCES
-  HIRING_TEAM
-  MARKETING_BRANDING
-  TECH_TOOLS
-  LEARNING
-  COMMUNITY
-  GOVERNMENT
-  CASE_STUDIES
-  MISC
-
-  @@map("resource_category")
-}
-
-enum ResourceType {
-  LINK
-  ARTICLE
-  COURSE
-  TOOLKIT
-  TEMPLATE
-  VIDEO
-  PLATFORM
-  PODCAST
-  DIRECTORY
-  SERVICE
-  PORTAL
-  PROGRAM
-  COMMUNITY
-  BLOG
-  COLLECTION
-
-  @@map("resource_type")
 }
