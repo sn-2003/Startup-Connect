@@ -19,9 +19,7 @@ import {
   ExperienceLevel,
   QuestionType,
   ApplicationStatus,
-  VoteType,
-  ResourceCategory,
-  ResourceType
+  VoteType
 } from '@prisma/client';
 
 // Re-export Prisma types
@@ -52,9 +50,7 @@ export {
   ExperienceLevel, 
   QuestionType, 
   ApplicationStatus, 
-  VoteType, 
-  ResourceCategory, 
-  ResourceType 
+  VoteType 
 };
 
 // Extended types with relations
