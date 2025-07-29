@@ -26,6 +26,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify password
+    if (!user.password) {
+      return NextResponse.json(
+        { error: 'This account does not have a password. Please sign in with Google or another provider.' },
+        { status: 400 }
+      );
+    }
     const isValidPassword = await verifyPassword(password, user.password);
     if (!isValidPassword) {
       return NextResponse.json(

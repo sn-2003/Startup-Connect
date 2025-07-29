@@ -251,6 +251,21 @@ export default function AuthForm() {
 
                   {/* Login Form */}
                   <TabsContent value="login" className="space-y-4">
+                    {/* Google OAuth Button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-12 flex items-center justify-center space-x-2 border-slate-300 bg-white hover:bg-slate-50"
+                      onClick={() => signIn("google")}
+                    >
+                      <Image src="/google-icon.svg" alt="Google" width={20} height={20} className="mr-2" />
+                      <span className="text-slate-700 font-medium">Sign in with Google</span>
+                    </Button>
+                    <div className="relative flex items-center py-2">
+                      <div className="flex-grow border-t border-slate-200"></div>
+                      <span className="mx-4 text-slate-400 text-xs">or</span>
+                      <div className="flex-grow border-t border-slate-200"></div>
+                    </div>
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="login-email">Email address</Label>
@@ -295,6 +310,21 @@ export default function AuthForm() {
 
                   {/* Register Form */}
                   <TabsContent value="register" className="space-y-4">
+                    {/* Google OAuth Button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-12 flex items-center justify-center space-x-2 border-slate-300 bg-white hover:bg-slate-50"
+                      onClick={() => signIn("google")}
+                    >
+                      <Image src="/google-icon.svg" alt="Google" width={20} height={20} className="mr-2" />
+                      <span className="text-slate-700 font-medium">Sign up with Google</span>
+                    </Button>
+                    <div className="relative flex items-center py-2">
+                      <div className="flex-grow border-t border-slate-200"></div>
+                      <span className="mx-4 text-slate-400 text-xs">or</span>
+                      <div className="flex-grow border-t border-slate-200"></div>
+                    </div>
                     <form onSubmit={handleRegister} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="register-name">Full name</Label>

@@ -6,8 +6,8 @@ import { jobSchema } from '@/lib/validations';
 export async function GET() {
   try {
     // Add production debugging
-    console.log('Jobs API: Environment check - NODE_ENV:', process.env.NODE_ENV);
-    console.log('Jobs API: Database URL check:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+    // console.log('Jobs API: Environment check - NODE_ENV:', process.env.NODE_ENV);
+    // console.log('Jobs API: Database URL check:', process.env.DATABASE_URL ? 'Set' : 'Not set');
     
     const jobs = await prisma.job.findMany({
       where: {
@@ -46,7 +46,7 @@ export async function GET() {
       },
     });
 
-    console.log('Jobs API: Found', jobs.length, 'listed jobs');
+    // console.log('Jobs API: Found', jobs.length, 'listed jobs');
 
     // Transform data to match frontend expectations
     const transformedJobs = jobs.map(job => ({
