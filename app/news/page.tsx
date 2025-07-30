@@ -16,9 +16,14 @@ import {
   Bookmark,
   Share2,
   Eye,
-  Calendar
+  Calendar,
+  Star,
+  ArrowRight,
+  Sparkles,
+  Check
 } from 'lucide-react';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 interface NewsItem {
   id: string;
@@ -42,18 +47,18 @@ interface NewsItem {
 }
 
 const categories = [
-  { id: 'all', label: 'All News', icon: TrendingUp },
-  { id: 'STARTUP', label: 'Startups', icon: Zap },
-  { id: 'INVESTMENT', label: 'Investment', icon: DollarSign },
-  { id: 'TECHNOLOGY', label: 'Technology', icon: TrendingUp },
-  { id: 'MARKETING', label: 'Marketing', icon: TrendingUp },
-  { id: 'DESIGN', label: 'Design', icon: TrendingUp },
-  { id: 'PRODUCTIVITY', label: 'Productivity', icon: TrendingUp },
-  { id: 'ANALYTICS', label: 'Analytics', icon: TrendingUp },
-  { id: 'FINANCE', label: 'Finance', icon: TrendingUp },
-  { id: 'COMMUNICATION', label: 'Communication', icon: TrendingUp },
-  { id: 'CAREERS', label: 'Careers', icon: TrendingUp },
-  { id: 'GENERAL', label: 'General', icon: TrendingUp }
+  { id: 'all', label: 'All News', icon: TrendingUp, color: 'bg-gradient-to-r from-blue-500 to-purple-600' },
+  { id: 'STARTUP', label: 'Startups', icon: Zap, color: 'bg-gradient-to-r from-green-500 to-emerald-600' },
+  { id: 'INVESTMENT', label: 'Investment', icon: DollarSign, color: 'bg-gradient-to-r from-yellow-500 to-orange-600' },
+  { id: 'TECHNOLOGY', label: 'Technology', icon: TrendingUp, color: 'bg-gradient-to-r from-purple-500 to-pink-600' },
+  { id: 'MARKETING', label: 'Marketing', icon: TrendingUp, color: 'bg-gradient-to-r from-red-500 to-pink-600' },
+  { id: 'DESIGN', label: 'Design', icon: TrendingUp, color: 'bg-gradient-to-r from-indigo-500 to-purple-600' },
+  { id: 'PRODUCTIVITY', label: 'Productivity', icon: TrendingUp, color: 'bg-gradient-to-r from-teal-500 to-cyan-600' },
+  { id: 'ANALYTICS', label: 'Analytics', icon: TrendingUp, color: 'bg-gradient-to-r from-blue-500 to-indigo-600' },
+  { id: 'FINANCE', label: 'Finance', icon: TrendingUp, color: 'bg-gradient-to-r from-green-500 to-teal-600' },
+  { id: 'COMMUNICATION', label: 'Communication', icon: TrendingUp, color: 'bg-gradient-to-r from-orange-500 to-red-600' },
+  { id: 'CAREERS', label: 'Careers', icon: TrendingUp, color: 'bg-gradient-to-r from-gray-500 to-slate-600' },
+  { id: 'GENERAL', label: 'General', icon: TrendingUp, color: 'bg-gradient-to-r from-slate-500 to-gray-600' }
 ];
 
 export default function NewsPage() {
@@ -63,6 +68,9 @@ export default function NewsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'trending'>('latest');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewedArticles, setViewedArticles] = useState<Set<string>>(new Set());
+  const [recentlyViewed, setRecentlyViewed] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchNews();
@@ -93,60 +101,101 @@ export default function NewsPage() {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      STARTUP: 'bg-blue-100 text-blue-800',
-      INVESTMENT: 'bg-green-100 text-green-800',
-      TECHNOLOGY: 'bg-purple-100 text-purple-800',
-      MARKETING: 'bg-orange-100 text-orange-800',
-      DESIGN: 'bg-pink-100 text-pink-800',
-      PRODUCTIVITY: 'bg-indigo-100 text-indigo-800',
-      ANALYTICS: 'bg-red-100 text-red-800',
-      FINANCE: 'bg-yellow-100 text-yellow-800',
-      COMMUNICATION: 'bg-teal-100 text-teal-800',
-      CAREERS: 'bg-gray-100 text-gray-800',
-      GENERAL: 'bg-gray-100 text-gray-800'
+      STARTUP: 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200',
+      INVESTMENT: 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border-yellow-200',
+      TECHNOLOGY: 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-purple-200',
+      MARKETING: 'bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border-red-200',
+      DESIGN: 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 border-indigo-200',
+      PRODUCTIVITY: 'bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 border-teal-200',
+      ANALYTICS: 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-200',
+      FINANCE: 'bg-gradient-to-r from-green-100 to-teal-100 text-green-800 border-green-200',
+      COMMUNICATION: 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border-orange-200',
+      CAREERS: 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200',
+      GENERAL: 'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 border-slate-200'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[category as keyof typeof colors] || colors.GENERAL;
   };
 
   const handleBookmark = async (newsId: string) => {
-    if (!user) {
-      toast.error('Please log in to bookmark articles');
-      return;
-    }
-
     try {
-      // Check if already bookmarked
-      const isBookmarked = news.find(item => item.id === newsId)?._count?.userBookmarks ?? 0 > 0;
-      
-      if (isBookmarked) {
-        await apiClient.unbookmarkNews(newsId);
-        toast.success('Removed from bookmarks');
+      const response = await apiClient.bookmarkNews(newsId);
+      if (response.success) {
+        toast.success('Article bookmarked!');
+        fetchNews(); // Refresh to update bookmark count
       } else {
-        await apiClient.bookmarkNews(newsId);
-        toast.success('Added to bookmarks');
+        toast.error('Failed to bookmark article');
       }
-      
-      // Refresh news to update bookmark counts
-      fetchNews();
     } catch (error) {
-      console.error('Error toggling bookmark:', error);
-      toast.error('Failed to update bookmark');
+      console.error('Error bookmarking article:', error);
+      toast.error('Failed to bookmark article');
     }
   };
 
+  const handleViewArticle = async (newsId: string, url: string) => {
+    try {
+      // Mark as viewed locally for immediate feedback
+      setViewedArticles(prev => new Set([...prev, newsId]));
+      
+      // Add pulse effect for recently viewed
+      setRecentlyViewed(prev => new Set([...prev, newsId]));
+      setTimeout(() => {
+        setRecentlyViewed(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(newsId);
+          return newSet;
+        });
+      }, 2000);
+      
+      // Increment view count in database
+      const response = await apiClient.getNewsArticle(newsId);
+      if (response.success) {
+        // Update local state to show immediate feedback
+        setNews(prevNews => 
+          prevNews.map(item => 
+            item.id === newsId 
+              ? { ...item, views: item.views + 1 }
+              : item
+          )
+        );
+      }
+      
+      // Open article in new tab
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error viewing article:', error);
+      // Still open the article even if view count fails
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return 'Yesterday';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const featuredNews = news.filter(item => item.featured).slice(0, 3);
+  const regularNews = news.filter(item => !item.featured);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
       <MainHeader />
       
-      {/* Page Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Startup Newsroom
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Stay updated with the latest startup news, funding rounds, acquisitions, and founder insights from around the world.
+            <div className="flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 mr-3" />
+              <h1 className="text-4xl font-bold">Latest Startup News</h1>
+            </div>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+              Stay updated with the latest insights, funding rounds, and innovations from the startup ecosystem
             </p>
           </div>
         </div>
@@ -166,39 +215,62 @@ export default function NewsPage() {
                   placeholder="Search news by title, content, or tags..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                 />
               </div>
             </div>
 
-            {/* Sort */}
-            <div className="lg:w-48">
+            {/* Sort and View Toggle */}
+            <div className="flex gap-3">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'latest' | 'popular' | 'trending')}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
               >
                 <option value="latest">Latest First</option>
                 <option value="popular">Most Popular</option>
                 <option value="trending">Trending</option>
               </select>
+              
+              <div className="flex border border-gray-300 rounded-xl overflow-hidden shadow-sm">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-4 py-3 transition-colors ${
+                    viewMode === 'grid' 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Grid
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-3 transition-colors ${
+                    viewMode === 'list' 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  List
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Category Tabs */}
         <div className="mb-8">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {categories.map((category) => {
               const Icon = category.icon;
               return (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 shadow-sm ${
                     selectedCategory === category.id
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                      ? `${category.color} text-white shadow-lg transform scale-105`
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:shadow-md'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -209,14 +281,122 @@ export default function NewsPage() {
           </div>
         </div>
 
-        {/* News Grid */}
+        {/* Featured News Section */}
+        {featuredNews.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center mb-6">
+              <Star className="h-6 w-6 text-yellow-500 mr-2" />
+              <h2 className="text-2xl font-bold text-gray-900">Featured Stories</h2>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredNews.map((item, index) => (
+                <article key={item.id} className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
+                  recentlyViewed.has(item.id) ? 'pulse-viewed' : ''
+                }`}>
+                  <div 
+                    className="relative h-48 cursor-pointer"
+                    onClick={() => handleViewArticle(item.id, item.url)}
+                  >
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                        <span className="text-white text-lg font-semibold">{item.source}</span>
+                      </div>
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(item.category)}`}>
+                        {item.category}
+                      </span>
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <button
+                        onClick={() => handleBookmark(item.id)}
+                        className={`p-2 rounded-full transition-colors ${
+                          (item._count?.userBookmarks ?? 0) > 0
+                            ? 'text-yellow-500 bg-yellow-50' 
+                            : 'text-white bg-black bg-opacity-30 hover:bg-opacity-50'
+                        }`}
+                      >
+                        <Bookmark className={`h-4 w-4 ${(item._count?.userBookmarks ?? 0) > 0 ? 'fill-current' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <span className="text-sm text-gray-500">{item.source}</span>
+                      <span className="text-gray-300">•</span>
+                      <span className="text-sm text-gray-500">{formatDate(item.publishedAt)}</span>
+                      {viewedArticles.has(item.id) && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-sm text-blue-600 font-medium flex items-center space-x-1">
+                            <Check className="h-3 w-3" />
+                            <span>Viewed</span>
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    
+                    <h3 
+                      className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-blue-600 transition-colors cursor-pointer"
+                      onClick={() => handleViewArticle(item.id, item.url)}
+                    >
+                      {item.title}
+                    </h3>
+                    
+                    <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
+                      {item.summary}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div
+                          className={`flex items-center space-x-1 transition-colors ${
+                            viewedArticles.has(item.id)
+                              ? 'text-blue-600'
+                              : 'text-gray-500'
+                          }`}
+                          title={`${item.views.toLocaleString()} views`}
+                        >
+                          <Eye className={`h-4 w-4 ${
+                            viewedArticles.has(item.id) ? 'fill-current' : ''
+                          }`} />
+                          <span>{item.views.toLocaleString()}</span>
+                        </div>
+                        <span>{item.readTime}</span>
+                      </div>
+                      
+                      <button
+                        onClick={() => handleViewArticle(item.id, item.url)}
+                        className="text-blue-600 hover:text-blue-700 flex items-center space-x-1 font-medium text-sm"
+                      >
+                        <span>Read More</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Regular News Grid/List */}
         {loading ? (
-          <div className="grid gap-6">
+          <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' : 'grid gap-6'}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="border border-gray-200 rounded-lg p-6 animate-pulse">
+              <div key={i} className="bg-white rounded-2xl p-6 animate-pulse shadow-sm">
                 <div className="flex space-x-4">
                   <div className="flex-shrink-0">
-                    <div className="h-20 w-32 bg-gray-200 rounded-lg"></div>
+                    <div className="h-20 w-32 bg-gray-200 rounded-xl"></div>
                   </div>
                   <div className="flex-1 space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -228,92 +408,119 @@ export default function NewsPage() {
             ))}
           </div>
         ) : (
-          <div className="grid gap-6">
-            {news.map((item) => (
-              <article key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="md:flex">
-                  {item.image && (
-                    <div className="md:flex-shrink-0">
-                      <img 
-                        src={item.image} 
+          <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' : 'grid gap-6'}>
+            {regularNews.map((item) => (
+              <article key={item.id} className={`bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
+                viewMode === 'list' ? 'md:flex' : ''
+              } ${recentlyViewed.has(item.id) ? 'pulse-viewed' : ''}`}>
+                <div className={`relative ${viewMode === 'list' ? 'md:w-80 md:flex-shrink-0' : ''}`}>
+                  <div 
+                    className={`${viewMode === 'list' ? 'h-full' : 'h-48'} cursor-pointer`}
+                    onClick={() => handleViewArticle(item.id, item.url)}
+                  >
+                    {item.image ? (
+                      <Image
+                        src={item.image}
                         alt={item.title}
-                        className="h-48 w-full md:w-64 object-cover"
+                        fill
+                        className="object-cover"
+                        sizes={viewMode === 'list' ? "(max-width: 768px) 100vw, 320px" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
                       />
-                    </div>
-                  )}
-                  
-                  <div className="p-6 flex-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
-                            {item.category}
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+                        <span className="text-white text-lg font-semibold">{item.source}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute top-4 left-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(item.category)}`}>
+                      {item.category}
+                    </span>
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <button
+                      onClick={() => handleBookmark(item.id)}
+                      className={`p-2 rounded-full transition-colors ${
+                        (item._count?.userBookmarks ?? 0) > 0
+                          ? 'text-yellow-500 bg-yellow-50' 
+                          : 'text-white bg-black bg-opacity-30 hover:bg-opacity-50'
+                      }`}
+                    >
+                      <Bookmark className={`h-4 w-4 ${(item._count?.userBookmarks ?? 0) > 0 ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className={`p-6 flex-1 ${viewMode === 'list' ? 'md:flex md:flex-col md:justify-between' : ''}`}>
+                  <div>
+                    <div className="flex items-center space-x-2 mb-3">
+                      <span className="text-sm text-gray-500">{item.source}</span>
+                      <span className="text-gray-300">•</span>
+                      <span className="text-sm text-gray-500">{formatDate(item.publishedAt)}</span>
+                      {viewedArticles.has(item.id) && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-sm text-blue-600 font-medium flex items-center space-x-1">
+                            <Check className="h-3 w-3" />
+                            <span>Viewed</span>
                           </span>
-                          <span className="text-sm text-gray-500">{item.source}</span>
-                          {item.author && (
-                            <span className="text-sm text-gray-500">by {item.author}</span>
-                          )}
-                        </div>
-                        
-                        <h2 className="text-xl font-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors">
-                          {item.title}
-                        </h2>
-                        
-                        <p className="text-gray-600 mb-4 line-clamp-3">
-                          {item.summary}
-                        </p>
-                      </div>
-                      
-                      <div className="flex flex-col items-end space-y-2 ml-4">
-                        <button
-                          onClick={() => handleBookmark(item.id)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            (item._count?.userBookmarks ?? 0) > 0
-                              ? 'text-blue-600 bg-blue-50' 
-                              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                          }`}
-                        >
-                          <Bookmark className={`h-5 w-5 ${(item._count?.userBookmarks ?? 0) > 0 ? 'fill-current' : ''}`} />
-                        </button>
-                        
-                        <button className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors">
-                          <Share2 className="h-5 w-5" />
-                        </button>
-                      </div>
+                        </>
+                      )}
                     </div>
+                    
+                    <h3 
+                      className={`font-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors cursor-pointer ${
+                        viewMode === 'list' ? 'text-xl' : 'text-lg'
+                      } line-clamp-2`}
+                      onClick={() => handleViewArticle(item.id, item.url)}
+                    >
+                      {item.title}
+                    </h3>
+                    
+                    <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
+                      {item.summary}
+                    </p>
                     
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {item.tags.map((tag, index) => (
+                      {item.tags.slice(0, 3).map((tag, index) => (
                         <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
                           {tag}
                         </span>
                       ))}
+                      {item.tags.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                          +{item.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div
+                        className={`flex items-center space-x-1 transition-colors ${
+                          viewedArticles.has(item.id)
+                            ? 'text-blue-600'
+                            : 'text-gray-500'
+                        }`}
+                        title={`${item.views.toLocaleString()} views`}
+                      >
+                        <Eye className={`h-4 w-4 ${
+                          viewedArticles.has(item.id) ? 'fill-current' : ''
+                        }`} />
+                        <span>{item.views.toLocaleString()}</span>
+                      </div>
+                      <span>{item.readTime}</span>
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{item.publishedAt}</span>
-                        </div>
-                        <span>{item.readTime}</span>
-                        <div className="flex items-center space-x-1">
-                          <Eye className="h-4 w-4" />
-                          <span>{item.views.toLocaleString()}</span>
-                        </div>
-                      </div>
-                      
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 flex items-center space-x-1 font-medium"
-                      >
-                        <span>Read Full Article</span>
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </div>
+                    <button
+                      onClick={() => handleViewArticle(item.id, item.url)}
+                      className="text-blue-600 hover:text-blue-700 flex items-center space-x-1 font-medium text-sm"
+                    >
+                      <span>Read More</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </article>
@@ -322,11 +529,13 @@ export default function NewsPage() {
         )}
 
         {/* Load More Button */}
-        <div className="text-center pt-8">
-          <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Load More News
-          </button>
-        </div>
+        {regularNews.length > 0 && (
+          <div className="text-center pt-12">
+            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+              Load More News
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
