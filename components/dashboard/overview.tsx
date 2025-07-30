@@ -27,6 +27,7 @@ import {
   Rocket,
 } from "lucide-react"
 import { motion } from "framer-motion"
+import { useRouter } from 'next/navigation';
 
 interface OverviewProps {
   onTabChange: (tab: string) => void
@@ -34,6 +35,7 @@ interface OverviewProps {
 
 export default function Overview({ onTabChange }: OverviewProps) {
   const { user } = useAuth()
+  const router = useRouter()
   const [startups, setStartups] = useState<StartupWithRelations[]>([])
   const [jobs, setJobs] = useState<JobWithStartup[]>([])
   const [applications, setApplications] = useState<ApplicationWithJobDetails[]>([])
@@ -155,14 +157,14 @@ export default function Overview({ onTabChange }: OverviewProps) {
             </div>
             <div className="flex space-x-3">
               <Button
-                onClick={() => onTabChange("jobs")}
+                onClick={() => router.push("/jobs")}
                 className="bg-white/20 hover:bg-white/30 text-white border-white/30"
               >
                 <Briefcase className="h-4 w-4 mr-2" />
                 Browse Jobs
               </Button>
               <Button
-                onClick={() => onTabChange("startup")}
+                onClick={() => router.push("/my-startups")}
                 variant="outline"
                 className="bg-transparent border-white/30 text-white hover:bg-white/10"
               >
@@ -259,25 +261,25 @@ export default function Overview({ onTabChange }: OverviewProps) {
                   {
                     label: "Browse Jobs",
                     icon: Briefcase,
-                    action: () => onTabChange("jobs"),
+                    action: () => router.push("/jobs"),
                     color: "bg-blue-50 hover:bg-blue-100 text-blue-700",
                   },
                   {
                     label: "Update Resume",
                     icon: FileText,
-                    action: () => onTabChange("resume"),
+                    action: () => router.push("/resume"),
                     color: "bg-green-50 hover:bg-green-100 text-green-700",
                   },
                   {
                     label: "Find Investors",
                     icon: Users,
-                    action: () => onTabChange("investors"),
+                    action: () => router.push("/investors"),
                     color: "bg-purple-50 hover:bg-purple-100 text-purple-700",
                   },
                   {
                     label: "Learn",
                     icon: Award,
-                    action: () => onTabChange("resources"),
+                    action: () => router.push("/resources"),
                     color: "bg-orange-50 hover:bg-orange-100 text-orange-700",
                   },
                 ].map((action, index) => (
@@ -303,7 +305,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                   <CardTitle>Recent Applications</CardTitle>
                   <CardDescription>Track your application progress</CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => onTabChange("applications")}>
+                <Button variant="ghost" size="sm" onClick={() => router.push("/my-applications")}>
                   View All <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
@@ -314,7 +316,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                   <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
                   <h3 className="text-lg font-medium text-slate-900 mb-2">No applications yet</h3>
                   <p className="text-slate-600 mb-4">Start applying to jobs to see them here</p>
-                  <Button onClick={() => onTabChange("jobs")}>Browse Jobs</Button>
+                  <Button onClick={() => router.push("/jobs")}>Browse Jobs</Button>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -351,7 +353,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                     </motion.div>
                   ))}
                   {applications.length > 3 && (
-                    <Button variant="ghost" className="w-full" onClick={() => onTabChange("applications")}>
+                    <Button variant="ghost" className="w-full" onClick={() => router.push("/my-applications")}>
                       View all {applications.length} applications
                     </Button>
                   )}
@@ -406,7 +408,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                     )}
                   </div>
                 </div>
-                <Button onClick={() => onTabChange("profile")} className="w-full mt-4" size="sm">
+                <Button onClick={() => router.push("/profile")} className="w-full mt-4" size="sm">
                   Complete Profile
                 </Button>
               </div>
@@ -421,7 +423,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                   <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
                   Hot Jobs
                 </CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => onTabChange("jobs")}>
+                <Button variant="ghost" size="sm" onClick={() => router.push("/jobs")}>
                   View All
                 </Button>
               </div>
@@ -435,7 +437,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     className="p-3 rounded-lg border border-slate-100 hover:border-slate-200 transition-colors cursor-pointer"
-                    onClick={() => onTabChange("jobs")}
+                    onClick={() => router.push("/jobs")}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-medium text-slate-900 text-sm line-clamp-1">{job.title}</h4>
@@ -472,7 +474,7 @@ export default function Overview({ onTabChange }: OverviewProps) {
                     <Rocket className="h-5 w-5 mr-2 text-purple-500" />
                     My Startups
                   </CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => onTabChange("startup")}>
+                  <Button variant="ghost" size="sm" onClick={() => router.push("/my-startups")}>
                     Manage
                   </Button>
                 </div>

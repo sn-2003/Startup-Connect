@@ -48,8 +48,9 @@ export default function StartupNews() {
       setLoading(true);
       const response = await apiClient.getNews({
         category: selectedCategory === 'all' ? undefined : selectedCategory,
-        limit: 10,
-        featured: showSavedOnly ? undefined : true
+        limit: 6,
+        featured: showSavedOnly ? undefined : undefined,
+        sortBy: 'latest'
       });
 
       if (response.success && response.data) {
@@ -165,16 +166,14 @@ export default function StartupNews() {
         </Button>
       </div>
 
-      {/* News Grid */}
+      {/* News Cards Grid */}
       {loading ? (
-        <div className="grid gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="border border-gray-200 rounded-lg p-4 animate-pulse">
-              <div className="flex space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="h-20 w-32 bg-gray-200 rounded-lg"></div>
-                </div>
-                <div className="flex-1 space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white border border-gray-200 rounded-xl p-6 animate-pulse">
+              <div className="space-y-4">
+                <div className="h-48 bg-gray-200 rounded-lg"></div>
+                <div className="space-y-3">
                   <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                   <div className="h-3 bg-gray-200 rounded w-full"></div>
                   <div className="h-3 bg-gray-200 rounded w-2/3"></div>
@@ -184,74 +183,76 @@ export default function StartupNews() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredNews.map((item, index) => (
-            <article key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="flex space-x-4">
-                {item.image && (
-                  <div className="flex-shrink-0">
-                    <img 
-                      src={item.image} 
-                      alt={item.title}
-                      className="h-20 w-32 object-cover rounded-lg"
-                    />
+            <article key={item.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+              {/* Image */}
+              {item.image && (
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(item.category)}`}>
+                      {item.category}
+                    </span>
                   </div>
-                )}
+                  <div className="absolute top-4 right-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSaveNews(item.id)}
+                      disabled={saving === item.id}
+                      className="h-8 w-8 p-0 bg-white/80 hover:bg-white/90"
+                      title={isNewsSaved(item.id) ? 'Remove from saved' : 'Save news'}
+                    >
+                      {isNewsSaved(item.id) ? (
+                        <BookmarkCheck className="h-4 w-4 text-blue-600" />
+                      ) : (
+                        <Bookmark className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Content */}
+              <div className="p-6">
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-sm text-gray-500">{item.source}</span>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-sm text-gray-500">{item.publishedAt}</span>
+                </div>
                 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {item.summary}
-                      </p>
-                    </div>
-                    
-                    <div className="flex-shrink-0 ml-4 flex items-start space-x-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
-                        {item.category}
-                      </span>
-                      
-                      {/* Save Button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleSaveNews(item.id)}
-                        disabled={saving === item.id}
-                        className="h-8 w-8 p-0 hover:bg-gray-100"
-                        title={isNewsSaved(item.id) ? 'Remove from saved' : 'Save news'}
-                      >
-                        {isNewsSaved(item.id) ? (
-                          <BookmarkCheck className="h-4 w-4 text-blue-600" />
-                        ) : (
-                          <Bookmark className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center space-x-4">
-                      <span className="font-medium text-gray-700">{item.source}</span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 hover:text-blue-600 transition-colors">
+                  {item.title}
+                </h3>
+                
+                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                  {item.summary}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    {item.readTime && (
                       <div className="flex items-center space-x-1">
                         <Clock className="h-3 w-3" />
-                        <span>{item.publishedAt}</span>
+                        <span>{item.readTime}</span>
                       </div>
-                      {item.readTime && <span>{item.readTime}</span>}
-                    </div>
-                    
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 flex items-center space-x-1"
-                    >
-                      <span>Read</span>
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
+                    )}
                   </div>
+                  
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 flex items-center space-x-1 font-medium text-sm"
+                  >
+                    <span>Read More</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 </div>
               </div>
             </article>

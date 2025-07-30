@@ -25,7 +25,7 @@ import {
 import { useAuth } from "@/hooks/use-auth"
 import Image from "next/image"
 import Link from "next/link"
-import { Menu, LogOut, User, Settings, Home, Bell, ChevronDown, Info } from "lucide-react"
+import { Menu, LogOut, User, Settings, Home, ChevronDown, Info } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
@@ -140,11 +140,7 @@ export default function MainHeader() {
                   <Home className="h-4 w-4" />
                 </Button>
 
-                {/* Notifications */}
-                <Button variant="ghost" size="sm" className="hidden md:flex relative">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                </Button>
+
 
                 {/* User Menu */}
                 <DropdownMenu>

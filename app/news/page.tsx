@@ -14,6 +14,7 @@ import {
   Users, 
   Zap,
   Bookmark,
+  BookmarkCheck,
   Share2,
   Eye,
   Calendar,
@@ -71,10 +72,16 @@ export default function NewsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [viewedArticles, setViewedArticles] = useState<Set<string>>(new Set());
   const [recentlyViewed, setRecentlyViewed] = useState<Set<string>>(new Set());
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [savedNewsIds, setSavedNewsIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchNews();
-  }, [selectedCategory, searchQuery, sortBy]);
+    if (user) {
+      fetchSavedNews();
+    }
+  }, [selectedCategory, searchQuery, sortBy, showSavedOnly, user]);
 
   const fetchNews = async () => {
     try {
@@ -83,7 +90,8 @@ export default function NewsPage() {
         category: selectedCategory === 'all' ? undefined : selectedCategory,
         search: searchQuery || undefined,
         sortBy: sortBy,
-        limit: 50
+        limit: 50,
+        featured: showSavedOnly ? undefined : true
       });
 
       if (response.success && response.data) {
@@ -96,6 +104,19 @@ export default function NewsPage() {
       toast.error('Failed to fetch news');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSavedNews = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await apiClient.getSavedNews({ limit: 100 });
+      if (response.success && response.data) {
+        setSavedNewsIds(response.data.map((item: NewsItem) => item.id));
+      }
+    } catch (error) {
+      console.error('Error fetching saved news:', error);
     }
   };
 
@@ -117,17 +138,31 @@ export default function NewsPage() {
   };
 
   const handleBookmark = async (newsId: string) => {
+    if (!user) {
+      toast.error('Please login to bookmark articles');
+      return;
+    }
+
+    setSaving(newsId);
     try {
       const response = await apiClient.saveNews(newsId);
       if (response.success) {
-        toast.success('Article bookmarked!');
-        fetchNews(); // Refresh to update bookmark count
+        const isCurrentlySaved = savedNewsIds.includes(newsId);
+        if (isCurrentlySaved) {
+          setSavedNewsIds(prev => prev.filter(id => id !== newsId));
+          toast.success('Article removed from saved');
+        } else {
+          setSavedNewsIds(prev => [...prev, newsId]);
+          toast.success('Article saved successfully');
+        }
       } else {
-        toast.error('Failed to bookmark article');
+        toast.error(response.error || 'Failed to bookmark article');
       }
     } catch (error) {
       console.error('Error bookmarking article:', error);
       toast.error('Failed to bookmark article');
+    } finally {
+      setSaving(null);
     }
   };
 
@@ -179,8 +214,16 @@ export default function NewsPage() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const featuredNews = news.filter(item => item.featured).slice(0, 3);
-  const regularNews = news.filter(item => !item.featured);
+  const isNewsSaved = (newsId: string) => {
+    return savedNewsIds.includes(newsId);
+  };
+
+  const filteredNews = showSavedOnly 
+    ? news.filter(item => isNewsSaved(item.id))
+    : news;
+  
+  const featuredNews = filteredNews.filter(item => item.featured).slice(0, 3);
+  const regularNews = filteredNews.filter(item => !item.featured);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
@@ -254,6 +297,21 @@ export default function NewsPage() {
                   List
                 </button>
               </div>
+
+              {/* Show Saved Only Filter */}
+              {user && (
+                <button
+                  onClick={() => setShowSavedOnly(!showSavedOnly)}
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-sm ${
+                    showSavedOnly
+                      ? 'bg-blue-500 text-white shadow-lg'
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:shadow-md'
+                  }`}
+                >
+                  <Bookmark className="h-4 w-4" />
+                  <span>{showSavedOnly ? 'Show All' : 'Show Saved Only'}</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -317,14 +375,22 @@ export default function NewsPage() {
                     </div>
                     <div className="absolute top-4 right-4">
                       <button
-                        onClick={() => handleBookmark(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookmark(item.id);
+                        }}
+                        disabled={saving === item.id}
                         className={`p-2 rounded-full transition-colors ${
-                          (item._count?.userBookmarks ?? 0) > 0
+                          isNewsSaved(item.id)
                             ? 'text-yellow-500 bg-yellow-50' 
                             : 'text-white bg-black bg-opacity-30 hover:bg-opacity-50'
                         }`}
                       >
-                        <Bookmark className={`h-4 w-4 ${(item._count?.userBookmarks ?? 0) > 0 ? 'fill-current' : ''}`} />
+                        {isNewsSaved(item.id) ? (
+                          <BookmarkCheck className="h-4 w-4 fill-current" />
+                        ) : (
+                          <Bookmark className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -516,8 +582,26 @@ export default function NewsPage() {
         </div>
         )}
 
+        {/* Empty State */}
+        {!loading && filteredNews.length === 0 && (
+          <div className="text-center py-16">
+            <div className="mx-auto h-16 w-16 text-gray-400 mb-6">
+              {showSavedOnly ? <BookmarkCheck className="h-16 w-16" /> : <TrendingUp className="h-16 w-16" />}
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+              {showSavedOnly ? 'No saved articles yet' : 'No news articles found'}
+            </h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              {showSavedOnly 
+                ? 'Save interesting articles to read them later. Try browsing all news and bookmarking articles you find interesting.'
+                : 'Try adjusting your search terms or filters. New articles are added regularly.'
+              }
+            </p>
+          </div>
+        )}
+
         {/* Load More Button */}
-        {regularNews.length > 0 && (
+        {regularNews.length > 0 && !showSavedOnly && (
           <div className="text-center pt-12">
             <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1">
             Load More News
