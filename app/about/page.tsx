@@ -74,7 +74,7 @@ export default function AboutPage() {
       router.push("/dashboard");
     } else {
       // For non-authenticated users, go to landing page instead of home
-      router.push("/landing");
+      router.push("/");
     }
   };
 
@@ -109,7 +109,7 @@ export default function AboutPage() {
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>{isAuthenticated ? "Back to Dashboard" : "Back to Landing"}</span>
+              <span>{isAuthenticated ? "Back to Home" : "Back to Home"}</span>
             </Button>
           </div>
         </div>

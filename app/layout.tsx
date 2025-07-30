@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/hooks/use-auth';
 import { SessionProvider } from 'next-auth/react';
 import Script from 'next/script';
+import FloatableAiNova from '@/components/ui/floatable-ai-nova';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <SessionProvider>
           <AuthProvider>
             {children}
+            <FloatableAiNova />
           </AuthProvider>
         </SessionProvider>
       </body>

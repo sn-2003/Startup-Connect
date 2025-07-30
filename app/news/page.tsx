@@ -299,21 +299,21 @@ export default function NewsPage() {
                   >
                     {item.image ? (
                       <Image
-                        src={item.image}
-                        alt={item.title}
+                      src={item.image} 
+                      alt={item.title}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
+                    />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                         <span className="text-white text-lg font-semibold">{item.source}</span>
-                      </div>
-                    )}
+                  </div>
+                )}
                     <div className="absolute top-4 left-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(item.category)}`}>
-                        {item.category}
-                      </span>
+                          {item.category}
+                        </span>
                     </div>
                     <div className="absolute top-4 right-4">
                       <button
@@ -474,14 +474,14 @@ export default function NewsPage() {
                     <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
                       {item.summary}
                     </p>
-                    
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mb-4">
+                  
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
                       {item.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                          {tag}
-                        </span>
-                      ))}
+                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                        {tag}
+                      </span>
+                    ))}
                       {item.tags.length > 3 && (
                         <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
                           +{item.tags.length - 3}
@@ -509,22 +509,22 @@ export default function NewsPage() {
                       <span>Read More</span>
                       <ArrowRight className="h-4 w-4" />
                     </button>
-                  </div>
                 </div>
-              </article>
-            ))}
-          </div>
+              </div>
+            </article>
+          ))}
+        </div>
         )}
 
         {/* Load More Button */}
         {regularNews.length > 0 && (
           <div className="text-center pt-12">
             <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-              Load More News
-            </button>
-          </div>
+            Load More News
+          </button>
+        </div>
         )}
       </div>
     </div>
   );
-}
+} 

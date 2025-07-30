@@ -25,7 +25,7 @@ import {
 import { useAuth } from "@/hooks/use-auth"
 import Image from "next/image"
 import Link from "next/link"
-import { Menu, LogOut, User, Settings, Search, Bell, ChevronDown } from "lucide-react"
+import { Menu, LogOut, User, Settings, Home, Bell, ChevronDown, Info } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
@@ -61,8 +61,8 @@ export default function MainHeader() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <Image src="/logo.png" alt="VentureLink" width={32} height={32} className="h-8 w-8" />
-            <span className="text-xl font-bold text-gray-900">VentureLink</span>
+            <Image src="/logo.png" alt="StartupGram" width={32} height={32} className="h-8 w-8" />
+            <span className="text-xl font-bold text-gray-900">StartupGram</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -135,9 +135,9 @@ export default function MainHeader() {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                {/* Search */}
-                <Button variant="ghost" size="sm" className="hidden md:flex">
-                  <Search className="h-4 w-4" />
+                {/* Home */}
+                <Button variant="ghost" size="sm" className="hidden md:flex" onClick={() => router.push("/")}>
+                  <Home className="h-4 w-4" />
                 </Button>
 
                 {/* Notifications */}
@@ -173,6 +173,10 @@ export default function MainHeader() {
                     <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                       <Settings className="mr-2 h-4 w-4" />
                       Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/about")}>
+                      <Info className="mr-2 h-4 w-4" />
+                      About Us
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
@@ -265,6 +269,13 @@ export default function MainHeader() {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         News
+                      </Link>
+                      <Link
+                        href="/about"
+                        className="text-lg font-medium text-gray-700 hover:text-gray-900"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        About Us
                       </Link>
                     </>
                   )}

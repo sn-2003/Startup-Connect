@@ -67,7 +67,7 @@ export default function AuthForm() {
         password,
       })
       if (res?.ok) {
-        router.push("/dashboard")
+        router.push("/")
       } else {
         setError("Invalid email or password")
       }
@@ -101,7 +101,7 @@ export default function AuthForm() {
           password,
         })
         if (res?.ok) {
-          router.push("/dashboard")
+          router.push("/")
         } else {
           setError("Login after registration failed.")
         }

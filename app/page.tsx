@@ -56,140 +56,140 @@ export default function LandingPage() {
   const router = useRouter();
 
   // Data for authenticated user experience
-  const founderInsights = [
-    {
+const founderInsights = [
+  {
       quote: "The way to get startup ideas is not to try to think of startup ideas. It's to look for problems, preferably problems you have yourself.",
-      author: "Paul Graham",
-      role: "Co-founder of Y Combinator",
-      avatar: "/placeholder.svg?height=60&width=60&text=PG",
-      company: "Y Combinator",
-    },
-    {
-      quote: "Your most unhappy customers are your greatest source of learning.",
-      author: "Bill Gates",
-      role: "Co-founder of Microsoft",
-      avatar: "/placeholder.svg?height=60&width=60&text=BG",
-      company: "Microsoft",
-    },
-    {
+    author: "Paul Graham",
+    role: "Co-founder of Y Combinator",
+    avatar: undefined,
+    company: "Y Combinator",
+  },
+  {
+    quote: "Your most unhappy customers are your greatest source of learning.",
+    author: "Bill Gates",
+    role: "Co-founder of Microsoft",
+    avatar: undefined,
+    company: "Microsoft",
+  },
+  {
       quote: "The biggest risk is not taking any risk. In a world that's changing quickly, the only strategy that is guaranteed to fail is not taking risks.",
-      author: "Mark Zuckerberg",
-      role: "CEO of Meta",
-      avatar: "/placeholder.svg?height=60&width=60&text=MZ",
-      company: "Meta",
-    },
-    {
-      quote: "Innovation distinguishes between a leader and a follower.",
-      author: "Steve Jobs",
-      role: "Co-founder of Apple",
-      avatar: "/placeholder.svg?height=60&width=60&text=SJ",
-      company: "Apple",
-    },
-    {
-      quote: "If you're not embarrassed by the first version of your product, you've launched too late.",
-      author: "Reid Hoffman",
-      role: "Co-founder of LinkedIn",
-      avatar: "/placeholder.svg?height=60&width=60&text=RH",
-      company: "LinkedIn",
-    },
+    author: "Mark Zuckerberg",
+    role: "CEO of Meta",
+    avatar: undefined,
+    company: "Meta",
+  },
+  {
+    quote: "Innovation distinguishes between a leader and a follower.",
+    author: "Steve Jobs",
+    role: "Co-founder of Apple",
+    avatar: undefined,
+    company: "Apple",
+  },
+  {
+    quote: "If you're not embarrassed by the first version of your product, you've launched too late.",
+    author: "Reid Hoffman",
+    role: "Co-founder of LinkedIn",
+    avatar: undefined,
+    company: "LinkedIn",
+  },
   ];
 
-  const featuredTools = [
-    {
-      name: "v0 by Vercel",
-      description: "AI-powered UI generation tool",
-      category: "Development",
-      image: "/placeholder.svg?height=120&width=200&text=v0+Logo",
-      url: "https://v0.dev",
-      pricing: "Free tier available",
-      rating: 4.9,
-      users: "50K+",
-    },
-    {
-      name: "Bolt.new",
-      description: "Full-stack web development in the browser",
-      category: "Development",
-      image: "/placeholder.svg?height=120&width=200&text=Bolt+Logo",
-      url: "https://bolt.new",
-      pricing: "Free",
-      rating: 4.8,
-      users: "25K+",
-    },
-    {
-      name: "Cursor",
-      description: "AI-first code editor",
-      category: "Development",
-      image: "/placeholder.svg?height=120&width=200&text=Cursor+Logo",
-      url: "https://cursor.sh",
-      pricing: "$20/month",
-      rating: 4.9,
-      users: "100K+",
-    },
-    {
-      name: "Notion",
-      description: "All-in-one workspace for teams",
-      category: "Productivity",
-      image: "/placeholder.svg?height=120&width=200&text=Notion+Logo",
-      url: "https://notion.so",
-      pricing: "Free tier available",
-      rating: 4.7,
-      users: "30M+",
-    },
-    {
-      name: "Figma",
-      description: "Collaborative design platform",
-      category: "Design",
-      image: "/placeholder.svg?height=120&width=200&text=Figma+Logo",
-      url: "https://figma.com",
-      pricing: "Free tier available",
-      rating: 4.8,
-      users: "4M+",
-    },
-    {
-      name: "Stripe",
-      description: "Payment processing platform",
-      category: "Finance",
-      image: "/placeholder.svg?height=120&width=200&text=Stripe+Logo",
-      url: "https://stripe.com",
-      pricing: "2.9% + 30¢ per transaction",
-      rating: 4.6,
-      users: "2M+",
-    },
+const featuredTools = [
+  {
+    name: "v0 by Vercel",
+    description: "AI-powered UI generation tool",
+    category: "Development",
+    image: undefined,
+    url: "https://v0.dev",
+    pricing: "Free tier available",
+    rating: 4.9,
+    users: "50K+",
+  },
+  {
+    name: "Bolt.new",
+    description: "Full-stack web development in the browser",
+    category: "Development",
+    image: undefined,
+    url: "https://bolt.new",
+    pricing: "Free",
+    rating: 4.8,
+    users: "25K+",
+  },
+  {
+    name: "Cursor",
+    description: "AI-first code editor",
+    category: "Development",
+    image: undefined,
+    url: "https://cursor.sh",
+    pricing: "$20/month",
+    rating: 4.9,
+    users: "100K+",
+  },
+  {
+    name: "Notion",
+    description: "All-in-one workspace for teams",
+    category: "Productivity",
+    image: undefined,
+    url: "https://notion.so",
+    pricing: "Free tier available",
+    rating: 4.7,
+    users: "30M+",
+  },
+  {
+    name: "Figma",
+    description: "Collaborative design platform",
+    category: "Design",
+    image: undefined,
+    url: "https://figma.com",
+    pricing: "Free tier available",
+    rating: 4.8,
+    users: "4M+",
+  },
+  {
+    name: "Stripe",
+    description: "Payment processing platform",
+    category: "Finance",
+    image: undefined,
+    url: "https://stripe.com",
+    pricing: "2.9% + 30¢ per transaction",
+    rating: 4.6,
+    users: "2M+",
+  },
   ];
 
-  const latestNews = [
-    {
-      title: "OpenAI Launches GPT-5 with Revolutionary Capabilities",
-      source: "TechCrunch",
-      time: "2h ago",
-      category: "AI",
-      image: "/placeholder.svg?height=200&width=300&text=AI+News",
-      excerpt: "The latest model shows significant improvements in reasoning and multimodal understanding...",
-    },
-    {
-      title: "Indian Fintech Startup Razorpay Raises $375M Series F",
-      source: "YourStory",
-      time: "4h ago",
-      category: "Funding",
-      image: "/placeholder.svg?height=200&width=300&text=Funding+News",
-      excerpt: "Razorpay's valuation reaches $7.5 billion as it expands across Southeast Asia...",
-    },
-    {
-      title: "Meta Announces New VR Headset for Enterprise",
-      source: "The Verge",
-      time: "6h ago",
-      category: "Product",
-      image: "/placeholder.svg?height=200&width=300&text=VR+News",
-      excerpt: "The Quest Pro 2 targets business users with enhanced productivity features...",
-    },
-    {
-      title: "Y Combinator's Winter 2024 Demo Day Highlights",
-      source: "TechCrunch",
-      time: "8h ago",
-      category: "Startup",
-      image: "/placeholder.svg?height=200&width=300&text=YC+News",
-      excerpt: "Over 200 startups presented their innovations to investors and industry leaders...",
-    },
+const latestNews = [
+  {
+    title: "OpenAI Launches GPT-5 with Revolutionary Capabilities",
+    source: "TechCrunch",
+    time: "2h ago",
+    category: "AI",
+    image: undefined,
+    excerpt: "The latest model shows significant improvements in reasoning and multimodal understanding...",
+  },
+  {
+    title: "Indian Fintech Startup Razorpay Raises $375M Series F",
+    source: "YourStory",
+    time: "4h ago",
+    category: "Funding",
+    image: undefined,
+    excerpt: "Razorpay's valuation reaches $7.5 billion as it expands across Southeast Asia...",
+  },
+  {
+    title: "Meta Announces New VR Headset for Enterprise",
+    source: "The Verge",
+    time: "6h ago",
+    category: "Product",
+    image: undefined,
+    excerpt: "The Quest Pro 2 targets business users with enhanced productivity features...",
+  },
+  {
+    title: "Y Combinator's Winter 2024 Demo Day Highlights",
+    source: "TechCrunch",
+    time: "8h ago",
+    category: "Startup",
+    image: undefined,
+    excerpt: "Over 200 startups presented their innovations to investors and industry leaders...",
+  },
   ];
 
   useEffect(() => {
@@ -277,7 +277,7 @@ export default function LandingPage() {
                       className="flex items-center space-x-6"
                     >
                       <Avatar className="h-16 w-16 border-4 border-white shadow-lg">
-                        <AvatarImage src={founderInsights[currentInsight].avatar || "/placeholder.svg"} />
+                        <AvatarImage src={founderInsights[currentInsight].avatar} />
                         <AvatarFallback className="bg-purple-100 text-purple-700 text-lg font-bold">
                           {founderInsights[currentInsight].author
                             .split(" ")
@@ -709,7 +709,7 @@ export default function LandingPage() {
                       <CardContent className="p-6 text-center">
                         <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:rotate-12 transition-transform duration-300">
                           <item.icon className="w-6 h-6 text-white" />
-                        </div>
+            </div>
                         <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2">
                           {item.title}
                         </h3>
@@ -718,9 +718,9 @@ export default function LandingPage() {
                         </p>
                       </CardContent>
                     </Card>
-                  </div>
+            </div>
                 ))}
-              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -812,8 +812,8 @@ export default function LandingPage() {
                     <CardDescription className="text-slate-600 dark:text-slate-300 leading-relaxed">
                       {feature.description}
                     </CardDescription>
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
               </div>
             ))}
           </div>
@@ -858,15 +858,15 @@ export default function LandingPage() {
                     </div>
                     <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {stat.number}
-                    </div>
+                  </div>
                     <div className="text-slate-600 dark:text-slate-300 font-medium">
                       {stat.label}
-                    </div>
+                  </div>
                   </CardContent>
                 </Card>
-              </div>
+                    </div>
             ))}
-          </div>
+                  </div>
         </div>
       </section>
 
@@ -962,8 +962,8 @@ export default function LandingPage() {
                       ))}
                     </ul>
                     
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
               </div>
             ))}
           </div>
@@ -980,16 +980,16 @@ export default function LandingPage() {
             </h2>
             <p className="text-xl text-blue-100 mb-8 leading-relaxed">
               Be a part of the community that is helping startups grow and succeed.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
                 onClick={handleGetStarted}
                 className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              >
+            >
                 Start Your Journey Today
                 <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+            </Button>
               
             </div>
             <div className="mt-8 flex items-center justify-center space-x-8 text-blue-100">
@@ -1034,7 +1034,7 @@ export default function LandingPage() {
                 >
                   <Mail className="w-5 h-5" />
                 </a>
-              </div>
+            </div>
             </div>
 
             {/* Platform Links */}
@@ -1043,7 +1043,7 @@ export default function LandingPage() {
               <ul className="space-y-3">
                 <li>
                   <button
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push('/login')}
                     className="text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
                     Job Board
@@ -1051,7 +1051,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <button
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push('/login')}
                     className="text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
                     Discover Startups
@@ -1059,7 +1059,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <button
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push('/login')}
                     className="text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
                     Resources
@@ -1067,7 +1067,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <button
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push('/login')}
                     className="text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
                     Investor Network
@@ -1129,11 +1129,6 @@ export default function LandingPage() {
                   <MapPin className="w-4 h-4 mr-2" />
                   <span>Jaipur, Rajasthan, India</span>
                 </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Help Center
-                  </a>
-                </li>
               </ul>
             </div>
           </div>
@@ -1168,6 +1163,9 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      
+      {/* AI Nova Chat for authenticated users */}
+      {user && <AiMentorChat />}
     </div>
   );
-} 
+}

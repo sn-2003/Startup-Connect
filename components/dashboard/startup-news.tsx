@@ -42,7 +42,7 @@ export default function StartupNews() {
         featured: true
       });
 
-      if (response.success) {
+      if (response.success && response.data) {
         setNews(response.data);
       }
     } catch (error) {
@@ -113,61 +113,62 @@ export default function StartupNews() {
       ) : (
         <div className="grid gap-4">
           {news.map((item, index) => (
-          <article key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div className="flex space-x-4">
-              {item.image && (
-                <div className="flex-shrink-0">
-                  <img 
-                    src={item.image} 
-                    alt={item.title}
-                    className="h-20 w-32 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {item.summary}
-                    </p>
+            <article key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div className="flex space-x-4">
+                {item.image && (
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="h-20 w-32 object-cover rounded-lg"
+                    />
                   </div>
-                  
-                  <div className="flex-shrink-0 ml-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
-                      {item.category}
-                    </span>
-                  </div>
-                </div>
+                )}
                 
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-4">
-                    <span className="font-medium text-gray-700">{item.source}</span>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-3 w-3" />
-                      <span>{item.publishedAt}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {item.summary}
+                      </p>
                     </div>
-                    <span>{item.readTime}</span>
+                    
+                    <div className="flex-shrink-0 ml-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
+                        {item.category}
+                      </span>
+                    </div>
                   </div>
                   
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 flex items-center space-x-1"
-                  >
-                    <span>Read</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center space-x-4">
+                      <span className="font-medium text-gray-700">{item.source}</span>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{item.publishedAt}</span>
+                      </div>
+                      <span>{item.readTime}</span>
+                    </div>
+                    
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 flex items-center space-x-1"
+                    >
+                      <span>Read</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {/* Load More Button */}
       <div className="text-center pt-4">
