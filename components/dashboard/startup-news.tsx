@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ExternalLink, Clock, TrendingUp, DollarSign, Users, Zap } from 'lucide-react';
+import { ExternalLink, Clock, TrendingUp, DollarSign, Users, Zap, Bookmark, BookmarkCheck, Filter } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface NewsItem {
   id: string;
@@ -25,21 +28,28 @@ const categories = [
 ];
 
 export default function StartupNews() {
+  const { user } = useAuth();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [savedNewsIds, setSavedNewsIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchNews();
-  }, [selectedCategory]);
+    if (user) {
+      fetchSavedNews();
+    }
+  }, [selectedCategory, showSavedOnly, user]);
 
   const fetchNews = async () => {
     try {
       setLoading(true);
       const response = await apiClient.getNews({
         category: selectedCategory === 'all' ? undefined : selectedCategory,
-        limit: 5,
-        featured: true
+        limit: 10,
+        featured: showSavedOnly ? undefined : true
       });
 
       if (response.success && response.data) {
@@ -49,6 +59,48 @@ export default function StartupNews() {
       console.error('Error fetching news:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSavedNews = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await apiClient.getSavedNews({ limit: 100 });
+      if (response.success && response.data) {
+        setSavedNewsIds(response.data.map((item: NewsItem) => item.id));
+      }
+    } catch (error) {
+      console.error('Error fetching saved news:', error);
+    }
+  };
+
+  const handleSaveNews = async (newsId: string) => {
+    if (!user) {
+      toast.error('Please login to save news');
+      return;
+    }
+
+    setSaving(newsId);
+    try {
+      const response = await apiClient.saveNews(newsId);
+      if (response.success) {
+        const isCurrentlySaved = savedNewsIds.includes(newsId);
+        if (isCurrentlySaved) {
+          setSavedNewsIds(prev => prev.filter(id => id !== newsId));
+          toast.success('News removed from saved');
+        } else {
+          setSavedNewsIds(prev => [...prev, newsId]);
+          toast.success('News saved successfully');
+        }
+      } else {
+        toast.error(response.error || 'Failed to save news');
+      }
+    } catch (error) {
+      console.error('Error saving news:', error);
+      toast.error('Failed to save news');
+    } finally {
+      setSaving(null);
     }
   };
 
@@ -69,27 +121,48 @@ export default function StartupNews() {
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
+  const isNewsSaved = (newsId: string) => {
+    return savedNewsIds.includes(newsId);
+  };
+
+  const filteredNews = showSavedOnly 
+    ? news.filter(item => isNewsSaved(item.id))
+    : news;
+
   return (
     <div className="space-y-6">
       {/* Category Filter */}
-      <div className="flex flex-wrap gap-2">
-        {categories.map((category) => {
-          const Icon = category.icon;
-          return (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedCategory === category.id
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{category.label}</span>
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap gap-2">
+          {categories.map((category) => {
+            const Icon = category.icon;
+            return (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{category.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Saved News Filter */}
+        <Button
+          variant={showSavedOnly ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setShowSavedOnly(!showSavedOnly)}
+          className="flex items-center space-x-2"
+        >
+          <Filter className="h-4 w-4" />
+          <span>{showSavedOnly ? 'Show All' : 'Show Saved Only'}</span>
+        </Button>
       </div>
 
       {/* News Grid */}
@@ -112,7 +185,7 @@ export default function StartupNews() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {news.map((item, index) => (
+          {filteredNews.map((item, index) => (
             <article key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex space-x-4">
                 {item.image && (
@@ -136,10 +209,26 @@ export default function StartupNews() {
                       </p>
                     </div>
                     
-                    <div className="flex-shrink-0 ml-4">
+                    <div className="flex-shrink-0 ml-4 flex items-start space-x-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(item.category)}`}>
                         {item.category}
                       </span>
+                      
+                      {/* Save Button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSaveNews(item.id)}
+                        disabled={saving === item.id}
+                        className="h-8 w-8 p-0 hover:bg-gray-100"
+                        title={isNewsSaved(item.id) ? 'Remove from saved' : 'Save news'}
+                      >
+                        {isNewsSaved(item.id) ? (
+                          <BookmarkCheck className="h-4 w-4 text-blue-600" />
+                        ) : (
+                          <Bookmark className="h-4 w-4" />
+                        )}
+                      </Button>
                     </div>
                   </div>
                   
@@ -150,7 +239,7 @@ export default function StartupNews() {
                         <Clock className="h-3 w-3" />
                         <span>{item.publishedAt}</span>
                       </div>
-                      <span>{item.readTime}</span>
+                      {item.readTime && <span>{item.readTime}</span>}
                     </div>
                     
                     <a
@@ -170,12 +259,32 @@ export default function StartupNews() {
         </div>
       )}
 
+      {/* Empty State */}
+      {!loading && filteredNews.length === 0 && (
+        <div className="text-center py-12">
+          <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
+            {showSavedOnly ? <BookmarkCheck className="h-12 w-12" /> : <TrendingUp className="h-12 w-12" />}
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            {showSavedOnly ? 'No saved news yet' : 'No news found'}
+          </h3>
+          <p className="text-gray-500">
+            {showSavedOnly 
+              ? 'Save interesting articles to read them later.'
+              : 'Try adjusting your filters or check back later for new articles.'
+            }
+          </p>
+        </div>
+      )}
+
       {/* Load More Button */}
-      <div className="text-center pt-4">
-        <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          Load More News
-        </button>
-      </div>
+      {!loading && filteredNews.length > 0 && !showSavedOnly && (
+        <div className="text-center pt-4">
+          <Button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Load More News
+          </Button>
+        </div>
+      )}
     </div>
   );
 } 

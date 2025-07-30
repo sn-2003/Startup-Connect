@@ -118,7 +118,7 @@ export default function NewsPage() {
 
   const handleBookmark = async (newsId: string) => {
     try {
-      const response = await apiClient.bookmarkNews(newsId);
+      const response = await apiClient.saveNews(newsId);
       if (response.success) {
         toast.success('Article bookmarked!');
         fetchNews(); // Refresh to update bookmark count

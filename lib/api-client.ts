@@ -487,18 +487,25 @@ class ApiClient {
     return this.request(`/news/${id}`);
   }
 
-  async bookmarkNews(newsId: string): Promise<ApiResponse<any>> {
-    return this.request(`/news/${newsId}`, {
+  async saveNews(newsId: string): Promise<ApiResponse<any>> {
+    return this.request('/news/save', {
       method: 'POST',
-      body: JSON.stringify({ action: 'bookmark' }),
+      body: JSON.stringify({ newsId }),
     });
   }
 
-  async unbookmarkNews(newsId: string): Promise<ApiResponse<any>> {
-    return this.request(`/news/${newsId}`, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'unbookmark' }),
-    });
+  async getSavedNews(params?: {
+    limit?: number;
+    page?: number;
+  }): Promise<ApiResponse<any>> {
+    const searchParams = new URLSearchParams();
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.page) searchParams.append('page', params.page.toString());
+
+    const query = searchParams.toString();
+    const endpoint = query ? `/news/saved?${query}` : '/news/saved';
+    
+    return this.request(endpoint);
   }
 }
 
