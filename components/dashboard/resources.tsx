@@ -141,11 +141,7 @@ export default function Resources() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Founder Resources</h1>
-        <p className="text-gray-600">Essential tools and guides for building your startup</p>
-      </div>
-
+      
       {/* Featured */}
       {resources.some((r) => r.featured) && (
         <div className="space-y-4">

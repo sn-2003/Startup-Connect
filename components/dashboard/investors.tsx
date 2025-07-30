@@ -104,10 +104,7 @@ export default function Investors() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Investor Directory</h1>
-        <p className="text-gray-600">Connect with investors and VCs in the startup ecosystem</p>
-      </div>
+      
 
       {/* Filters */}
       <Card>

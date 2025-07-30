@@ -422,10 +422,6 @@ export default function StartupModule() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Startups</h1>
-        <p className="text-gray-600">Manage your startup profiles and job postings</p>
-      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">

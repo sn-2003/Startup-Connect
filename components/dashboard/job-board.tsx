@@ -240,8 +240,6 @@ export default function JobBoard() {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Job Board</h1>
-            <p className="text-gray-600">Discover opportunities at innovative startups</p>
           </div>
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">

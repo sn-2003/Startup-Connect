@@ -273,12 +273,9 @@ function DiscoverStartups() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-2">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Discover Startups</h1>
-          <p className="text-gray-600">Explore innovative startups and share your feedback</p>
-        </div>
+        
 
         {/* Filters */}
         <Card>
