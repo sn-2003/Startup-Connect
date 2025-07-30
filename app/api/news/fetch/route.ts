@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<Response> {
   try {
     // Check if user is authenticated and is admin (optional)
     const session = await getServerSession(authOptions);
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     // Trigger the news fetch script
     const { spawn } = require('child_process');
     
-    return new Promise((resolve) => {
+    return new Promise<Response>((resolve) => {
       const child = spawn('node', ['scripts/fetch-news.js'], {
         stdio: 'pipe'
       });
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
             success: false, 
             error: 'News fetch failed',
             output: output,
-            error: errorOutput
+            errorOutput: errorOutput
           }, { status: 500 }));
         }
       });

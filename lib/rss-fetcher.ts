@@ -4,9 +4,9 @@ import Parser from 'rss-parser';
 const parser = new Parser();
 
 interface RSSItem {
-  title: string;
-  link: string;
-  pubDate: string;
+  title?: string;
+  link?: string;
+  pubDate?: string;
   content?: string;
   contentSnippet?: string;
   categories?: string[];
@@ -56,7 +56,7 @@ export async function fetchRSSFeeds() {
     try {
       console.log(`📡 Fetching ${feed.name}...`);
       
-      const rssFeed: RSSFeed = await parser.parseURL(feed.url);
+      const rssFeed = await parser.parseURL(feed.url) as RSSFeed;
       
       for (const item of rssFeed.items.slice(0, 10)) { // Limit to 10 latest articles
         await processRSSItem(item, feed);
@@ -73,6 +73,11 @@ export async function fetchRSSFeeds() {
 
 async function processRSSItem(item: RSSItem, feed: typeof RSS_FEEDS[0]) {
   try {
+    // Skip items without required fields
+    if (!item.title || !item.link || !item.pubDate) {
+      return;
+    }
+
     // Check if article already exists
     const existingNews = await prisma.news.findFirst({
       where: { url: item.link }
@@ -105,7 +110,7 @@ async function processRSSItem(item: RSSItem, feed: typeof RSS_FEEDS[0]) {
     // Create news article
     await prisma.news.create({
       data: {
-        title: item.title,
+        title: item.title || 'Untitled Article',
         summary: summary,
         content: content,
         source: feed.name,
@@ -114,7 +119,7 @@ async function processRSSItem(item: RSSItem, feed: typeof RSS_FEEDS[0]) {
         category: feed.category,
         readTime: `${readTime} min read`,
         image: imageUrl,
-        author: item.author,
+        author: item.author || 'Unknown',
         tags: [...feed.tags, ...(item.categories || [])],
         sourceType: 'RSS'
       }
