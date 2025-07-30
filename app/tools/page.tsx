@@ -133,12 +133,22 @@ export default function ToolsPage() {
 
     if (!selectedTool) return;
 
+    // Validate rating
+    if (rating < 1 || rating > 5) {
+      toast.error('Please select a valid rating between 1 and 5');
+      return;
+    }
+
     try {
       setSubmittingRating(true);
+      console.log('Submitting rating:', { toolId: selectedTool.id, rating, review });
+      
       const response = await apiClient.rateTool(selectedTool.id, rating, review);
       
+      console.log('Rating response:', response);
+      
       if (response.success) {
-        toast.success(isEditingReview ? 'Review updated successfully!' : 'Rating submitted successfully!');
+        toast.success(isEditingReview ? 'Review updated successfully!' : `Rating of ${rating} stars submitted successfully!`);
         setShowRatingDialog(false);
         setRating(5);
         setReview('');
@@ -465,7 +475,8 @@ export default function ToolsPage() {
                   <button
                     key={i}
                     onClick={() => setRating(i + 1)}
-                    className="focus:outline-none"
+                    className="focus:outline-none hover:scale-110 transition-transform"
+                    type="button"
                   >
                     <Star
                       className={`h-6 w-6 ${
@@ -476,8 +487,11 @@ export default function ToolsPage() {
                     />
                   </button>
                 ))}
-                <span className="ml-2 text-sm text-gray-600">{rating}/5</span>
+                <span className="ml-2 text-sm text-gray-600 font-medium">{rating}/5</span>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Click on the stars to select your rating
+              </p>
             </div>
             
             <div>

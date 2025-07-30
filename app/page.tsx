@@ -45,6 +45,19 @@ import Link from "next/link";
 import { Building2, Clock, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import Autoplay from "embla-carousel-autoplay";
+import { apiClient } from "@/lib/api-client";
+import AiMentorChat from "@/components/ui/ai-mentor-chat";
+
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  source: string;
+  publishedAt: string;
+  category: string;
+  image?: string;
+  url: string;
+}
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
@@ -53,6 +66,8 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentInsight, setCurrentInsight] = useState(0);
   const [currentToolPair, setCurrentToolPair] = useState(0);
+  const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
+  const [loadingNews, setLoadingNews] = useState(true);
   const router = useRouter();
 
   // Data for authenticated user experience
@@ -157,41 +172,6 @@ const featuredTools = [
   },
   ];
 
-const latestNews = [
-  {
-    title: "OpenAI Launches GPT-5 with Revolutionary Capabilities",
-    source: "TechCrunch",
-    time: "2h ago",
-    category: "AI",
-    image: undefined,
-    excerpt: "The latest model shows significant improvements in reasoning and multimodal understanding...",
-  },
-  {
-    title: "Indian Fintech Startup Razorpay Raises $375M Series F",
-    source: "YourStory",
-    time: "4h ago",
-    category: "Funding",
-    image: undefined,
-    excerpt: "Razorpay's valuation reaches $7.5 billion as it expands across Southeast Asia...",
-  },
-  {
-    title: "Meta Announces New VR Headset for Enterprise",
-    source: "The Verge",
-    time: "6h ago",
-    category: "Product",
-    image: undefined,
-    excerpt: "The Quest Pro 2 targets business users with enhanced productivity features...",
-  },
-  {
-    title: "Y Combinator's Winter 2024 Demo Day Highlights",
-    source: "TechCrunch",
-    time: "8h ago",
-    category: "Startup",
-    image: undefined,
-    excerpt: "Over 200 startups presented their innovations to investors and industry leaders...",
-  },
-  ];
-
   useEffect(() => {
     setIsVisible(true);
 
@@ -228,6 +208,33 @@ const latestNews = [
       setCurrentToolPair((prev) => (prev + 1) % Math.ceil(featuredTools.length / 2));
     }, 4000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchLatestNews = async () => {
+      try {
+        setLoadingNews(true);
+        const response = await apiClient.getNews({
+          limit: 6,
+          sortBy: 'latest'
+        });
+        if (response.success && response.data) {
+          setLatestNews(response.data);
+        } else {
+          console.warn('News API returned no data');
+          setLatestNews([]);
+        }
+      } catch (error) {
+        console.error("Error fetching latest news:", error);
+        setLatestNews([]);
+      } finally {
+        setLoadingNews(false);
+      }
+    };
+
+    fetchLatestNews();
+    const interval = setInterval(fetchLatestNews, 300000); // Fetch every 5 minutes
+    return () => clearInterval(interval);
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -421,30 +428,56 @@ const latestNews = [
               className="w-full"
             >
               <CarouselContent>
-                {latestNews.map((news, index) => (
-                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                    <Card className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden">
-                      <div className="aspect-video relative overflow-hidden">
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-600 text-sm">{news.title}</span>
-                        </div>
-                        <div className="absolute top-3 left-3">
-                          <Badge className="bg-black/70 text-white">{news.category}</Badge>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                          {news.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{news.excerpt}</p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>{news.source}</span>
-                          <span>{news.time}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
+                {loadingNews ? (
+                  <div className="text-center py-10">
+                    <p>Loading latest news...</p>
+                  </div>
+                ) : latestNews.length === 0 ? (
+                  <div className="text-center py-10">
+                    <div className="text-gray-400 mb-4">
+                      <BookOpen className="h-12 w-12 mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No news available</h3>
+                    <p className="text-gray-600">Check back later for the latest startup news and updates.</p>
+                  </div>
+                ) : (
+                                     latestNews.map((news, index) => (
+                     <CarouselItem key={news.id} className="md:basis-1/2 lg:basis-1/3">
+                       <Card 
+                         className="h-full hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
+                         onClick={() => window.open(news.url, '_blank')}
+                       >
+                         <div className="aspect-video relative overflow-hidden">
+                           {news.image ? (
+                             <Image
+                               src={news.image}
+                               alt={news.title}
+                               fill
+                               className="object-cover group-hover:scale-105 transition-transform duration-300"
+                             />
+                           ) : (
+                             <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                               <BookOpen className="h-8 w-8 text-gray-400" />
+                             </div>
+                           )}
+                           <div className="absolute top-3 left-3">
+                             <Badge className="bg-black/70 text-white text-xs">{news.category}</Badge>
+                           </div>
+                         </div>
+                         <CardContent className="p-4">
+                           <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                             {news.title}
+                           </h3>
+                           <p className="text-gray-600 text-sm mb-3 line-clamp-2">{news.summary}</p>
+                           <div className="flex items-center justify-between text-xs text-gray-500">
+                             <span className="font-medium">{news.source}</span>
+                             <span>{new Date(news.publishedAt).toLocaleDateString()}</span>
+                           </div>
+                         </CardContent>
+                       </Card>
+                     </CarouselItem>
+                   ))
+                )}
               </CarouselContent>
               <CarouselPrevious />
               <CarouselNext />
