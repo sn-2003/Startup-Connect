@@ -450,6 +450,18 @@ class ApiClient {
     });
   }
 
+  async getToolReviews(toolId: string, page?: number, limit?: number): Promise<ApiResponse<any>> {
+    const params = new URLSearchParams();
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+    
+    return this.request(`/tools/${toolId}/reviews?${params.toString()}`);
+  }
+
+  async getUserToolRating(toolId: string): Promise<ApiResponse<any>> {
+    return this.request(`/tools/${toolId}/user-rating`);
+  }
+
   // News
   async getNews(params?: {
     category?: string;

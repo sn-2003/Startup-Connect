@@ -442,14 +442,17 @@ function DiscoverStartups() {
                               View Details
                             </Button>
                           </DialogTrigger>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="flex items-center space-x-1"
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                            <span>{startupFeedback.length}</span>
-                          </Button>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="flex items-center space-x-1"
+                              onClick={() => setSelectedStartup(startup)}
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                              <span>{startupFeedback.length}</span>
+                            </Button>
+                          </DialogTrigger>
                         </div>
                       </div>
 
@@ -582,7 +585,7 @@ function DiscoverStartups() {
                         <div className="space-y-3">
                           <Textarea
                             placeholder="What do you think about this startup? Share your thoughts, suggestions, or questions..."
-                            value={selectedStartup?.id === startup.id ? newFeedback : ''}
+                            value={newFeedback}
                             onChange={(e) => setNewFeedback(e.target.value)}
                             rows={3}
                             className="w-full"

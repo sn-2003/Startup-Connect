@@ -47,6 +47,12 @@ interface Tool {
     userRatings: number;
     userFavorites: number;
   };
+  userInteraction?: {
+    isFavorited: boolean;
+    rating: number | null;
+    review: string | null;
+    ratingId: string | null;
+  };
 }
 
 const categories = [
@@ -72,7 +78,11 @@ export default function ToolsPage() {
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState('');
   const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [showReviewsDialog, setShowReviewsDialog] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [isEditingReview, setIsEditingReview] = useState(false);
 
   useEffect(() => {
     fetchTools();
@@ -87,8 +97,23 @@ export default function ToolsPage() {
         sortBy
       });
 
-      if (response.success) {
-        setTools(response.data);
+      if (response.success && response.data) {
+        const toolsWithUserData = await Promise.all(
+          response.data.map(async (tool: Tool) => {
+            if (user) {
+              try {
+                const userResponse = await apiClient.getUserToolRating(tool.id);
+                if (userResponse.success) {
+                  return { ...tool, userInteraction: userResponse.data };
+                }
+              } catch (error) {
+                console.error('Error fetching user data for tool:', tool.id, error);
+              }
+            }
+            return tool;
+          })
+        );
+        setTools(toolsWithUserData);
       } else {
         toast.error('Failed to fetch tools');
       }
@@ -113,10 +138,11 @@ export default function ToolsPage() {
       const response = await apiClient.rateTool(selectedTool.id, rating, review);
       
       if (response.success) {
-        toast.success('Rating submitted successfully!');
+        toast.success(isEditingReview ? 'Review updated successfully!' : 'Rating submitted successfully!');
         setShowRatingDialog(false);
         setRating(5);
         setReview('');
+        setIsEditingReview(false);
         fetchTools(); // Refresh to get updated ratings
       } else {
         toast.error(response.error || 'Failed to submit rating');
@@ -136,18 +162,48 @@ export default function ToolsPage() {
     }
 
     try {
-      const response = await apiClient.favoriteTool(tool.id);
+      const response = tool.userInteraction?.isFavorited 
+        ? await apiClient.unfavoriteTool(tool.id)
+        : await apiClient.favoriteTool(tool.id);
       
       if (response.success) {
-        toast.success('Added to favorites!');
+        toast.success(tool.userInteraction?.isFavorited ? 'Removed from favorites!' : 'Added to favorites!');
         fetchTools(); // Refresh to get updated counts
       } else {
-        toast.error(response.error || 'Failed to add to favorites');
+        toast.error(response.error || 'Failed to update favorites');
       }
     } catch (error) {
       console.error('Error favoriting tool:', error);
-      toast.error('Failed to add to favorites');
+      toast.error('Failed to update favorites');
     }
+  };
+
+  const handleViewReviews = async (tool: Tool) => {
+    setSelectedTool(tool);
+    setShowReviewsDialog(true);
+    setLoadingReviews(true);
+    
+    try {
+      const response = await apiClient.getToolReviews(tool.id);
+      if (response.success) {
+        setReviews(response.data || []);
+      } else {
+        toast.error('Failed to load reviews');
+      }
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      toast.error('Failed to load reviews');
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
+  const handleEditReview = (tool: Tool) => {
+    setSelectedTool(tool);
+    setRating(tool.userInteraction?.rating || 5);
+    setReview(tool.userInteraction?.review || '');
+    setIsEditingReview(true);
+    setShowRatingDialog(true);
   };
 
   const getCategoryColor = (category: string) => {
@@ -344,12 +400,12 @@ export default function ToolsPage() {
                     {user && (
                       <>
                         <Button
-                          variant="outline"
+                          variant={tool.userInteraction?.isFavorited ? "default" : "outline"}
                           size="sm"
                           onClick={() => handleFavorite(tool)}
                           className="px-3"
                         >
-                          <Heart className="h-4 w-4" />
+                          <Heart className={`h-4 w-4 ${tool.userInteraction?.isFavorited ? 'fill-current' : ''}`} />
                         </Button>
                         <Button
                           variant="outline"
@@ -361,6 +417,14 @@ export default function ToolsPage() {
                           className="px-3"
                         >
                           <Star className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewReviews(tool)}
+                          className="px-3"
+                        >
+                          <MessageCircle className="h-4 w-4" />
                         </Button>
                       </>
                     )}
@@ -387,9 +451,9 @@ export default function ToolsPage() {
       <Dialog open={showRatingDialog} onOpenChange={setShowRatingDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rate {selectedTool?.name}</DialogTitle>
+            <DialogTitle>{isEditingReview ? 'Edit Review' : 'Rate'} {selectedTool?.name}</DialogTitle>
             <DialogDescription>
-              Share your experience with this tool to help other users.
+              {isEditingReview ? 'Update your review for this tool.' : 'Share your experience with this tool to help other users.'}
             </DialogDescription>
           </DialogHeader>
           
@@ -431,7 +495,12 @@ export default function ToolsPage() {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowRatingDialog(false)}
+              onClick={() => {
+                setShowRatingDialog(false);
+                setIsEditingReview(false);
+                setRating(5);
+                setReview('');
+              }}
             >
               Cancel
             </Button>
@@ -439,9 +508,120 @@ export default function ToolsPage() {
               onClick={handleRateTool}
               disabled={submittingRating}
             >
-              {submittingRating ? 'Submitting...' : 'Submit Rating'}
+              {submittingRating ? 'Submitting...' : (isEditingReview ? 'Update Review' : 'Submit Rating')}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reviews Dialog */}
+      <Dialog open={showReviewsDialog} onOpenChange={setShowReviewsDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Reviews for {selectedTool?.name}</DialogTitle>
+            <DialogDescription>
+              See what other users think about this tool.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {user && (
+              selectedTool?.userInteraction?.rating ? (
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium">Your Review</h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowReviewsDialog(false);
+                        handleEditReview(selectedTool);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="flex items-center space-x-1 mb-2">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${
+                          i < (selectedTool.userInteraction?.rating || 0)
+                            ? 'text-yellow-500 fill-current'
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  {selectedTool.userInteraction?.review && (
+                    <p className="text-sm text-gray-600">{selectedTool.userInteraction.review}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                  <p className="text-sm text-gray-600 mb-2">Haven't reviewed this tool yet?</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowReviewsDialog(false);
+                      setSelectedTool(selectedTool);
+                      setShowRatingDialog(true);
+                    }}
+                  >
+                    Add Your Review
+                  </Button>
+                </div>
+              )
+            )}
+
+            {loadingReviews ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-600">Loading reviews...</p>
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="text-center py-8">
+                <MessageCircle className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                <p className="text-gray-500 text-sm">No reviews yet. Be the first to review this tool!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-blue-600 font-medium text-sm">
+                            {review.user?.name?.charAt(0)?.toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="font-medium text-sm">{review.user?.name}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3 w-3 ${
+                              i < review.rating
+                                ? 'text-yellow-500 fill-current'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {review.review && (
+                      <p className="text-sm text-gray-600">{review.review}</p>
+                    )}
+                    <div className="text-xs text-gray-500 mt-2">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
