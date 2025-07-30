@@ -2,8 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/fetch-news",
-      "schedule": "0 0 * * *",
-      "key": "fetch-news-cron"
+      "schedule": "0 0 * * *"
     }
   ],
   "github": {
