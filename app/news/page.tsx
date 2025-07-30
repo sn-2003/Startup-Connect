@@ -187,7 +187,7 @@ export default function NewsPage() {
       <MainHeader />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
+      <div className="bg-gradient-to-r from-blue-800 via-purple-800 to-indigo-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
@@ -359,16 +359,10 @@ export default function NewsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <div
-                          className={`flex items-center space-x-1 transition-colors ${
-                            viewedArticles.has(item.id)
-                              ? 'text-blue-600'
-                              : 'text-gray-500'
-                          }`}
+                          className="flex items-center space-x-1 text-gray-500"
                           title={`${item.views.toLocaleString()} views`}
                         >
-                          <Eye className={`h-4 w-4 ${
-                            viewedArticles.has(item.id) ? 'fill-current' : ''
-                          }`} />
+                          <Eye className="h-4 w-4" />
                           <span>{item.views.toLocaleString()}</span>
                         </div>
                         <span>{item.readTime}</span>
@@ -499,16 +493,10 @@ export default function NewsPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div
-                        className={`flex items-center space-x-1 transition-colors ${
-                          viewedArticles.has(item.id)
-                            ? 'text-blue-600'
-                            : 'text-gray-500'
-                        }`}
+                        className="flex items-center space-x-1 text-gray-500"
                         title={`${item.views.toLocaleString()} views`}
                       >
-                        <Eye className={`h-4 w-4 ${
-                          viewedArticles.has(item.id) ? 'fill-current' : ''
-                        }`} />
+                        <Eye className="h-4 w-4" />
                         <span>{item.views.toLocaleString()}</span>
                       </div>
                       <span>{item.readTime}</span>
