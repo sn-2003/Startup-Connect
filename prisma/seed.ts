@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../lib/auth';
+import { seedTools } from './seed-tools';
+import { seedNews } from './seed-news';
 
 const prisma = new PrismaClient();
 
@@ -3537,6 +3539,12 @@ async function main() {
   });
 
   console.log('✅ Created demo incubators');
+
+  // Seed tools
+  await seedTools();
+  
+  // Seed news
+  await seedNews();
 
   // ✅ Create merged resources (from your original resource list)
   await prisma.resource.createMany({

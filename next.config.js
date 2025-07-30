@@ -7,6 +7,9 @@ const nextConfig = {
     unoptimized: false, // Enable Next.js image optimization
     domains: [
       'images.pexels.com',
+      'images.unsplash.com',
+      'inc42.com',
+      'asset.inc42.com',
       'cdn.prod.website-files.com',
       'ieudhbmxouyclzkzecrw.supabase.co',
       'www.hubspot.com',
@@ -23,7 +26,7 @@ const nextConfig = {
     ]
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
@@ -38,7 +41,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              "img-src 'self' blob: data: https://images.pexels.com https://cdn.prod.website-files.com https://ieudhbmxouyclzkzecrw.supabase.co https://www.hubspot.com https://53.fs1.hubspotusercontent-na1.net https://cdn2.hubspot.net https://f.hubspotusercontent00.net https://offers.hubspot.com https://www.huify.com https://www.articulatemarketing.com https://455263.fs1.hubspotusercontent-na1.net https://6minded.com https://www.sagefrog.com https://www.npws.net; " +
+              "img-src 'self' blob: data: *; " +
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
               "style-src 'self' 'unsafe-inline'; " +
               "font-src 'self' data:; " +

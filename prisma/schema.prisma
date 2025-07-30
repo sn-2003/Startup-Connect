@@ -46,6 +46,9 @@ model User {
   startupVotes  StartupVote[]
   startupFeedback StartupFeedback[]
   chatMessages  ChatMessage[]
+  toolRatings   ToolRating[]
+  toolFavorites ToolFavorite[]
+  newsBookmarks NewsBookmark[]
 
   // NextAuth relations
   accounts      Account[]
@@ -318,6 +321,98 @@ model Resource {
   @@map("resources")
 }
 
+model Tool {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    ToolCategory
+  image       String
+  url         String
+  rating      Float    @default(0)
+  users       String   @default("0")
+  pricing     String
+  featured    Boolean  @default(false)
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // User interactions
+  userRatings ToolRating[]
+  userFavorites ToolFavorite[]
+
+  @@map("tools")
+}
+
+model ToolRating {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toolId String
+  tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, toolId])
+  @@map("tool_ratings")
+}
+
+model ToolFavorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toolId String
+  tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, toolId])
+  @@map("tool_favorites")
+}
+
+model News {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String
+  content     String?
+  source      String
+  url         String
+  publishedAt DateTime
+  category    NewsCategory
+  readTime    String?
+  image       String?
+  author      String?
+  tags        String[]
+  views       Int      @default(0)
+  featured    Boolean  @default(false)
+  sourceType  NewsSourceType @default(RSS)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // User interactions
+  userBookmarks NewsBookmark[]
+
+  @@map("news")
+}
+
+model NewsBookmark {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newsId String
+  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, newsId])
+  @@map("news_bookmarks")
+}
+
 model ChatMessage {
   id        String   @id @default(uuid())
   userId    String
@@ -378,6 +473,43 @@ enum VoteType {
   DOWNVOTE
 
   @@map("vote_type")
+}
+
+enum ToolCategory {
+  DEVELOPMENT
+  DESIGN
+  MARKETING
+  PRODUCTIVITY
+  ANALYTICS
+  FINANCE
+  COMMUNICATION
+  AI
+
+  @@map("tool_category")
+}
+
+enum NewsCategory {
+  STARTUP
+  INVESTMENT
+  TECHNOLOGY
+  MARKETING
+  DESIGN
+  PRODUCTIVITY
+  ANALYTICS
+  FINANCE
+  COMMUNICATION
+  CAREERS
+  GENERAL
+
+  @@map("news_category")
+}
+
+enum NewsSourceType {
+  RSS
+  CURATED
+  USER_SUBMITTED
+
+  @@map("news_source_type")
 }
 
 model Account {

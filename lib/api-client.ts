@@ -405,6 +405,89 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // Tools
+  async getTools(params?: {
+    category?: string;
+    search?: string;
+    sortBy?: string;
+    featured?: boolean;
+  }): Promise<ApiResponse<any[]>> {
+    const searchParams = new URLSearchParams();
+    if (params?.category) searchParams.append('category', params.category);
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+    if (params?.featured) searchParams.append('featured', 'true');
+
+    const query = searchParams.toString();
+    const endpoint = query ? `/tools?${query}` : '/tools';
+    
+    return this.request(endpoint);
+  }
+
+  async getTool(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/tools/${id}`);
+  }
+
+  async rateTool(toolId: string, rating: number, review?: string): Promise<ApiResponse<any>> {
+    return this.request(`/tools/${toolId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'rate', rating, review }),
+    });
+  }
+
+  async favoriteTool(toolId: string): Promise<ApiResponse<any>> {
+    return this.request(`/tools/${toolId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'favorite' }),
+    });
+  }
+
+  async unfavoriteTool(toolId: string): Promise<ApiResponse<any>> {
+    return this.request(`/tools/${toolId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'unfavorite' }),
+    });
+  }
+
+  // News
+  async getNews(params?: {
+    category?: string;
+    search?: string;
+    sortBy?: string;
+    featured?: boolean;
+    limit?: number;
+  }): Promise<ApiResponse<any[]>> {
+    const searchParams = new URLSearchParams();
+    if (params?.category) searchParams.append('category', params.category);
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+    if (params?.featured) searchParams.append('featured', 'true');
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+    const query = searchParams.toString();
+    const endpoint = query ? `/news?${query}` : '/news';
+    
+    return this.request(endpoint);
+  }
+
+  async getNewsArticle(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/news/${id}`);
+  }
+
+  async bookmarkNews(newsId: string): Promise<ApiResponse<any>> {
+    return this.request(`/news/${newsId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'bookmark' }),
+    });
+  }
+
+  async unbookmarkNews(newsId: string): Promise<ApiResponse<any>> {
+    return this.request(`/news/${newsId}`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'unbookmark' }),
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
