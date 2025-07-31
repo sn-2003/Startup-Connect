@@ -230,14 +230,14 @@ export default function NewsPage() {
       <MainHeader />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-800 via-purple-800 to-indigo-800 text-white">
+      <div className="text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
               <Sparkles className="h-8 w-8 mr-3" />
               <h1 className="text-4xl font-bold">Latest Startup News</h1>
             </div>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+            <p className="text-xl text-black max-w-2xl mx-auto">
               Stay updated with the latest insights, funding rounds, and innovations from the startup ecosystem
             </p>
           </div>

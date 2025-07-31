@@ -56,7 +56,7 @@ export default function MainHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-blue-800 via-purple-800 to-indigo-800 text-white">
+    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -70,7 +70,7 @@ export default function MainHeader() {
             <NavigationMenu className="hidden md:flex">
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium bg-black/50 text-white hover:bg-black/10 hover:text-black transition-colors duration-200">For Startups</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-white/10 text-white hover:bg-white/40 hover:text-black transition-colors duration-200">For Startups</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                       {startupsMenuItems.map((item) => (
@@ -82,7 +82,7 @@ export default function MainHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium bg-black/50 text-white hover:bg-black/10 hover:text-black transition-colors duration-200">For Job Seekers</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-white/10 text-white hover:bg-white/40 hover:text-black transition-colors duration-200">For Job Seekers</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                       {jobSeekersMenuItems.map((item) => (
@@ -97,7 +97,7 @@ export default function MainHeader() {
                   <Link href="/news" legacyBehavior passHref>
                   <NavigationMenuLink className="
         group inline-flex h-10 w-max items-center justify-center rounded-md 
-        bg-black/50 px-4 py-2 text-sm font-medium text-white 
+        bg-white/10 px-4 py-2 text-sm font-medium text-white 
         hover:bg-white/50 hover:backdrop-blur-sm hover:text-black 
         focus:bg-white/50 focus:backdrop-blur-sm focus:text-black 
         data-[active]:bg-white/50 data-[active]:backdrop-blur-sm data-[active]:text-black 
