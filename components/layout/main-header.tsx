@@ -56,13 +56,13 @@ export default function MainHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-blue-800 via-purple-800 to-indigo-800 text-white">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Image src="/logo.png" alt="StartupGram" width={32} height={32} className="h-8 w-8" />
-            <span className="text-xl font-bold text-gray-900">StartupGram</span>
+            <span className="text-xl font-bold text-white">StartupGram</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -70,7 +70,7 @@ export default function MainHeader() {
             <NavigationMenu className="hidden md:flex">
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium">For Startups</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-black/50 text-white hover:bg-black/10 hover:text-black transition-colors duration-200">For Startups</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                       {startupsMenuItems.map((item) => (
@@ -82,7 +82,7 @@ export default function MainHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium">For Job Seekers</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-sm font-medium bg-black/50 text-white hover:bg-black/10 hover:text-black transition-colors duration-200">For Job Seekers</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                       {jobSeekersMenuItems.map((item) => (
@@ -95,7 +95,15 @@ export default function MainHeader() {
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link href="/news" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
+                  <NavigationMenuLink className="
+        group inline-flex h-10 w-max items-center justify-center rounded-md 
+        bg-black/50 px-4 py-2 text-sm font-medium text-white 
+        hover:bg-white/50 hover:backdrop-blur-sm hover:text-black 
+        focus:bg-white/50 focus:backdrop-blur-sm focus:text-black 
+        data-[active]:bg-white/50 data-[active]:backdrop-blur-sm data-[active]:text-black 
+        transition-colors duration-200 focus:outline-none
+      "
+    >
                       Founder Feed
                     </NavigationMenuLink>
                   </Link>
