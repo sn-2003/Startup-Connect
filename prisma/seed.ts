@@ -107,7 +107,7 @@ async function main() {
 
   console.log('✅ Created demo jobs');*/
 
-  // Create demo investors
+  /*// Create demo investors
   await prisma.investor.createMany({
     skipDuplicates: true,
     data: [
@@ -3538,7 +3538,7 @@ async function main() {
     ]
   });
 
-  console.log('✅ Created demo incubators');
+  console.log('✅ Created demo incubators');*/
 
   // Seed tools
   await seedTools();
@@ -3546,7 +3546,7 @@ async function main() {
   // Seed news
   await seedNews();
 
-  // ✅ Create merged resources (from your original resource list)
+ /* // ✅ Create merged resources (from your original resource list)
   await prisma.resource.createMany({
     skipDuplicates: true,
     data: [
@@ -3589,7 +3589,7 @@ async function main() {
     ]
   });
 
-  console.log('✅ Created merged resources');
+  console.log('✅ Created merged resources');*/
 
   /*// Create demo feedback
   await prisma.startupFeedback.create({
