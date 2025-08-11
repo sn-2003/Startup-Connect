@@ -11,7 +11,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/');
+      // Redirect to dashboard on first login, otherwise to home page
+      const redirectPath = user.firstLogin ? '/dashboard' : '/';
+      router.push(redirectPath);
+      
+      // If it's the first login, we'll update the firstLogin flag after redirecting
+      // The actual update happens in the auth-options.ts signIn event
     }
   }, [user, loading, router]);
 

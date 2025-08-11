@@ -1,67 +1,155 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN || 'http://localhost:3000';
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+// Define public routes that don't require authentication
+const publicRoutes = [
+  '/',
+  '/login',
+  '/register',
+  '/hackathons',
+  '/api/auth',
+  '/api/brevo',
+  '/api/discover-startups',
+  '/discover-startups',
+  '/api/startups',  
+  '/api/jobs',
+  '/jobs',
+  '/api/news',
+  '/news',
+  '/_next',
+  '/favicon.ico',
+  '/forgot-password',
+  '/reset-password',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/dashboard', // Allow access to dashboard for first-time login redirection
+];
 
-  // --- Security Headers ---
-  const isLocalhost = request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1';
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  // Enhanced CSP for better security
-  const cspDirectives = [
-    "default-src 'self'",
-    "img-src 'self' blob: data: *" ,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com${isLocalhost ? " 'unsafe-eval'" : ''}`,
-    "style-src 'self' 'unsafe-inline'",
-    "font-src 'self' data:",
-    "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object https://www.google-analytics.com https://www.googletagmanager.com",
-    "frame-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co", // <-- Added for PDF preview
-    "frame-ancestors 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "upgrade-insecure-requests"
-  ];
+// Define the admin email (you might want to move this to an environment variable)
+const ADMIN_EMAIL = 'nikhil.s@startupgram.in';
+
+// Paths that are completely public
+const isPublicPath = (path: string) => {
+  return publicRoutes.some(route => 
+    path === route || 
+    path.startsWith(`${route}/`) ||
+    path.startsWith('/_next') ||
+    path.startsWith('/api/auth/') ||
+    path.startsWith('/api/public/') ||
+    path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
+  );
+};
+
+export async function middleware(request: NextRequest) {
+  const { pathname, origin } = request.nextUrl;
   
-  response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
-  
-  // Additional security headers
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  response.headers.set('X-DNS-Prefetch-Control', 'off');
-
-  // --- CORS Protection ---
-  const origin = request.headers.get('origin');
-  if (origin === ALLOWED_ORIGIN) {
-    response.headers.set('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-    response.headers.set('Vary', 'Origin');
-    response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-  }
-
-  // --- HTTPS Enforcement ---
-  if (
-    !isLocalhost &&
-    request.nextUrl.protocol === 'http:' &&
-    request.headers.get('x-forwarded-proto') !== 'https'
-  ) {
-    const url = request.nextUrl.clone();
-    url.protocol = 'https:';
-    return NextResponse.redirect(url, 308);
-  }
-
-  // Handle preflight requests for CORS
+  // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
-    return new NextResponse(null, { status: 204, headers: response.headers });
+    return handleCorsPreflight(request);
+  }
+  
+  // Skip middleware for public paths
+  if (isPublicPath(pathname)) {
+    return handlePublicPath(request);
   }
 
+  // Get the session token
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET
+  });
+
+  // For admin routes, check admin access
+  if (pathname.startsWith('/admin')) {
+    // Redirect to login if not authenticated
+    if (!token) {
+      return redirectToLogin(pathname, origin);
+    }
+
+    // Check if user is admin
+    if (token.email !== ADMIN_EMAIL) {
+      return new NextResponse('Forbidden', { status: 403 });
+    }
+  }
+  
+  // For all other protected routes, just check authentication
+  if (!token) {
+    return redirectToLogin(pathname, origin);
+  }
+
+  // Continue with the request and add security headers
+  return addSecurityHeaders(request);
+}
+
+// Helper function to handle CORS preflight requests
+function handleCorsPreflight(request: NextRequest) {
+  const response = new NextResponse(null, { status: 204 });
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Max-Age', '86400'); // 24 hours
+  return response;
+}
+
+// Helper function to handle public paths
+function handlePublicPath(request: NextRequest) {
+  const response = NextResponse.next();
+  return addCorsHeaders(request, response);
+}
+
+// Helper function to redirect to login
+function redirectToLogin(pathname: string, origin: string) {
+  const loginUrl = new URL('/login', origin);
+  loginUrl.searchParams.set('callbackUrl', pathname);
+  return NextResponse.redirect(loginUrl);
+}
+
+// Helper function to add security headers
+function addSecurityHeaders(request: NextRequest) {
+  const response = NextResponse.next();
+  
+  // Add CORS headers
+  addCorsHeaders(request, response);
+  
+  // Security headers
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // CSP Header - adjust according to your needs
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+  
+  response.headers.set('Content-Security-Policy', csp);
+  
+  return response;
+}
+
+// Helper function to add CORS headers
+function addCorsHeaders(request: NextRequest, response: NextResponse) {
+  const origin = request.headers.get('origin') || '*';
+  response.headers.set('Access-Control-Allow-Origin', origin);
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
   return response;
 }
 
 export const config = {
-  matcher: '/:path*',
-}; 
+  matcher: [
+    // Run on all routes except static files and public assets
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|woff|woff2|ttf|eot)$).*)',
+  ],
+};

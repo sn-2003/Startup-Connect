@@ -35,6 +35,7 @@ model User {
   linkedin  String?
   github    String?
   termsAgreedAt DateTime? // Track when user agreed to terms
+  firstLogin Boolean  @default(true) // Track if it's the user's first login
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
