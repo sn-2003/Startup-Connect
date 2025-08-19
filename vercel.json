@@ -1,0 +1,25 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/fetch-news",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "github": {
+    "enabled": true,
+    "silent": true
+  },
+  "public": true,
+  "regions": ["bom1"],
+  "headers": [
+    {
+      "source": "/api/cron/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
+    }
+  ]
+}
