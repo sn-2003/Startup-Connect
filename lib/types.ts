@@ -103,11 +103,25 @@ export interface JobWithRelations extends Job {
 
 // Job with startup info for API responses
 export interface JobWithStartup extends Job {
-  startup: Pick<Startup, 'id' | 'name' | 'logo' | 'linkedinUrl' | 'instagramUrl' | 'xUrl'>;
-  startupName?: string;
-  applications?: Application[] | number;
+  startup?: {
+    id: string;
+    name: string;
+    logo: string | null;
+    linkedinUrl: string | null;
+    instagramUrl: string | null;
+    xUrl: string | null;
+    website?: string | null;
+    description?: string | null;
+    industry?: string | null;
+    stage?: string | null;
+    founded?: string | null;
+    employees?: string | null;
+    funding?: string | null;
+  };
+  startupName: string;
+  applications: number | Array<{ id: string }>; // Can be a number or an array of objects with id
   customQuestions?: CustomQuestion[];
-  savedJobs?: SavedJob[];
+  savedJobs?: SavedJob[] | Array<{ id: string; userId: string }>;
   unpaid: boolean;
 }
 

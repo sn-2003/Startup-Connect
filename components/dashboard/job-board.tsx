@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import { JobWithStartup, Application, CustomAnswerInput } from '@/lib/types';
-import { Search, MapPin, Building2, Clock, DollarSign, Users, CheckCircle, Bookmark, BookmarkCheck, Linkedin, Briefcase, Calendar, Star } from 'lucide-react';
+import { Building2, Bookmark, BookmarkCheck, Briefcase, Calendar, CheckCircle, Clock, DollarSign, ExternalLink, MapPin, Search, TrendingUp, Users } from 'lucide-react';
 import { SocialIcons } from './social-icons';
 
 export default function JobBoard() {
@@ -46,9 +46,14 @@ export default function JobBoard() {
       console.log('JobBoard: Number of jobs received:', jobsRes.data?.length || 0);
 
       if (jobsRes.success && jobsRes.data) {
+        console.log('JobBoard: Jobs data with company details:', JSON.stringify(jobsRes.data, null, 2));
         setJobs(jobsRes.data);
         setFilteredJobs(jobsRes.data);
-        console.log('JobBoard: Jobs set successfully:', jobsRes.data.map(j => j.title));
+        console.log('JobBoard: Jobs set successfully:', jobsRes.data.map(j => ({
+          title: j.title,
+          startup: j.startup,
+          startupName: j.startupName
+        })));
       } else {
         console.error('JobBoard: Failed to load jobs:', jobsRes.error);
       }
@@ -85,6 +90,18 @@ export default function JobBoard() {
 
     return () => clearInterval(interval);
   }, [user]);
+
+  // Debug: Log the first job's structure when jobs change
+  useEffect(() => {
+    if (jobs.length > 0) {
+      console.log('First job data structure:', {
+        ...jobs[0],
+        startup: jobs[0].startup,
+        hasStartup: !!jobs[0].startup,
+        hasStartupName: 'startupName' in jobs[0]
+      });
+    }
+  }, [jobs]);
 
   useEffect(() => {
     let filtered = jobs;
@@ -289,9 +306,7 @@ export default function JobBoard() {
 
       {/* Filters */}
       <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base sm:text-lg">Find Your Perfect Role</CardTitle>
-        </CardHeader>
+        
         <CardContent className="pt-0">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
@@ -365,9 +380,30 @@ export default function JobBoard() {
                   </Avatar>
                   <div>
                     <CardTitle className="text-lg leading-tight">{job.title}</CardTitle>
-                    <CardDescription className="text-sm font-medium text-gray-600">
-                      {job.startup?.name || job.startupName}
-                    </CardDescription>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-600">
+                        {job.startup?.name || job.startupName}
+                      </span>
+                      {job.startup?.website && (
+                        <a 
+                          href={job.startup.website.startsWith('http') ? job.startup.website : `https://${job.startup.website}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-xs flex items-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Visit
+                        </a>
+                      )}
+                    </div>
+                    {job.startup?.industry && (
+                      <div className="mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {job.startup.industry}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Button
@@ -435,7 +471,12 @@ export default function JobBoard() {
                     </span>
                     <span className="flex items-center">
                       <Users className="h-3 w-3 mr-1" />
-                      {typeof job.applications === 'number' ? job.applications : (job.applications?.length || 0)} applications
+                      {(() => {
+                        const count = typeof job.applications === 'number' 
+                          ? job.applications 
+                          : job.applications?.length || 0;
+                        return `${count} application${count !== 1 ? 's' : ''}`;
+                      })()}
                     </span>
                   </div>
                   
@@ -476,18 +517,55 @@ export default function JobBoard() {
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
-                            <DialogTitle className="flex items-center space-x-2">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={selectedJob?.startup?.logo || undefined} alt={selectedJob?.startup?.name || selectedJob?.startupName} />
-                                <AvatarFallback>
-                                  <Building2 className="h-5 w-5" />
+                            <div className="flex items-start space-x-3">
+                              <Avatar className="h-12 w-12 mt-1">
+                                <AvatarImage 
+                                  src={selectedJob?.startup?.logo || undefined} 
+                                  alt={selectedJob?.startup?.name || selectedJob?.startupName || 'Company logo'} 
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                  <Building2 className="h-6 w-6" />
                                 </AvatarFallback>
                               </Avatar>
-                              <span>{selectedJob?.title}</span>
-                            </DialogTitle>
-                            <DialogDescription>
-                              {selectedJob?.startup?.name || selectedJob?.startupName} • {selectedJob?.location}
-                            </DialogDescription>
+                              <div>
+                                <DialogTitle className="text-xl">{selectedJob?.title}</DialogTitle>
+                                <DialogDescription className="flex flex-col space-y-1">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="font-medium text-foreground">
+                                      {selectedJob?.startup?.name || selectedJob?.startupName}
+                                    </span>
+                                    {selectedJob?.startup?.website && (
+                                      <a 
+                                        href={selectedJob.startup.website.startsWith('http') ? selectedJob.startup.website : `https://${selectedJob.startup.website}`}
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline text-xs flex items-center"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <ExternalLink className="h-3 w-3 mr-1" />
+                                        Visit
+                                      </a>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                                    <span className="flex items-center">
+                                      <MapPin className="h-3 w-3 mr-1" />
+                                      {selectedJob?.location}
+                                    </span>
+                                    {selectedJob?.startup?.industry && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {selectedJob.startup.industry}
+                                      </Badge>
+                                    )}
+                                    {selectedJob?.startup?.stage && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {selectedJob.startup.stage}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </DialogDescription>
+                              </div>
+                            </div>
                           </DialogHeader>
                           {selectedJob && (
                             <div className="space-y-6">
@@ -500,16 +578,57 @@ export default function JobBoard() {
                               </div>
 
                               {/* Social Media Icons for Startup */}
-                              <SocialIcons
-                                xUrl={selectedJob.startup?.xUrl}
-                                instagramUrl={selectedJob.startup?.instagramUrl}
-                                linkedinUrl={selectedJob.startup?.linkedinUrl}
-                                className="my-2"
-                              />
+                              <div className="space-y-4">
+                                {/* Company Details Section */}
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                  <h3 className="font-bold mb-2">About {selectedJob.startup?.name || 'the Company'}</h3>
+                                  {selectedJob.startup?.description ? (
+                                    <p className="text-gray-900 text-lg font-bold whitespace-pre-line">{selectedJob.startup.description}</p>
+                                  ) : (
+                                    <p className="text-gray-500 italic">No company description available</p>
+                                  )}
+                                  
+                                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                                    {selectedJob.startup?.founded && (
+                                      <div className="flex items-center">
+                                        <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                                        <span>Founded: {selectedJob.startup.founded}</span>
+                                      </div>
+                                    )}
+                                    {selectedJob.startup?.employees && (
+                                      <div className="flex items-center">
+                                        <Users className="h-4 w-4 mr-2 text-gray-500" />
+                                        <span>Team Size: {selectedJob.startup.employees}</span>
+                                      </div>
+                                    )}
+                                    {selectedJob.startup?.funding && (
+                                      <div className="flex items-center">
+                                        <TrendingUp className="h-4 w-4 mr-2 text-gray-500" />
+                                        <span>Funding: {selectedJob.startup.funding}</span>
+                                      </div>
+                                    )}
+                                    {selectedJob.startup?.stage && (
+                                      <div className="flex items-center">
+                                        <Briefcase className="h-4 w-4 mr-2 text-gray-500" />
+                                        <span>Stage: {selectedJob.startup.stage}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="mt-4">
+                                    <SocialIcons
+                                      xUrl={selectedJob.startup?.xUrl}
+                                      instagramUrl={selectedJob.startup?.instagramUrl}
+                                      linkedinUrl={selectedJob.startup?.linkedinUrl}
+                                      className="mt-2"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
 
                               <div>
-                                <h3 className="font-semibold mb-2">Job Description</h3>
-                                <p className="text-gray-600 whitespace-pre-line">
+                                <h3 className="font-medium mb-2">Job Description</h3>
+                                <p className="text-gray-900 whitespace-pre-line">
                                   {selectedJob.description}
                                 </p>
                               </div>

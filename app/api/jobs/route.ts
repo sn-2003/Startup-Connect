@@ -23,6 +23,13 @@ export async function GET() {
             linkedinUrl: true,
             instagramUrl: true,
             xUrl: true,
+            website: true,
+            description: true,
+            industry: true,
+            stage: true,
+            founded: true,
+            employees: true,
+            funding: true,
           },
         },
         customQuestions: {

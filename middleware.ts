@@ -126,14 +126,18 @@ function addSecurityHeaders(request: NextRequest, response: NextResponse) {
   // CSP Header - adjust according to your needs
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.instagram.com https://*.instagram.com",
-    "style-src 'self' 'unsafe-inline' https://*.instagram.com",
-    "img-src * data: blob: https://*.fna.fbcdn.net",
-    "font-src 'self' https://*.instagram.com",
-    "connect-src 'self' https://*.instagram.com https://*.cdninstagram.com https://*.fna.fbcdn.net",
-    "frame-src 'self' https://*.instagram.com https://*.cdninstagram.com https://www.instagram.com https://ieudhbmxouyclzkzecrw.supabase.co",
+    "img-src 'self' blob: data: * https://*.fna.fbcdn.net https://*.google-analytics.com https://*.googletagmanager.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.instagram.com https://*.instagram.com https://*.googletagmanager.com https://www.google-analytics.com",
+    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com",
+    "style-src 'self' 'unsafe-inline' https://*.instagram.com https://tagmanager.google.com",
+    "font-src 'self' data: https://*.instagram.com https://fonts.gstatic.com",
+    "connect-src 'self' https://*.instagram.com https://*.cdninstagram.com https://*.fna.fbcdn.net https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
+    "frame-src 'self' https://*.instagram.com https://*.cdninstagram.com https://www.instagram.com https://ieudhbmxouyclzkzecrw.supabase.co https://*.googletagmanager.com",
     "media-src 'self' https://*.instagram.com https://*.cdninstagram.com",
     "frame-ancestors 'self' https://*.instagram.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'"
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);

@@ -243,9 +243,7 @@ export default function EnhancedJobBoard() {
     <div className="space-y-6">
       {/* Filters */}
       <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base sm:text-lg">Find Your Perfect Role</CardTitle>
-        </CardHeader>
+        
         <CardContent className="pt-0">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
@@ -304,13 +302,13 @@ export default function EnhancedJobBoard() {
         </p>
       </div>
 
-      {/* Desktop 3-Column Layout */}
+      {/* Desktop Layout - Job list and combined details */}
       <div className="hidden lg:grid grid-cols-12 gap-6 min-h-[600px]">
         {/* Left Column - Job Cards */}
-        <div className="col-span-3 space-y-3 max-h-[600px] overflow-y-auto">
+        <div className="col-span-4 space-y-3 max-h-[600px] overflow-y-auto">
           {filteredJobs.map((job) => (
-            <Card 
-              key={job.id} 
+            <Card
+              key={job.id}
               className={`cursor-pointer transition-all duration-200 border-0 shadow-sm hover:shadow-md ${
                 selectedJob?.id === job.id ? 'ring-2 ring-blue-500 shadow-md' : ''
               }`}
@@ -350,7 +348,7 @@ export default function EnhancedJobBoard() {
                   </Button>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="pt-0">
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-1">
@@ -389,8 +387,8 @@ export default function EnhancedJobBoard() {
           ))}
         </div>
 
-        {/* Middle Column - Job Details */}
-        <div className="col-span-6">
+        {/* Combined Column - Job and Company Details with Tabs */}
+        <div className="col-span-8">
           {selectedJob ? (
             <Card className="h-full">
               <CardHeader>
@@ -409,8 +407,8 @@ export default function EnhancedJobBoard() {
                   </div>
                 </CardTitle>
               </CardHeader>
-              
-              <CardContent className="space-y-6 max-h-[500px] overflow-y-auto">
+
+              <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   <Badge variant={selectedJob.remote ? 'default' : 'secondary'}>
                     {selectedJob.remote ? 'Remote' : 'On-site'}
@@ -421,83 +419,198 @@ export default function EnhancedJobBoard() {
                   </Badge>
                 </div>
 
-                <div>
-                  <h3 className="font-semibold mb-2">Job Description</h3>
-                  <p className="text-gray-600 whitespace-pre-line text-sm">
-                    {selectedJob.description}
-                  </p>
-                </div>
+                <Tabs defaultValue="job" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="job" className="flex items-center space-x-2">
+                      <Briefcase className="h-4 w-4" />
+                      <span>About Job</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="company" className="flex items-center space-x-2">
+                      <Building2 className="h-4 w-4" />
+                      <span>About Company</span>
+                    </TabsTrigger>
+                  </TabsList>
 
-                {selectedJob.requirements.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Requirements</h3>
-                    <ul className="space-y-1">
-                      {selectedJob.requirements.map((req, index) => (
-                        <li key={index} className="flex items-start space-x-2">
-                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-600 text-sm">{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  <TabsContent value="job" className="space-y-6 max-h-[400px] overflow-y-auto mt-4">
+                    <div>
+                      <h3 className="font-semibold mb-2">Job Description</h3>
+                      <p className="text-gray-600 whitespace-pre-line text-sm">
+                        {selectedJob.description}
+                      </p>
+                    </div>
 
-                {selectedJob.salaryMin && selectedJob.salaryMax && !selectedJob.unpaid && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Compensation</h3>
-                    <p className="text-gray-600 text-sm">
-                      Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
-                    </p>
-                  </div>
-                )}
-                {selectedJob.unpaid && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Compensation</h3>
-                    <p className="text-red-600 font-semibold text-sm">Unpaid</p>
-                  </div>
-                )}
+                    {selectedJob.requirements.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold mb-2">Requirements</h3>
+                        <ul className="space-y-1">
+                          {selectedJob.requirements.map((req, index) => (
+                            <li key={index} className="flex items-start space-x-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600 text-sm">{req}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                {/* Custom Questions */}
-                {selectedJob.customQuestions && selectedJob.customQuestions.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-4">Additional Questions</h3>
-                    <div className="space-y-4">
-                      {selectedJob.customQuestions.map((question) => {
-                        const answer = customAnswers.find(a => a.questionId === question.id);
-                        return (
-                          <div key={question.id} className="space-y-2">
-                            <Label className="text-sm">
-                              {question.question}
-                              {question.required && <span className="text-red-500 ml-1">*</span>}
-                            </Label>
-                            {question.type === 'TEXTAREA' ? (
-                              <Textarea
-                                value={answer?.answer || ''}
-                                onChange={(e) => updateCustomAnswer(question.id, e.target.value)}
-                                placeholder="Enter your answer..."
-                                rows={3}
-                                className="text-sm"
-                              />
-                            ) : (
-                              <Input
-                                type={question.type === 'URL' ? 'url' : 'text'}
-                                value={answer?.answer || ''}
-                                onChange={(e) => updateCustomAnswer(question.id, e.target.value)}
-                                placeholder={question.type === 'URL' ? 'https://...' : 'Enter your answer...'}
-                                className="text-sm"
-                              />
+                    {selectedJob.salaryMin && selectedJob.salaryMax && !selectedJob.unpaid && (
+                      <div>
+                        <h3 className="font-semibold mb-2">Compensation</h3>
+                        <p className="text-gray-600 text-sm">
+                          Rs.{selectedJob.salaryMin.toLocaleString()} - Rs.{selectedJob.salaryMax.toLocaleString()} per year
+                        </p>
+                      </div>
+                    )}
+                    {selectedJob.unpaid && (
+                      <div>
+                        <h3 className="font-semibold mb-2">Compensation</h3>
+                        <p className="text-red-600 font-semibold text-sm">Unpaid</p>
+                      </div>
+                    )}
+
+                    {/* Custom Questions */}
+                    {selectedJob.customQuestions && selectedJob.customQuestions.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold mb-4">Additional Questions</h3>
+                        <div className="space-y-4">
+                          {selectedJob.customQuestions.map((question) => {
+                            const answer = customAnswers.find(a => a.questionId === question.id);
+                            return (
+                              <div key={question.id} className="space-y-2">
+                                <Label className="text-sm">
+                                  {question.question}
+                                  {question.required && <span className="text-red-500 ml-1">*</span>}
+                                </Label>
+                                {question.type === 'TEXTAREA' ? (
+                                  <Textarea
+                                    value={answer?.answer || ''}
+                                    onChange={(e) => updateCustomAnswer(question.id, e.target.value)}
+                                    placeholder="Enter your answer..."
+                                    rows={3}
+                                    className="text-sm"
+                                  />
+                                ) : (
+                                  <Input
+                                    type={question.type === 'URL' ? 'url' : 'text'}
+                                    value={answer?.answer || ''}
+                                    onChange={(e) => updateCustomAnswer(question.id, e.target.value)}
+                                    placeholder={question.type === 'URL' ? 'https://...' : 'Enter your answer...'}
+                                    className="text-sm"
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="company" className="space-y-6 max-h-[400px] overflow-y-auto mt-4">
+                    {selectedJob.startup ? (
+                      <>
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={selectedJob.startup.logo || undefined} alt={selectedJob.startup.name} />
+                            <AvatarFallback>
+                              <Building2 className="h-6 w-6" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h4 className="font-semibold">{selectedJob.startup.name}</h4>
+                            <p className="text-sm text-gray-600">{selectedJob.startup.industry}</p>
+                            <div className="flex items-center space-x-1 mt-1">
+                              <Users className="h-3 w-3 text-gray-500" />
+                              <span className="text-xs text-gray-500">
+                                {getJobCountForStartup(selectedJob.startup.id)} open position{getJobCountForStartup(selectedJob.startup.id) !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            <SocialIcons
+                              xUrl={selectedJob.startup.xUrl}
+                              instagramUrl={selectedJob.startup.instagramUrl}
+                              linkedinUrl={selectedJob.startup.linkedinUrl}
+                              className="mt-2"
+                            />
+                          </div>
+                        </div>
+
+                        {selectedJob.startup.description && (
+                          <div>
+                            <h4 className="font-semibold mb-2">Company Description</h4>
+                            <p className="text-gray-1000 text-sm">{selectedJob.startup.description}</p>
+                          </div>
+                        )}
+
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            {selectedJob.startup.stage && (
+                              <div>
+                                <span className="font-medium text-gray-900">Stage</span>
+                                <p className="text-gray-800">{selectedJob.startup.stage}</p>
+                              </div>
+                            )}
+                            {selectedJob.startup.industry && (
+                              <div>
+                                <span className="font-medium text-gray-900">Industry</span>
+                                <p className="text-gray-800">{selectedJob.startup.industry}</p>
+                              </div>
+                            )}
+                            {selectedJob.startup.employees && (
+                              <div>
+                                <span className="font-medium text-gray-900">Team Size</span>
+                                <p className="text-gray-800">{selectedJob.startup.employees}</p>
+                              </div>
+                            )}
+                            {selectedJob.startup.funding && (
+                              <div>
+                                <span className="font-medium text-gray-900">Funding</span>
+                                <p className="text-gray-800">{selectedJob.startup.funding}</p>
+                              </div>
+                            )}
+                            {selectedJob.startup.founded && (
+                              <div>
+                                <span className="font-medium text-gray-900">Founded</span>
+                                <p className="text-gray-800">{selectedJob.startup.founded}</p>
+                              </div>
+                            )}
+                            {selectedJob.startup.location && (
+                              <div>
+                                <span className="font-medium text-gray-900">Location</span>
+                                <p className="text-gray-800">{selectedJob.startup.location}</p>
+                              </div>
+                            )}
+                            {selectedJob.startup.website && (
+                              <div className="col-span-2">
+                                <span className="font-medium text-gray-900">Website</span>
+                                <p>
+                                  <a
+                                    href={selectedJob.startup.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                                  >
+                                    <ExternalLink className="h-3 w-3" />
+                                    <span>{selectedJob.startup.website}</span>
+                                  </a>
+                                </p>
+                              </div>
                             )}
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <Building2 className="mx-auto h-12 w-12 mb-2" />
+                        <p>Company information not available</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
 
                 {/* Apply Button */}
                 <div className="sticky bottom-0 bg-white pt-4 border-t">
                   {!user ? (
-                    <Button 
+                    <Button
                       onClick={() => {
                         window.location.href = `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
                       }}
@@ -530,29 +643,6 @@ export default function EnhancedJobBoard() {
                   <h3 className="mt-2 text-sm font-semibold text-gray-900">Select a job</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Choose a job from the list to view details.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Right Column - Company Details */}
-        <div className="col-span-3">
-          {selectedJob?.startup ? (
-            <StartupDetails 
-              startup={selectedJob.startup}
-              jobCount={getJobCountForStartup(selectedJob.startup.id)}
-              user={user}
-            />
-          ) : (
-            <Card className="h-full flex items-center justify-center">
-              <CardContent>
-                <div className="text-center">
-                  <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-semibold text-gray-900">Company details</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Select a job to view company information.
                   </p>
                 </div>
               </CardContent>
@@ -725,7 +815,7 @@ export default function EnhancedJobBoard() {
                                 <TabsContent value="job" className="space-y-4 mt-4">
                                   <div>
                                     <h4 className="font-semibold mb-2">Job Description</h4>
-                                    <p className="text-gray-600 whitespace-pre-line">
+                                    <p className="text-gray-900 whitespace-pre-line">
                                       {selectedJob.description}
                                     </p>
                                   </div>

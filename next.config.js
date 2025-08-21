@@ -107,12 +107,13 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              "img-src 'self' blob: data: *; " +
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.instagram.com; " +
-              "style-src 'self' 'unsafe-inline'; " +
-              "font-src 'self' data:; " +
-              "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object; " +
-              "frame-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co; " +
+              "img-src 'self' blob: data: * https://*.google-analytics.com https://*.googletagmanager.com; " +
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.instagram.com https://*.googletagmanager.com https://www.google-analytics.com; " +
+              "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com; " +
+              "connect-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://ieudhbmxouyclzkzecrw.supabase.co/storage/v1/object https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; " +
+              "style-src 'self' 'unsafe-inline' https://tagmanager.google.com; " +
+              "font-src 'self' data: https://fonts.gstatic.com; " +
+              "frame-src 'self' https://ieudhbmxouyclzkzecrw.supabase.co https://*.googletagmanager.com; " +
               "frame-ancestors 'self'; " +
               "object-src 'none'; " +
               "base-uri 'self'; " +
