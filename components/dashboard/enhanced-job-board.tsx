@@ -420,12 +420,18 @@ export default function EnhancedJobBoard() {
                 </div>
 
                 <Tabs defaultValue="job" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="job" className="flex items-center space-x-2">
+                  <TabsList className="grid w-full grid-cols-2 bg-gray-200 p-1 rounded-md">
+                    <TabsTrigger 
+                      value="job" 
+                      className="flex items-center space-x-2 data-[state=active]:bg-black data-[state=active]:text-white text-gray-600 hover:text-gray-800 rounded transition-colors"
+                    >
                       <Briefcase className="h-4 w-4" />
                       <span>About Job</span>
                     </TabsTrigger>
-                    <TabsTrigger value="company" className="flex items-center space-x-2">
+                    <TabsTrigger 
+                      value="company" 
+                      className="flex items-center space-x-2 data-[state=active]:bg-black data-[state=active]:text-white text-gray-900 hover:text-gray-800 rounded transition-colors"
+                    >
                       <Building2 className="h-4 w-4" />
                       <span>About Company</span>
                     </TabsTrigger>
